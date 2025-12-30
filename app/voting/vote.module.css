@@ -1,0 +1,58 @@
+.voteContent {
+  padding: 2rem;
+  text-align: center;
+  margin: 0;
+}
+
+.candidateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* selalu 2 kolom */
+  gap: 1.5rem;
+}
+
+.card {
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 10px;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+
+  /* flex agar tombol selalu di bawah */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.photo {
+  width: 100%;
+  max-height: 250px;         
+  object-fit: contain;      
+  border-radius: 8px;
+}
+
+.voteButton {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.voteButton:hover {
+  transform: scale(1.05);
+}
+
+.logo {
+  z-index: 99999;
+  width: 250px;       /* ukuran logo */
+  display: block;
+  margin-left: auto;
+  margin-right: auto; /* posisi tengah */
+}
+
+
+

@@ -1,0 +1,137 @@
+.container {
+  padding: 16px;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f8fafc; /* abu-abu muda */
+  min-height: 100vh;
+}
+
+.topBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.layout {
+  display: flex;
+  gap: 16px;
+}
+
+/* Kolom kiri */
+.leftCol {
+  flex: 0 0 16%;
+  border-right: 2px solid #e2e8f0;
+  padding-right: 16px;
+}
+
+.logoBox {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.logoLeft {
+  width: 120px;
+  height: auto;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #1e293b;
+}
+
+.table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  margin-top: 24px; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+  border-radius: 12px; 
+  overflow: hidden; 
+  font-family: Arial, sans-serif; 
+}
+
+.table thead { 
+  background: linear-gradient(135deg, #1e90ff, #00c853); /* biru ke hijau */ 
+  color: white; 
+  font-weight: bold; 
+}
+
+.table th, .table td { 
+  padding: 12px 16px; 
+  text-align: center; 
+}
+
+.table tbody tr:nth-child(even) { 
+  background-color: #f9f9f9; 
+
+}
+
+.table tbody tr:hover { 
+  background-color: #e0f7fa; /* efek hover */ 
+  transition: background-color 0.2s ease; 
+}
+
+.button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border: none;
+}
+.buttonPrimary { 
+  background: linear-gradient(135deg, #1e90ff, #00c853); /* biru ke hijau */ 
+  color: white; 
+  font-weight: bold; 
+  padding: 10px 20px; 
+  border: none; 
+  border-radius: 12px; 
+  text-decoration: none; 
+  display: inline-block; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+  transition: transform 0.2s ease; 
+}
+
+  .buttonPrimary:hover { 
+    transform: scale(1.05); 
+  }
+
+.buttonDanger {
+  display: none;
+}
+
+.message {
+  margin-top: 8px;
+  color: #ef4444;
+  font-size: 0.85rem;
+}
+
+/* Kolom kanan */
+.rightCol {
+  flex: 1;
+  padding-left: 16px;
+}
+
+.chartWrapper {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.noData {
+  margin-top: 12px;
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+}
+
+.winner {
+  margin-top: 16px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #22c55e;
+  text-align: center;
+}

@@ -1,0 +1,39 @@
+.winnerContent {
+  padding: 2rem;
+  text-align: center;
+  color: white;
+  background: linear-gradient(135deg, #1CB5E0, #000851);
+  min-height: 100vh;
+}
+
+.card {
+  margin: 2rem auto;
+  max-width: 400px;
+  background-color: rgba(255,255,255,0.1);
+  padding: 2rem;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+}
+
+.photo {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.votes {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: yellow;
+}
+
+.error {
+  color: red;
+}
+
+.loading {
+  color: lightgray;
+}
+

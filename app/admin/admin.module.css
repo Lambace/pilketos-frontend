@@ -1,0 +1,170 @@
+.container {
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.logoGlow{
+
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 0 20px white);
+  transition: transform 0.3s ease;
+  margin-bottom: 80px;
+
+}
+
+.message {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  background-color: #eaf4fc;
+  color: #2c3e50;
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.adminCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 120px;
+  background: linear-gradient(135deg, #3498db, #2ecc71);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.adminCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.text {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form input,
+.form textarea {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form button {
+  padding: 0.6rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.form button:hover {
+  background-color: #2980b9;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f1f1f1;
+  font-weight: bold;
+}
+
+.table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.table tr:hover {
+  background-color: #eaf4fc;
+  cursor: pointer;
+}
+
+.actions button {
+  margin-right: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.edit {
+  background-color: #f39c12;
+  color: white;
+}
+
+.edit:hover {
+  background-color: #d68910;
+}
+
+.delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete:hover {
+  background-color: #c0392b;
+}
+
+.save {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.save:hover {
+  background-color: #27ae60;
+}
+
+.cancel {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.cancel:hover {
+  background-color: #7f8c8d;
+}
