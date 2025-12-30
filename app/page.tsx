@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import {  redirect, useRouter} from "next/navigation";
-import { apiFetch } from "../lib/api";
+import { login } from "../lib/api";
 export default function Home() {
   const [status, setStatus] = useState<boolean | null>(null);
 

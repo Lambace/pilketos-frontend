@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
-import { apiFetch } from "../../lib/api";
+import { login } from "../../lib/api";
 export default function LoginPage() {
   const [showGolput, setShowGolput] = useState(true);
   const [nisn, setNisn] = useState("");

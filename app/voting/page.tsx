@@ -2,7 +2,6 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "./vote.module.css";
-import { apiFetch } from "../../lib/api";
 export default function VotePage() {
   const router = useRouter();
   const [candidates, setCandidates] = useState<any[]>([]);
@@ -13,7 +12,7 @@ export default function VotePage() {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const res = await fetch("/candidates");
+        const res = await fetch("`${process.env.NEXT_PUBLIC_API_URL}/candidates");
         const data = await res.json();
         setCandidates(data);
       } catch (err) {

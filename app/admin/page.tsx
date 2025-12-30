@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import styles from "./admin.module.css";
 import Link from "next/link";
-import { apiFetch } from "../../lib/api";
+import { addCandidate} from "../../lib/api";
 
 export default function AdminPage() {
   const [candidates, setCandidates] = useState([]);
