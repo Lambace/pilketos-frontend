@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import styles from "./winner.module.css";
-
+import { apiFetch } from "../../lib/api";
 interface Winner {
   id: number;
   name: string;
@@ -16,7 +16,7 @@ export default function WinnerPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/winner")
+    fetch("/winner")
       .then((res) => res.json())
       .then((data) => setWinner(data))
       .catch(() => setError("⚠️ Tidak bisa ambil data pemenang"));

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import styles from "./admin.module.css";
 import Link from "next/link";
+import { apiFetch } from "../../lib/api";
 
 export default function AdminPage() {
   const [candidates, setCandidates] = useState([]);
@@ -19,7 +20,7 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const res = await fetch("http://localhost:5000/candidates");
+        const res = await fetch("/candidates");
         const data = await res.json();
         setCandidates(data);
       } catch {
@@ -37,7 +38,7 @@ export default function AdminPage() {
       formData.append("mission", mission);
       if (photo) formData.append("photo", photo);
 
-      const res = await fetch("http://localhost:5000/candidates", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates`, {
         method: "POST",
         body: formData,
       });
@@ -45,16 +46,20 @@ export default function AdminPage() {
       if (res.ok) {
         setCandidates([...candidates, { ...data }]);
         setMessage("✅ Kandidat berhasil ditambahkan");
-        setName(""); setVision(""); setMission(""); setPhoto(null);
+        setName(""); 
+        setVision(""); 
+        setMission(""); 
+        setPhoto(null);
       } else setMessage("❌ " + data.error);
     } catch {
+      console.error(err);
       setMessage("⚠️ Tidak bisa menghubungi server.");
     }
   };
 
   const handleSaveEdit = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/candidates/${id}`, {
+      const res = await fetch(`/candidates/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: editName, vision: editVision, mission: editMission }),
@@ -78,7 +83,7 @@ export default function AdminPage() {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/candidates/${id}`, { method: "DELETE" });
+      const res = await fetch(`/candidates/${id}`, { method: "DELETE" });
       if (res.ok) {
         setCandidates(candidates.filter((c) => c.id !== id));
         setMessage("🗑️ Kandidat dihapus");
@@ -143,7 +148,7 @@ export default function AdminPage() {
               </td>
               <td>
                 {c.photo ? (
-                  <img src={`http://localhost:5000/uploads/${c.photo}`} alt={c.name} style={{ width: "80px" }} />
+                  <img src={`${process.env.NEXT_PUBLIC_API_URL}/upload/${c.photo}`} alt={c.name} style={{ width: "80px" }} />
                 ) : "Tidak ada foto"}
               </td>
               <td className={styles.actions}>
@@ -171,3 +176,7 @@ export default function AdminPage() {
     </div>
   );
 }
+function err(err: any) {
+  throw new Error("Function not implemented.");
+}
+

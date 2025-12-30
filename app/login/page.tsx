@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
-
+import { apiFetch } from "../../lib/api";
 export default function LoginPage() {
   const [showGolput, setShowGolput] = useState(true);
   const [nisn, setNisn] = useState("");
@@ -27,7 +27,7 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/validate-nisn", {
+      const res = await fetch("/validate-nisn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nisn }),

@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "./vote.module.css";
-
+import { apiFetch } from "../../lib/api";
 export default function VotePage() {
   const router = useRouter();
   const [candidates, setCandidates] = useState<any[]>([]);
@@ -13,7 +13,7 @@ export default function VotePage() {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const res = await fetch("http://localhost:5000/candidates");
+        const res = await fetch("/candidates");
         const data = await res.json();
         setCandidates(data);
       } catch (err) {
@@ -34,7 +34,7 @@ export default function VotePage() {
   }
 
   try {
-    const res = await fetch("http://localhost:5000/votes", {
+    const res = await fetch("/votes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nisn, candidate_id: candidateId }), // ✅ kirim NISN
@@ -74,7 +74,7 @@ export default function VotePage() {
           {candidates.map((c) => (
             <div key={c.id} className={styles.card}>
               <img
-                src={`http://localhost:5000/uploads/${c.photo}`}
+                src={`${process.env.NEXT_PUBLIC_API_URL}/upload/${c.photo}`}
                 alt={c.name}
                 className={styles.photo}
               />

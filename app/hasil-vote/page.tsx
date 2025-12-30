@@ -1,5 +1,5 @@
 "use client";
-
+import { apiFetch } from "../../lib/api";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar } from "react-chartjs-2";
@@ -25,12 +25,12 @@ export default function HasilVotePage() {
     const fetchData = async () => {
       try {
         // fetch results
-        const resResults = await fetch("http://localhost:5000/results");
+        const resResults = await fetch("/results");
         const dataResults = await resResults.json();
         setResults(Array.isArray(dataResults) ? dataResults : []);
 
         // fetch winner
-        const resWinner = await fetch("http://localhost:5000/winner");
+        const resWinner = await fetch("/winner");
         if (!resWinner.ok) throw new Error("Gagal fetch winner");
         let dataWinner: any = null; 
         try { 
