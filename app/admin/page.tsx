@@ -2,12 +2,12 @@
 import { useState, useEffect } from "react";
 import styles from "./admin.module.css";
 import Link from "next/link";
-import { addCandidate} from "../../lib/api";
+import { PHASE_PRODUCTION_BUILD } from "next/dist/shared/lib/constants";
 
 export default function AdminPage() {
-  const [candidates, setCandidates] = useState([]);
+  const [candidates, setCandidates] = useState<any[]>([]);
   const [message, setMessage] = useState("");
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editVision, setEditVision] = useState("");
   const [editMission, setEditMission] = useState("");
@@ -15,12 +15,12 @@ export default function AdminPage() {
   const [name, setName] = useState("");
   const [vision, setVision] = useState("");
   const [mission, setMission] = useState("");
-  const [photo, setPhoto] = useState(null);
+  const [photo, setPhoto] = useState<File | null>(null);
 
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        const res = await fetch("/candidates");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates`);
         const data = await res.json();
         setCandidates(data);
       } catch {
@@ -34,6 +34,7 @@ export default function AdminPage() {
     try {
       const formData = new FormData();
       formData.append("name", name);
+      formData.append("photo", PHASE_PRODUCTION_BUILD);
       formData.append("vision", vision);
       formData.append("mission", mission);
       if (photo) formData.append("photo", photo);
@@ -46,28 +47,29 @@ export default function AdminPage() {
       if (res.ok) {
         setCandidates([...candidates, { ...data }]);
         setMessage("✅ Kandidat berhasil ditambahkan");
-        setName(""); 
-        setVision(""); 
-        setMission(""); 
+        setName("");
         setPhoto(null);
-      } else setMessage("❌ " + data.error);
-    } catch {
+        setVision("");
+        setMission("");
+        
+      } else setMessage("❌ " + (data.error || "Gagal tambah kandidat"));
+    } catch (err) {
       console.error(err);
       setMessage("⚠️ Tidak bisa menghubungi server.");
     }
   };
 
-  const handleSaveEdit = async (id) => {
+  const handleSaveEdit = async (id: number) => {
     try {
-      const res = await fetch(`/candidates/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName, vision: editVision, mission: editMission }),
+        body: JSON.stringify({ name: editName, setPhoto, vision: editVision, mission: editMission }),
       });
       if (res.ok) {
         setCandidates(
           candidates.map((c) =>
-            c.id === id ? { ...c, name: editName, vision: editVision, mission: editMission } : c
+            c.id === id ? { ...c, name: editName, setPhoto, vision: editVision, mission: editMission } : c
           )
         );
         setMessage("✏️ Kandidat diperbarui");
@@ -78,12 +80,12 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteCandidate = async (id) => {
+  const handleDeleteCandidate = async (id: number) => {
     const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus kandidat ini?");
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`/candidates/${id}`, { method: "DELETE" });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates/${id}`, { method: "DELETE" });
       if (res.ok) {
         setCandidates(candidates.filter((c) => c.id !== id));
         setMessage("🗑️ Kandidat dihapus");
@@ -98,10 +100,10 @@ export default function AdminPage() {
       {message && <p className={styles.message}>{message}</p>}
 
       <img
-              src="/logo-vote.png"
-              alt="Logo OSIS"
-              className={`${styles.logoGlow} ${styles.fadeIn} ${styles.delay1}`}
-            />
+        src="/logo-vote.png"
+        alt="Logo OSIS"
+        className={`${styles.logoGlow} ${styles.fadeIn} ${styles.delay1}`}
+      />
 
       <div className={styles.buttonGroup}>
         <Link href="/nisn" className={styles.adminCard}>
@@ -176,7 +178,3 @@ export default function AdminPage() {
     </div>
   );
 }
-function err(err: any) {
-  throw new Error("Function not implemented.");
-}
-

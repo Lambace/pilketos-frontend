@@ -1,5 +1,13 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Helper umum
+export async function apiFetch(path: string, options: RequestInit = {}) {
+  const res = await fetch(`${API_URL}${path}`, options);
+  if (!res.ok) throw new Error("API error");
+  return res.json();
+}
+
+// Login
 export async function login(username: string, password: string) {
   const res = await fetch(`${API_URL}/login`, {
     method: "POST",
@@ -10,17 +18,17 @@ export async function login(username: string, password: string) {
   return res.json();
 }
 
+// Ambil kandidat
 export async function getCandidates() {
-  const res = await fetch(`${API_URL}/candidates`);
-  if (!res.ok) throw new Error("Gagal ambil kandidat");
-  return res.json();
+  return apiFetch("/candidates");
 }
 
+// Tambah kandidat
 export async function addCandidate(formData: FormData) {
-  const res = await fetch(`${API_URL}/candidates`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Gagal tambah kandidat");
-  return res.json();
+  return apiFetch("/candidates", { method: "POST", body: formData });
+}
+
+// Ambil hasil vote
+export async function getResults() {
+  return apiFetch("/results");
 }

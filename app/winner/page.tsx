@@ -29,7 +29,7 @@ export default function WinnerPage() {
     <div className={styles.winnerContent}>
       <h1>Pemenang Pemilihan Ketua OSIS</h1>
       <div className={styles.card}>
-        <img src={`/uploads/${winner.photo}`} alt={winner.name} className={styles.photo} />
+        <img src={`/upload/${winner.photo}`} alt={winner.name} className={styles.photo} />
         <h2>{winner.name}</h2>
         <p><strong>Visi:</strong> {winner.vision}</p>
         <p><strong>Misi:</strong> {winner.mission}</p>

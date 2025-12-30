@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
 import { login } from "../../lib/api";
+
 export default function LoginPage() {
   const [showGolput, setShowGolput] = useState(true);
   const [nisn, setNisn] = useState("");
@@ -27,16 +28,11 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch("/validate-nisn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nisn }),
-      });
-
-      const data = await res.json();
+      // ✅ panggil API login dari lib/api.ts
+      const data = await login(nisn, ""); // password kosong, karena login pakai NISN
 
       if (!data.success) {
-        setError(data.message);
+        setError(data.message || "Login gagal");
       } else {
         // ✅ simpan NISN ke localStorage
         localStorage.setItem("nisn", nisn);

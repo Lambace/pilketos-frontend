@@ -51,8 +51,8 @@ export default function NISNInputPage() {
     }
     const payload = { nisn, name, tingkat, kelas };
     const url = editingId
-      ? `http://localhost:5000/students/${editingId}`
-      : "http://localhost:5000/students";
+      ? `${process.env.NEXT_PUBLIC_API_URL}/${editingId}`
+      : "${process.env.NEXT_PUBLIC_API_URL}/students";
     const method = editingId ? "PUT" : "POST";
 
     try {
@@ -88,7 +88,7 @@ export default function NISNInputPage() {
 
   try {
     const res = await 
-    fetch("http://localhost:5000/students/import", {
+    fetch("${process.env.NEXT_PUBLIC_API_URL}/students/import", {
       method: "POST",
       body: formData,
     });
@@ -106,7 +106,7 @@ export default function NISNInputPage() {
 
   // download format excel
   const handleDownloadFormat = () => {
-    window.open("http://localhost:5000/students/download-format", "_blank");
+    window.open("${process.env.NEXT_PUBLIC_API_URL}/students/download-format", "_blank");
   };
 
   // tombol edit 
@@ -124,7 +124,7 @@ export default function NISNInputPage() {
   const handleDelete = async (id: number) => {
   if (!confirm("Yakin hapus siswa ini?")) return;
   try {
-    const res = await fetch(`http://localhost:5000/students/${id}`, { method: "DELETE" });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${id}`, { method: "DELETE" });
     if (res.ok) {
       setStatus("🗑️ Siswa dihapus.");
       fetchStudents(); // ✅ refresh dari server, bukan hanya filter state
@@ -141,7 +141,7 @@ export default function NISNInputPage() {
   const handleResetAll = async () => {
   if (!confirm("Yakin reset semua siswa?")) return;
   try {
-    const res = await fetch("http://localhost:5000/students", { method: "DELETE" });
+    const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/students", { method: "DELETE" });
     if (res.ok) {
       setStatus("🗑️ Semua siswa dihapus.");
       fetchStudents(); // ✅ refresh daftar dari server

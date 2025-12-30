@@ -1,5 +1,4 @@
 "use client";
-import { apiFetch } from "../../lib/api";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar } from "react-chartjs-2";
@@ -24,31 +23,31 @@ export default function HasilVotePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // fetch results
-        const resResults = await fetch("/results");
+        // ✅ fetch results dari backend Railway
+        const resResults = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/results`);
         const dataResults = await resResults.json();
         setResults(Array.isArray(dataResults) ? dataResults : []);
 
-        // fetch winner
-        const resWinner = await fetch("/winner");
+        // ✅ fetch winner dari backend Railway
+        const resWinner = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/winner`);
         if (!resWinner.ok) throw new Error("Gagal fetch winner");
-        let dataWinner: any = null; 
-        try { 
-          dataWinner = await resWinner.json(); 
-        } catch { 
-          dataWinner = { id: null, name: "Belum ada pemenang", suara: 0 }; 
-        } 
-        if (dataWinner && dataWinner.name) { 
-          setWinner({ 
-            id: dataWinner.id ?? null, 
-            name: dataWinner.name, 
-            suara: dataWinner.suara ?? 0, 
-          }); 
-          } else { 
-            setWinner({ id: null, name: "Belum ada pemenang", suara: 0 }); 
-          }
+        let dataWinner: any = null;
+        try {
+          dataWinner = await resWinner.json();
+        } catch {
+          dataWinner = { id: null, name: "Belum ada pemenang", suara: 0 };
+        }
+        if (dataWinner && dataWinner.name) {
+          setWinner({
+            id: dataWinner.id ?? null,
+            name: dataWinner.name,
+            suara: dataWinner.suara ?? 0,
+          });
+        } else {
+          setWinner({ id: null, name: "Belum ada pemenang", suara: 0 });
+        }
       } catch (err) {
-        console.error("Gagal fetch data:", err);
+        console.error("⚠️ Gagal fetch data:", err);
       }
     };
 
