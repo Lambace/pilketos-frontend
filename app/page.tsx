@@ -16,7 +16,7 @@ export default function Home() {
   if (status === null) return <p>Loading...</p>;
 
   if (status === true) {
-    redirect("/login");
+    redirect("https://pilketos-frontend.vercel.app");
   }
 
   if (status === false) {
