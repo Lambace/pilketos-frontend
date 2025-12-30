@@ -13,15 +13,4 @@ export default function Home() {
       });
   }, []);
 
-  if (status === null) return <p>Loading...</p>;
-
-  if (status === true) {
-    redirect("https://pilketos-frontend.vercel.app");
-  }
-
-  if (status === false) {
-    return <div>Voting sudah selesai. Silakan lihat hasil.</div>;
-  }
-
-  return <p>Menunggu status...</p>;
 }
