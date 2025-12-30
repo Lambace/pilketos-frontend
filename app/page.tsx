@@ -6,7 +6,7 @@ export default function Home() {
   const [status, setStatus] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetch("/settings")
+    fetch("/login")
       .then(res => res.json())
       .then(data => {
         setStatus(Boolean(data.voting_open));
