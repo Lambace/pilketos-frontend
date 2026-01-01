@@ -125,3 +125,4 @@ export const resetAllVotes = () =>
 export const resetStudentVote = (nisn: string) => 
   apiFetch(`/votes/reset/${nisn}`, { method: "DELETE" });
 export const getResults = () => apiFetch("/results");
+
