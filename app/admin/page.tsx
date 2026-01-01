@@ -101,7 +101,29 @@ export default function AdminPage() {
       setMessage("⚠️ Gagal menghapus kandidat.");
     }
   };
+const handleResetAll = async () => {
+  if (confirm("⚠️ PERINGATAN! Semua suara yang masuk akan DIHAPUS PERMANEN. Anda yakin?")) {
+    try {
+      await resetAllVotes();
+      alert("Database suara berhasil dikosongkan.");
+      window.location.reload();
+    } catch (err) {
+      alert("Gagal mereset: " + err.message);
+    }
+  }
+};
 
+const handleResetSingle = async (nisn: string) => {
+  if (confirm(`Izinkan NISN ${nisn} untuk memilih ulang?`)) {
+    try {
+      await resetStudentVote(nisn);
+      alert("Siswa tersebut sekarang bisa login dan memilih lagi.");
+      window.location.reload();
+    } catch (err) {
+      alert("Gagal: " + err.message);
+    }
+  }
+};
   return (
     <div className={styles.container}>
       {message && <p className={styles.message}>{message}</p>}
