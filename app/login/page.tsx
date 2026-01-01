@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import styles from "./login.module.css";
 import { login } from "../../lib/api";
 
@@ -9,7 +8,6 @@ export default function LoginPage() {
   const [nisn, setNisn] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => setShowGolput(false), 2000);
@@ -21,6 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
+    // Validasi input di sisi client
     if (nisn.length !== 10) {
       setError("NISN harus 10 digit");
       setLoading(false);
@@ -28,20 +27,27 @@ export default function LoginPage() {
     }
 
     try {
-      // ✅ panggil API login dari lib/api.ts
-      const data = await login(nisn); // password kosong, karena login pakai NISN
+      // ✅ Memanggil API login dari lib/api.ts
+      const data = await login(nisn);
 
-      if (!data.success) {
-        setError(data.message || "Login gagal");
-      } else {
-        // ✅ simpan NISN ke localStorage
+      // ✅ Cek apakah login berhasil berdasarkan response backend
+      // Menangani berbagai format response (data.success atau keberadaan nisn dalam data)
+      if (data && (data.success === true || data.nisn)) {
+        
+        // ✅ Simpan NISN ke localStorage untuk session voting
         localStorage.setItem("nisn", nisn);
 
-        // redirect ke voting
-        router.push("/voting");
+        // ✅ Redirect paksa ke halaman voting
+        // Gunakan window.location agar browser benar-benar berpindah halaman
+        window.location.href = "/voting";
+        
+      } else {
+        // Tampilkan pesan error dari backend jika ada
+        setError(data.message || "NISN tidak terdaftar atau salah.");
       }
-    } catch {
-      setError("⚠️ Tidak bisa menghubungi server.");
+    } catch (err: any) {
+      // Tangkap pesan error dari apiFetch di api.ts
+      setError(err.message || "⚠️ Gagal menghubungi server.");
     } finally {
       setLoading(false);
     }
@@ -68,16 +74,27 @@ export default function LoginPage() {
       {!showGolput && (
         <form onSubmit={handleLogin} className={`${styles.loginForm} ${styles.fadeIn} ${styles.delay4}`}>
           <input
-            type="text"
-            placeholder="Masukkan NISN"
+            type="number" // Menggunakan type number untuk memudahkan input angka di HP
+            placeholder="Masukkan 10 digit NISN"
             value={nisn}
             onChange={(e) => setNisn(e.target.value)}
             required
           />
-          <button type="submit" disabled={loading}>
-            {loading ? "Loading..." : "Login"}
+          <button type="submit" disabled={loading} style={{ cursor: loading ? "not-allowed" : "pointer" }}>
+            {loading ? "Mengecek NISN..." : "Masuk ke Ruang Suara"}
           </button>
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          
+          {error && (
+            <div style={{ 
+              marginTop: "15px", 
+              padding: "10px", 
+              backgroundColor: "rgba(255,0,0,0.1)", 
+              borderRadius: "5px",
+              border: "1px solid red"
+            }}>
+              <p style={{ color: "red", fontSize: "14px", margin: 0 }}>{error}</p>
+            </div>
+          )}
         </form>
       )}
     </div>
