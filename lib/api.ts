@@ -1,50 +1,69 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Helper umum
+/**
+ * Helper utama untuk memanggil API
+ * Menjamin URL tersusun dengan benar dan menangani error response
+ */
 export async function apiFetch(path: string, options: RequestInit = {}) {
-  const res = await fetch(`${API_URL}${path}`, options);
-  if (!res.ok) throw new Error("API error");
+  // 1. Pastikan path dimulai dengan '/'
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  
+  // 2. Pastikan API_URL tidak diakhiri dengan '/' untuk menghindari double slash
+  const baseUrl = API_URL?.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+
+  const res = await fetch(`${baseUrl}${cleanPath}`, options);
+
+  // 3. Penanganan jika server mengirim error (400, 401, 404, 500)
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || errorData.message || "Terjadi kesalahan pada server");
+  }
+
   return res.json();
 }
 
-// Login pakai NISN
+/**
+ * Fungsi-fungsi API Spesifik
+ */
+
+// Login Siswa menggunakan NISN
 export async function login(nisn: string) {
-  const res = await fetch(`${API_URL}/login`, {
+  return apiFetch("/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nisn }),
   });
-  if (!res.ok) throw new Error("Login gagal");
-  return res.json();
 }
 
-// Ambil kandidat
+// Mengambil daftar kandidat untuk halaman vote & admin
 export async function getCandidates() {
   return apiFetch("/candidates");
 }
 
-// Tambah kandidat
+// Menambah kandidat baru (Admin) - Mendukung upload gambar (FormData)
 export async function addCandidate(formData: FormData) {
-  return apiFetch("/candidates", { method: "POST", body: formData });
+  return apiFetch("/candidates", { 
+    method: "POST", 
+    body: formData 
+    // Note: Jangan set Content-Type header manual jika mengirim FormData
+  });
 }
 
-// Ambil hasil vote
+// Mengambil hasil perhitungan suara
 export async function getResults() {
   return apiFetch("/results");
 }
 
-// Kirim vote
+// Mengirimkan pilihan suara siswa
 export async function vote(nisn: string, candidateId: number) {
-  const res = await fetch(`${API_URL}/votes`, {
+  return apiFetch("/votes", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nisn, candidate_id: candidateId }),
   });
-  if (!res.ok) throw new Error("Vote gagal");
-  return res.json();
 }
 
-// Ambil pemenang
+// Mengambil data pemenang (Opsional)
 export async function getWinner() {
   return apiFetch("/winner");
 }
