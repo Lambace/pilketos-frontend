@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import styles from "./admin.module.css";
 import Link from "next/link";
-import { PHASE_PRODUCTION_BUILD } from "next/dist/shared/lib/constants";
 
 export default function AdminPage() {
   const [candidates, setCandidates] = useState<any[]>([]);
@@ -30,11 +29,11 @@ export default function AdminPage() {
     fetchCandidates();
   }, []);
 
+  // ✅ Tambah kandidat
   const handleAddCandidate = async () => {
     try {
       const formData = new FormData();
       formData.append("name", name);
-      formData.append("photo", PHASE_PRODUCTION_BUILD);
       formData.append("vision", vision);
       formData.append("mission", mission);
       if (photo) formData.append("photo", photo);
@@ -45,13 +44,12 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setCandidates([...candidates, { ...data }]);
+        setCandidates([...candidates, data]);
         setMessage("✅ Kandidat berhasil ditambahkan");
         setName("");
         setPhoto(null);
         setVision("");
         setMission("");
-        
       } else setMessage("❌ " + (data.error || "Gagal tambah kandidat"));
     } catch (err) {
       console.error(err);
@@ -59,17 +57,25 @@ export default function AdminPage() {
     }
   };
 
+  // ✅ Edit kandidat
   const handleSaveEdit = async (id: number) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: editName, setPhoto, vision: editVision, mission: editMission }),
+        body: JSON.stringify({
+          name: editName,
+          vision: editVision,
+          mission: editMission,
+          photo: null, // kalau mau support edit foto, tambahkan field upload
+        }),
       });
       if (res.ok) {
         setCandidates(
           candidates.map((c) =>
-            c.id === id ? { ...c, name: editName, setPhoto, vision: editVision, mission: editMission } : c
+            c.id === id
+              ? { ...c, name: editName, vision: editVision, mission: editMission }
+              : c
           )
         );
         setMessage("✏️ Kandidat diperbarui");
@@ -80,6 +86,7 @@ export default function AdminPage() {
     }
   };
 
+  // ✅ Hapus kandidat
   const handleDeleteCandidate = async (id: number) => {
     const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus kandidat ini?");
     if (!confirmDelete) return;
@@ -99,11 +106,7 @@ export default function AdminPage() {
     <div className={styles.container}>
       {message && <p className={styles.message}>{message}</p>}
 
-      <img
-        src="/logo-vote.png"
-        alt="Logo OSIS"
-        className={`${styles.logoGlow} ${styles.fadeIn} ${styles.delay1}`}
-      />
+      <img src="/logo-vote.png" alt="Logo OSIS" className={styles.logoGlow} />
 
       <div className={styles.buttonGroup}>
         <Link href="/nisn" className={styles.adminCard}>

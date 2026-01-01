@@ -29,7 +29,7 @@ export default function LoginPage() {
 
     try {
       // ✅ panggil API login dari lib/api.ts
-      const data = await login(nisn, ""); // password kosong, karena login pakai NISN
+      const data = await login(nisn); // password kosong, karena login pakai NISN
 
       if (!data.success) {
         setError(data.message || "Login gagal");

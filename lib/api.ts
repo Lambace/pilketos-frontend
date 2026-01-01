@@ -7,12 +7,12 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   return res.json();
 }
 
-// Login
-export async function login(username: string, password: string) {
+// Login pakai NISN
+export async function login(nisn: string) {
   const res = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ nisn }),
   });
   if (!res.ok) throw new Error("Login gagal");
   return res.json();
@@ -31,4 +31,20 @@ export async function addCandidate(formData: FormData) {
 // Ambil hasil vote
 export async function getResults() {
   return apiFetch("/results");
+}
+
+// Kirim vote
+export async function vote(nisn: string, candidateId: number) {
+  const res = await fetch(`${API_URL}/votes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nisn, candidate_id: candidateId }),
+  });
+  if (!res.ok) throw new Error("Vote gagal");
+  return res.json();
+}
+
+// Ambil pemenang
+export async function getWinner() {
+  return apiFetch("/winner");
 }

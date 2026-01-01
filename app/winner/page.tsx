@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import styles from "./winner.module.css";
-import { apiFetch } from "../../lib/api";
+
 interface Winner {
-  id: number;
+  id: number | null;
   name: string;
   photo: string;
   vision: string;
@@ -16,9 +16,18 @@ export default function WinnerPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/winner")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/winner`)
       .then((res) => res.json())
-      .then((data) => setWinner(data))
+      .then((data) => {
+        setWinner({
+          id: data.id ?? null,
+          name: data.name ?? "Belum ada pemenang",
+          photo: data.photo ?? "",
+          vision: data.vision ?? "",
+          mission: data.mission ?? "",
+          total_votes: data.suara ?? data.total_votes ?? 0,
+        });
+      })
       .catch(() => setError("⚠️ Tidak bisa ambil data pemenang"));
   }, []);
 
@@ -29,7 +38,15 @@ export default function WinnerPage() {
     <div className={styles.winnerContent}>
       <h1>Pemenang Pemilihan Ketua OSIS</h1>
       <div className={styles.card}>
-        <img src={`/upload/${winner.photo}`} alt={winner.name} className={styles.photo} />
+        {winner.photo ? (
+          <img
+            src={`${process.env.NEXT_PUBLIC_API_URL}/upload/${winner.photo}`}
+            alt={winner.name}
+            className={styles.photo}
+          />
+        ) : (
+          <p className={styles.noPhoto}>Tidak ada foto</p>
+        )}
         <h2>{winner.name}</h2>
         <p><strong>Visi:</strong> {winner.vision}</p>
         <p><strong>Misi:</strong> {winner.mission}</p>

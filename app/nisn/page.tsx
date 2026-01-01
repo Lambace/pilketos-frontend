@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import styles from "./nisn.module.css";
-import Link from "next/link"
-import { apiFetch } from "../../lib/api";
+import Link from "next/link";
+
 interface Student {
   id: number;
   nisn: string;
@@ -27,10 +27,10 @@ export default function NISNInputPage() {
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  // ambil data siswa
+  // ✅ ambil data siswa dari backend
   const fetchStudents = async () => {
     try {
-      const res = await fetch("/students");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students`);
       const data = await res.json();
       setStudents(data);
     } catch {
@@ -42,7 +42,7 @@ export default function NISNInputPage() {
     fetchStudents();
   }, []);
 
-  // tambah / update siswa
+  // ✅ tambah / update siswa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (nisn.length < 10) {
@@ -51,8 +51,8 @@ export default function NISNInputPage() {
     }
     const payload = { nisn, name, tingkat, kelas };
     const url = editingId
-      ? `${process.env.NEXT_PUBLIC_API_URL}/${editingId}`
-      : "${process.env.NEXT_PUBLIC_API_URL}/students";
+      ? `${process.env.NEXT_PUBLIC_API_URL}/students/${editingId}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/students`;
     const method = editingId ? "PUT" : "POST";
 
     try {
@@ -64,8 +64,6 @@ export default function NISNInputPage() {
       if (res.ok) {
         setStatus(editingId ? "✅ Siswa berhasil diupdate." : "✅ Siswa berhasil ditambahkan.");
         setNisn(""); setName(""); setTingkat("X"); setKelas(""); setEditingId(null);
-        console.log("Submit update:", { editingId, payload });
-
         fetchStudents();
       } else {
         const err = await res.json();
@@ -76,42 +74,39 @@ export default function NISNInputPage() {
     }
   };
 
-  // import excel
+  // ✅ import excel
   const handleImportExcel = async () => {
-  if (!excelFile) {
-    setStatus("❌ Pilih file Excel terlebih dahulu.");
-    return;
-  }
-  console.log("File yang dipilih:", excelFile);
-  const formData = new FormData();
-  formData.append("file", excelFile);
-
-  try {
-    const res = await 
-    fetch("${process.env.NEXT_PUBLIC_API_URL}/students/import", {
-      method: "POST",
-      body: formData,
-    });
-    if (res.ok) {
-      setStatus("✅ Data siswa berhasil diimport.");
-      fetchStudents(); // refresh daftar dari server
-    } else {
-      const err = await res.json();
-      setStatus("❌ " + err.error);
+    if (!excelFile) {
+      setStatus("❌ Pilih file Excel terlebih dahulu.");
+      return;
     }
-  } catch {
-    setStatus("⚠️ Terjadi kesalahan koneksi.");
-  }
-};
+    const formData = new FormData();
+    formData.append("file", excelFile);
 
-  // download format excel
-  const handleDownloadFormat = () => {
-    window.open("${process.env.NEXT_PUBLIC_API_URL}/students/download-format", "_blank");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/import`, {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        setStatus("✅ Data siswa berhasil diimport.");
+        fetchStudents();
+      } else {
+        const err = await res.json();
+        setStatus("❌ " + err.error);
+      }
+    } catch {
+      setStatus("⚠️ Terjadi kesalahan koneksi.");
+    }
   };
 
-  // tombol edit 
-    const handleEdit = (s: Student) => {
-    console.log("Edit siswa:", s);
+  // ✅ download format excel
+  const handleDownloadFormat = () => {
+    window.open(`${process.env.NEXT_PUBLIC_API_URL}/students/download-format`, "_blank");
+  };
+
+  // ✅ tombol edit
+  const handleEdit = (s: Student) => {
     setNisn(s.nisn);
     setName(s.name);
     setTingkat(s.tingkat);
@@ -120,87 +115,91 @@ export default function NISNInputPage() {
     setStatus("✏️ Mode edit aktif.");
   };
 
-  // hapus siswa
+  // ✅ hapus siswa
   const handleDelete = async (id: number) => {
-  if (!confirm("Yakin hapus siswa ini?")) return;
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setStatus("🗑️ Siswa dihapus.");
-      fetchStudents(); // ✅ refresh dari server, bukan hanya filter state
-    } else {
-      const err = await res.json();
-      setStatus("❌ " + err.error);
+    if (!confirm("Yakin hapus siswa ini?")) return;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setStatus("🗑️ Siswa dihapus.");
+        fetchStudents();
+      } else {
+        const err = await res.json();
+        setStatus("❌ " + err.error);
+      }
+    } catch {
+      setStatus("⚠️ Terjadi kesalahan koneksi.");
     }
-  } catch {
-    setStatus("⚠️ Terjadi kesalahan koneksi.");
-  }
-};
+  };
 
-  // reset semua siswa
+  // ✅ reset semua siswa
   const handleResetAll = async () => {
-  if (!confirm("Yakin reset semua siswa?")) return;
-  try {
-    const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/students", { method: "DELETE" });
-    if (res.ok) {
-      setStatus("🗑️ Semua siswa dihapus.");
-      fetchStudents(); // ✅ refresh daftar dari server
-    } else {
-      const err = await res.json();
-      setStatus("❌ " + err.error);
+    if (!confirm("Yakin reset semua siswa?")) return;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students`, { method: "DELETE" });
+      if (res.ok) {
+        setStatus("🗑️ Semua siswa dihapus.");
+        fetchStudents();
+      } else {
+        const err = await res.json();
+        setStatus("❌ " + err.error);
+      }
+    } catch {
+      setStatus("⚠️ Terjadi kesalahan koneksi.");
     }
-  } catch {
-    setStatus("⚠️ Terjadi kesalahan koneksi.");
-  }
-};
+  };
 
-   
-return (
-   <div className={styles.container}> 
-   <header className={styles.topBar}> 
-   <Link href="/admin" className={`${styles.button} ${styles.buttonPrimary}`}> 
-   Admin 
-   </Link> 
-   </header> 
-   <img src="/logo-vote.png" alt="Logo Sekolah" className={styles.logo} /> 
-   <h1 className={styles.title}>
-     Input NISN Siswa
-     </h1> 
-     {/* Form input */} 
-     <form onSubmit={handleSubmit} className={styles.form}> <label className={styles.label}> NISN <input type="text" placeholder="NISN" value={nisn} onChange={(e) => setNisn(e.target.value.replace(/\D/g, "").slice(0, 10)) } required className={styles.input} /> </label> <label className={styles.label}> Nama <input type="text" placeholder="Nama" value={name} onChange={(e) => setName(e.target.value)} required className={styles.input} /> </label>
+  return (
+    <div className={styles.container}>
+      <header className={styles.topBar}>
+        <Link href="/admin" className={`${styles.button} ${styles.buttonPrimary}`}>
+          Admin
+        </Link>
+      </header>
+      <img src="/logo-vote.png" alt="Logo Sekolah" className={styles.logo} />
+      <h1 className={styles.title}>Input NISN Siswa</h1>
+
+      {/* Form input */}
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <label className={styles.label}>
+          NISN
+          <input
+            type="text"
+            placeholder="NISN"
+            value={nisn}
+            onChange={(e) => setNisn(e.target.value.replace(/\D/g, "").slice(0, 10))}
+            required
+            className={styles.input}
+          />
+        </label>
+        <label className={styles.label}>
+          Nama
+          <input
+            type="text"
+            placeholder="Nama"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className={styles.input}
+          />
+        </label>
         <label className={styles.label}>
           Tingkat
-          <select
-            value={tingkat}
-            onChange={(e) => setTingkat(e.target.value)}
-            className={styles.select}
-          >
+          <select value={tingkat} onChange={(e) => setTingkat(e.target.value)} className={styles.select}>
             <option value="X">X</option>
             <option value="XI">XI</option>
             <option value="XII">XII</option>
           </select>
         </label>
-
         <label className={styles.label}>
           Kelas
-          <select
-            value={kelas}
-            onChange={(e) => setKelas(e.target.value)}
-            required
-            className={styles.select}
-          >
+          <select value={kelas} onChange={(e) => setKelas(e.target.value)} required className={styles.select}>
             {(CLASS_OPTIONS[tingkat] || []).map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
+              <option key={opt} value={opt}>{opt}</option>
             ))}
           </select>
         </label>
-
-        <button
-          type="submit"
-          className={`${styles.button} ${styles.buttonPrimary}`}
-        >
+        <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`}>
           {editingId ? "Update Siswa" : "Tambah Siswa"}
         </button>
       </form>
@@ -211,23 +210,14 @@ return (
         <input
           type="file"
           accept=".xlsx,.xls"
-          onChange={(e) =>
-            setExcelFile(e.target.files ? e.target.files[0] : null)
-          }
+          onChange={(e) => setExcelFile(e.target.files ? e.target.files[0] : null)}
           className={styles.input}
         />
         <div className={styles.actions}>
-          <button
-            type="button"
-            onClick={handleImportExcel}
-            className={`${styles.button} ${styles.buttonPrimary}`}
-          >
+          <button type="button" onClick={handleImportExcel} className={`${styles.button} ${styles.buttonPrimary}`}>
             📤 Import Excel
           </button>
-          <button
-            onClick={handleDownloadFormat}
-            className={`${styles.button} ${styles.buttonPrimary}`}
->
+                    <button onClick={handleDownloadFormat} className={`${styles.button} ${styles.buttonPrimary}`}>
             📥 Download Format Excel
           </button>
         </div>
@@ -256,7 +246,7 @@ return (
               <td>{s.kelas}</td>
               <td className={styles.actions}>
                 <button
-                  onClick={() => handleEdit(s)} 
+                  onClick={() => handleEdit(s)}
                   className={`${styles.button} ${styles.buttonPrimary}`}
                 >
                   Edit
@@ -275,13 +265,12 @@ return (
 
       {students.length > 0 && (
         <button
-         onClick={handleResetAll}
+          onClick={handleResetAll}
           className={`${styles.button} ${styles.buttonDanger}`}
         >
           Reset Semua
         </button>
       )}
     </div>
-    
   );
 }

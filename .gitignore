@@ -1,9 +1,19 @@
-node_modules
-.next
-.env
-node_modules
-.next
-.env
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+
+# Environment files
+.env*
+!.env.example
+
+# Logs
 *.log
+
+# OS files
 .DS_Store
 Thumbs.db
+
+# Optional editor files
+*.swp

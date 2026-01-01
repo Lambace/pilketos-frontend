@@ -16,8 +16,8 @@ import styles from "./result.module.css";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function HasilVotePage() {
-  const [results, setResults] = useState<{ id: string; name: string; suara: number }[]>([]);
-  const [winner, setWinner] = useState<{ id: string | null; name: string; suara: number } | null>(null);
+  const [results, setResults] = useState<{ id: number; name: string; suara: number }[]>([]);
+  const [winner, setWinner] = useState<{ id: number | null; name: string; suara: number } | null>(null);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
@@ -31,21 +31,13 @@ export default function HasilVotePage() {
         // ✅ fetch winner dari backend Railway
         const resWinner = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/winner`);
         if (!resWinner.ok) throw new Error("Gagal fetch winner");
-        let dataWinner: any = null;
-        try {
-          dataWinner = await resWinner.json();
-        } catch {
-          dataWinner = { id: null, name: "Belum ada pemenang", suara: 0 };
-        }
-        if (dataWinner && dataWinner.name) {
-          setWinner({
-            id: dataWinner.id ?? null,
-            name: dataWinner.name,
-            suara: dataWinner.suara ?? 0,
-          });
-        } else {
-          setWinner({ id: null, name: "Belum ada pemenang", suara: 0 });
-        }
+        const dataWinner = await resWinner.json();
+
+        setWinner({
+          id: dataWinner?.id ?? null,
+          name: dataWinner?.name ?? "Belum ada pemenang",
+          suara: dataWinner?.suara ?? 0,
+        });
       } catch (err) {
         console.error("⚠️ Gagal fetch data:", err);
       }
@@ -56,6 +48,7 @@ export default function HasilVotePage() {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ Reset hasil vote (UI saja, tidak ke DB)
   const handleResetResults = () => {
     const resetData = results.map((r) => ({ ...r, suara: 0 }));
     setResults(resetData);
@@ -145,7 +138,11 @@ export default function HasilVotePage() {
         {/* Kolom kanan */}
         <div className={styles.rightCol}>
           <div className={styles.chartWrapper}>
-            <Bar data={data} options={{ plugins: { legend: { display: false } } }} plugins={[labelPlugin]} />
+            <Bar
+              data={data}
+              options={{ plugins: { legend: { display: false } } }}
+              plugins={[labelPlugin]}
+            />
             {results.every((r) => r.suara === 0) && (
               <p className={styles.noData}>Belum ada data hasil vote</p>
             )}
