@@ -116,4 +116,12 @@ export async function getResults() {
 export async function getWinner() {
   return apiFetch("/winner");
 }
+
+// Reset seluruh suara (semua siswa bisa memilih lagi)
+export const resetAllVotes = () => 
+  apiFetch("/votes/reset-all", { method: "DELETE" });
+
+// Reset suara per siswa (siswa tertentu bisa memilih lagi)
+export const resetStudentVote = (nisn: string) => 
+  apiFetch(`/votes/reset/${nisn}`, { method: "DELETE" });
 export const getResults = () => apiFetch("/results");
