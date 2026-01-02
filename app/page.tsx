@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     const checkVotingStatus = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
         const data = await res.json();
         setStatus(Boolean(data.voting_open));
       } catch (err) {
