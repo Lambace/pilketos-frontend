@@ -7,36 +7,34 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const checkVotingStatus = async () => {
-      try {
-        // Gunakan URL Langsung jika process.env bermasalah
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://voting-backend-production-ea29.up.railway.app";
-        
-        const res = await fetch(`${apiUrl}/settings`, {
-          cache: 'no-store'
-        });
-
-        // Cek jika response bukan JSON (misal error 404/500)
-        if (!res.ok) {
-          throw new Error("Gagal mengambil data dari server");
-        }
-
-        const data = await res.json();
-        console.log("Data dari API:", data);
-
-        // Pastikan status disetel berdasarkan voting_open
-        setStatus(data.voting_open === true);
-      } catch (err) {
-        console.error("Error cek status voting:", err);
+ useEffect(() => {
+  const checkVotingStatus = async () => {
+    try {
+      // Kita panggil langsung URL-nya untuk memastikan
+      const res = await fetch("https://voting-backend-production-ea29.up.railway.app/settings", {
+        cache: 'no-store'
+      });
+      
+      if (!res.ok) {
+        console.error("Status Error:", res.status);
         setStatus(false);
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
-    checkVotingStatus();
-  }, []);
 
+      const data = await res.json();
+      console.log("Data diterima:", data);
+      
+      // Jika data.voting_open adalah true, maka setStatus(true)
+      setStatus(data.voting_open === true);
+    } catch (err) {
+      console.error("Gagal koneksi ke API:", err);
+      setStatus(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+  checkVotingStatus();
+}, []);
   // Proses Redirect
   useEffect(() => {
     if (!loading && status === true) {
