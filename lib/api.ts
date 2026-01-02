@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 // Helper untuk fetch dasar
 async function apiFetch(endpoint: string, options: any = {}) {
@@ -34,9 +34,14 @@ export async function submitVote(nisn: string, candidate_id: number) {
 
 // --- 3. FITUR SISWA (AMBIL SEMUA) ---
 export async function getStudents() {
-  return apiFetch("/students");
+  try {
+    const res = await fetch(`${API_URL}/students`);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    return []; // Kembalikan array kosong agar tidak undefined
+  }
 }
-
 // --- 4. FITUR UPDATE SISWA ---
 export async function updateStudent(nisn: string, data: any) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${nisn}`, {
