@@ -23,7 +23,7 @@ export default function VotePage() {
     setLoading(false); 
   }
 };
-    };
+    
     fetchCandidates();
   }, []);
 
