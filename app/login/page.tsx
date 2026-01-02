@@ -1,4 +1,3 @@
-"use client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 //import styles from "./login.module.css?v=1";
