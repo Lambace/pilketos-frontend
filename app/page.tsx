@@ -8,22 +8,26 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkVotingStatus = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`);
-        console.log("Data dari API:", data);
-        const data = await res.json();
-        setStatus(Boolean(data.voting_open));
-      } catch (err) {
-        console.error("Error cek status voting:", err);
-        setStatus(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkVotingStatus();
-  }, []);
-
+  const checkVotingStatus = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
+        cache: 'no-store' // Memaksa ambil data terbaru dari server
+      });
+      
+      const data = await res.json();
+      console.log("Data dari API:", data);
+      
+      // Pastikan backend mengirim { voting_open: true }
+      setStatus(Boolean(data.voting_open));
+    } catch (err) {
+      console.error("Error cek status voting:", err);
+      setStatus(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+  checkVotingStatus();
+}, []);
   if (loading) return <p>Loading...</p>;
 
   if (status) {
