@@ -19,7 +19,7 @@ export async function login(nisn: string) {
   });
 }
 
-// --- 2. FITUR VOTING ---
+// --- 2. FITUR VOTING & KANDIDAT ---
 export async function getCandidates() {
   return apiFetch("/candidates");
 }
@@ -32,16 +32,35 @@ export async function submitVote(nisn: string, candidate_id: number) {
   });
 }
 
-// --- 3. FITUR IMPORT EXCEL (MEMPERBAIKI ERROR BARIS 88) ---
-// Fungsi ini sekarang menerima 'File' asli dari input browser
+// --- 3. FITUR SISWA (AMBIL SEMUA) ---
+export async function getStudents() {
+  return apiFetch("/students");
+}
+
+// --- 4. FITUR UPDATE SISWA ---
+export async function updateStudent(nisn: string, data: { name: string; tingkat: string; kelas: string }) {
+  return apiFetch(`/students/${nisn}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+// --- 5. FITUR HAPUS SISWA ---
+export async function deleteStudent(nisn: string) {
+  return apiFetch(`/students/${nisn}`, {
+    method: "DELETE",
+  });
+}
+
+// --- 6. FITUR IMPORT EXCEL ---
 export async function importStudents(file: File) {
   const formData = new FormData();
-  formData.append("file", file); // 'file' harus sama dengan upload.single('file') di backend
+  formData.append("file", file);
 
   const res = await fetch(`${API_URL}/students/import`, {
     method: "POST",
-    // PENTING: Jangan tambahkan header 'Content-Type' saat mengirim FormData
-    body: formData,
+    body: formData, // Browser otomatis set boundary
   });
 
   if (!res.ok) {
@@ -51,50 +70,12 @@ export async function importStudents(file: File) {
   return res.json();
 }
 
-// --- 4. FITUR DOWNLOAD FORMAT ---
+// --- 7. FITUR DOWNLOAD FORMAT ---
 export async function downloadStudentFormat() {
   window.location.href = `${API_URL}/students/download-format`;
 }
 
-// 5. UPDATE DATA SISWA
-app.put('/students/:nisn', async (req, res) => {
-  const { nisn } = req.params;
-  const { name, tingkat, kelas } = req.body;
-  try {
-    const result = await pool.query(
-      'UPDATE students SET name = $1, tingkat = $2, kelas = $3 WHERE nisn = $4 RETURNING *',
-      [name, tingkat, kelas, nisn]
-    );
-    if (result.rows.length === 0) return res.status(404).json({ message: "Siswa tidak ditemukan" });
-    res.json({ success: true, message: "Data siswa berhasil diupdate", data: result.rows[0] });
-  } catch (err) {
-    res.status(500).json({ error: "Gagal update data" });
-  }
-});
-
-// 6. HAPUS DATA SISWA
-app.delete('/students/:nisn', async (req, res) => {
-  const { nisn } = req.params;
-  try {
-    const result = await pool.query('DELETE FROM students WHERE nisn = $1 RETURNING *', [nisn]);
-    if (result.rows.length === 0) return res.status(404).json({ message: "Siswa tidak ditemukan" });
-    res.json({ success: true, message: "Siswa berhasil dihapus" });
-  } catch (err) {
-    res.status(500).json({ error: "Gagal menghapus data" });
-  }
-});
-
-// HAPUS SEMUA SISWA (Opsional - untuk reset data)
-app.delete('/students-all', async (req, res) => {
-  try {
-    await pool.query('DELETE FROM students');
-    res.json({ success: true, message: "Semua data siswa berhasil dikosongkan" });
-  } catch (err) {
-    res.status(500).json({ error: "Gagal mengosongkan data" });
-  }
-});
-
-// --- 7. FITUR SETTINGS (Opsional jika Anda pakai) ---
+// --- 8. FITUR SETTINGS ---
 export async function getSettings() {
   return apiFetch("/settings");
 }
