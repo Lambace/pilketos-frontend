@@ -124,5 +124,5 @@ export const resetAllVotes = () =>
 // Reset suara per siswa (siswa tertentu bisa memilih lagi)
 export const resetStudentVote = (nisn: string) => 
   apiFetch(`/votes/reset/${nisn}`, { method: "DELETE" });
-export const getResults = () => apiFetch("/results");
+
 
