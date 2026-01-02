@@ -190,49 +190,36 @@ const resetStudentVote = async (nisn: string) => {
           <tr><th>Nama</th><th>Visi</th><th>Misi</th><th>Foto</th><th>Aksi</th></tr>
         </thead>
         <tbody>
-          {candidates.map((c) => (
-            <tr key={c.id}>
-              <td>
-                {editingId === c.id ? (
-                  <input value={editName} onChange={(e) => setEditName(e.target.value)} />
-                ) : c.name}
-              </td>
-              <td>
-                {editingId === c.id ? (
-                  <textarea value={editVision} onChange={(e) => setEditVision(e.target.value)} />
-                ) : c.vision}
-              </td>
-              <td>
-                {editingId === c.id ? (
-                  <textarea value={editMission} onChange={(e) => setEditMission(e.target.value)} />
-                ) : c.mission}
-              </td>
-              <td>
-                {c.photo ? (
-                  <img src={`${process.env.NEXT_PUBLIC_API_URL}/upload/${c.photo}`} alt={c.name} style={{ width: "80px" }} />
-                ) : "Tidak ada foto"}
-              </td>
-              <td className={styles.actions}>
-                {editingId === c.id ? (
-                  <>
-                    <button className={styles.save} onClick={() => handleSaveEdit(c.id)}>Simpan</button>
-                    <button className={styles.cancel} onClick={() => setEditingId(null)}>Batal</button>
-                  </>
-                ) : (
-                  <>
-                    <button className={styles.edit} onClick={() => {
-                      setEditingId(c.id);
-                      setEditName(c.name);
-                      setEditVision(c.vision);
-                      setEditMission(c.mission);
-                    }}>✏️ Edit</button>
-                    <button className={styles.delete} onClick={() => handleDeleteCandidate(c.id)}>🗑️ Hapus</button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
+  {students && students.length > 0 ? (
+    students.map((s, index) => (
+      <tr key={s.nisn || index}>
+        {/* Gunakan operator || "-" untuk semua kolom */}
+        <td>{s.nisn || "-"}</td>
+        <td>{s.name || s.nama || "-"}</td> 
+        <td>{s.tingkat || "-"}</td>
+        <td>{s.kelas || "-"}</td>
+        <td>
+          <button 
+            onClick={() => handleEdit(s)}
+            className="btn-edit"
+          >
+            Edit
+          </button>
+          <button 
+            onClick={() => handleDelete(s.nisn)}
+            className="btn-delete"
+          >
+            Hapus
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={5} style={{ textAlign: 'center' }}>Data siswa kosong</td>
+    </tr>
+  )}
+</tbody>
       </table>
     </div>
   );
