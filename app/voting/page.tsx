@@ -78,8 +78,7 @@ export default function VotePage() {
           <div className={styles.candidateGrid}>
             {candidates.map((c) => (
               <div key={c.id} className={styles.card}>
-                <img
-                  <img
+   <img
   src={
     c.photo && c.photo.startsWith('http') 
       ? c.photo 
@@ -88,11 +87,9 @@ export default function VotePage() {
   alt={c.name}
   className={styles.photo}
   onError={(e) => {
-    // Jika gambar gagal dimuat, ganti dengan gambar default
-    (e.target as HTMLImageElement).src = "/default-avatar.png";
+    (e.target as HTMLImageElement).src = "/logo-osis.png";
   }}
-/>
-                <h2>{c.name}</h2>
+/>            <h2>{c.name}</h2>
                 <p>
                   <strong>Visi:</strong> {c.vision}
                 </p>
