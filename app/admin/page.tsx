@@ -5,49 +5,86 @@ import Link from "next/link";
 import { getStudents, deleteStudent, updateStudent, importStudents } from "../../lib/api";
 
 export default function AdminPage() {
-  // --- STATE KANDIDAT ---
+  // --- STATE DATA ---
   const [candidates, setCandidates] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [message, setMessage] = useState("");
+
+  // --- STATE FORM KANDIDAT ---
   const [name, setName] = useState("");
   const [vision, setVision] = useState("");
   const [mission, setMission] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
-  
-  // --- STATE SISWA (BARU DITAMBAHKAN) ---
-  const [students, setStudents] = useState<any[]>([]);
-  
-  // --- STATE UI ---
-  const [message, setMessage] = useState("");
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editVision, setEditVision] = useState("");
-  const [editMission, setEditMission] = useState("");
 
-  // Ambil data saat halaman dimuat
+  // --- STATE EDIT SISWA ---
+  const [editingNisn, setEditingNisn] = useState<string | null>(null);
+  const [editData, setEditData] = useState({ name: "", tingkat: "", kelas: "" });
+
   useEffect(() => {
-    fetchCandidates();
-    fetchStudentsList();
+    refreshAllData();
   }, []);
 
-  const fetchCandidates = async () => {
+  const refreshAllData = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates`);
-      const data = await res.json();
-      setCandidates(data);
-    } catch {
-      setMessage("⚠️ Tidak bisa menghubungi server.");
-    }
-  };
-
-  const fetchStudentsList = async () => {
-    try {
-      const data = await getStudents();
-      setStudents(data);
+      const [dataCandidates, dataStudents] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates`).then(res => res.json()),
+        getStudents()
+      ]);
+      setCandidates(dataCandidates);
+      setStudents(dataStudents);
     } catch (err) {
-      console.error("Gagal ambil siswa:", err);
+      setMessage("⚠️ Gagal memuat data dari server.");
     }
   };
 
-  // --- LOGIKA KANDIDAT ---
+  // ✅ HANDLER SISWA
+  const handleDeleteStudent = async (nisn: string) => {
+    if (confirm("Hapus siswa ini?")) {
+      try {
+        await deleteStudent(nisn);
+        setStudents(prev => prev.filter(s => s.nisn !== nisn));
+        alert("✅ Siswa berhasil dihapus");
+      } catch (err) {
+        alert("❌ Gagal menghapus");
+      }
+    }
+  };
+
+  const startEditStudent = (s: any) => {
+    setEditingNisn(s.nisn);
+    setEditData({ 
+      name: s.name || s.nama || "", 
+      tingkat: s.tingkat || "", 
+      kelas: s.kelas || "" 
+    });
+  };
+
+  const handleUpdateStudent = async () => {
+    if (!editingNisn) return;
+    try {
+      await updateStudent(editingNisn, editData);
+      alert("✅ Data diperbarui");
+      setEditingNisn(null);
+      refreshAllData();
+    } catch (err) {
+      alert("❌ Gagal update");
+    }
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setMessage("⏳ Mengimpor...");
+      await importStudents(file);
+      setMessage("✅ Import berhasil!");
+      refreshAllData();
+    } catch (err: any) {
+      setMessage("❌ " + err.message);
+    }
+  };
+
+  // ✅ HANDLER KANDIDAT
   const handleAddCandidate = async () => {
     try {
       const formData = new FormData();
@@ -60,40 +97,13 @@ export default function AdminPage() {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
       if (res.ok) {
-        setCandidates([...candidates, data]);
         setMessage("✅ Kandidat berhasil ditambahkan");
         setName(""); setVision(""); setMission(""); setPhoto(null);
-      } else setMessage("❌ " + (data.error || "Gagal"));
-    } catch (err) {
-      setMessage("⚠️ Error server.");
-    }
-  };
-
-  // --- LOGIKA SISWA (Hapus & Update) ---
-  const handleDeleteStudent = async (nisn: string) => {
-    if (confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
-      try {
-        await deleteStudent(nisn);
-        setStudents(students.filter(s => s.nisn !== nisn));
-        alert("Terhapus!");
-      } catch (err) {
-        alert("Gagal menghapus");
+        refreshAllData();
       }
-    }
-  };
-
-  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setMessage("⏳ Mengimpor...");
-      await importStudents(file);
-      setMessage("✅ Import berhasil!");
-      fetchStudentsList(); // Refresh tabel
-    } catch (err: any) {
-      setMessage("❌ " + err.message);
+    } catch (err) {
+      setMessage("⚠️ Gagal tambah kandidat.");
     }
   };
 
@@ -101,82 +111,64 @@ export default function AdminPage() {
     <div className={styles.container}>
       {message && <p className={styles.message}>{message}</p>}
 
-      <img src="/logo-vote.png" alt="Logo OSIS" className={styles.logoGlow} />
-
       <div className={styles.buttonGroup}>
         <Link href="/hasil-vote" className={styles.adminCard}>
           <div className={styles.icon}>📊</div>
           <div className={styles.text}>Hasil Voting</div>
         </Link>
-        <div className={styles.adminCard} style={{cursor: 'pointer'}}>
+        <div className={styles.adminCard}>
           <div className={styles.icon}>📥</div>
-          <input type="file" onChange={handleImportFile} style={{display:'none'}} id="importExcel" />
-          <label htmlFor="importExcel" style={{cursor: 'pointer'}} className={styles.text}>Import Siswa</label>
+          <input type="file" onChange={handleImportFile} id="importExcel" hidden />
+          <label htmlFor="importExcel" style={{cursor: 'pointer'}} className={styles.text}>Import Excel</label>
         </div>
       </div>
 
-      {/* SEKSI FORM KANDIDAT */}
-      <h2>Tambah Kandidat</h2>
-      <div className={styles.form}>
-        <input type="text" placeholder="Nama Kandidat" value={name} onChange={(e) => setName(e.target.value)} />
-        <textarea placeholder="Visi" value={vision} onChange={(e) => setVision(e.target.value)} />
-        <textarea placeholder="Misi" value={mission} onChange={(e) => setMission(e.target.value)} />
-        <input type="file" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
-        <button onClick={handleAddCandidate}>Simpan Kandidat</button>
-      </div>
+      {/* --- FORM EDIT SISWA (MUNCUL JIKA TOMBOL EDIT DIKLIK) --- */}
+      {editingNisn && (
+        <div className={styles.form} style={{border: '2px solid gold', padding: '15px'}}>
+          <h3>Edit Siswa: {editingNisn}</h3>
+          <input type="text" value={editData.name} onChange={e => setEditData({...editData, name: e.target.value})} placeholder="Nama" />
+          <input type="text" value={editData.tingkat} onChange={e => setEditData({...editData, tingkat: e.target.value})} placeholder="Tingkat" />
+          <input type="text" value={editData.kelas} onChange={e => setEditData({...editData, kelas: e.target.value})} placeholder="Kelas" />
+          <button onClick={handleUpdateStudent}>Simpan Perubahan</button>
+          <button onClick={() => setEditingNisn(null)} style={{backgroundColor: 'gray'}}>Batal</button>
+        </div>
+      )}
 
-      {/* SEKSI TABEL SISWA */}
+      {/* --- TABEL SISWA --- */}
       <h2>Daftar Siswa</h2>
       <table className={styles.table}>
         <thead>
-          <tr>
-            <th>NISN</th>
-            <th>Nama</th>
-            <th>Tingkat</th>
-            <th>Kelas</th>
-            <th>Aksi</th>
-          </tr>
+          <tr><th>NISN</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr>
         </thead>
         <tbody>
-          {students && students.length > 0 ? (
-            students.map((s, index) => (
-              <tr key={s.nisn || index}>
-                <td>{s.nisn || "-"}</td>
-                <td>{s.name || s.nama || s.Nama || "-"}</td> 
-                <td>{s.tingkat || "-"}</td>
-                <td>{s.kelas || "-"}</td>
+          {students.length > 0 ? (
+            students.map((s) => (
+              <tr key={s.nisn}>
+                <td>{s.nisn}</td>
+                <td>{s.name || s.nama || "-"}</td>
+                <td>{s.tingkat}-{s.kelas}</td>
                 <td>
-                  <button onClick={() => handleDeleteStudent(s.nisn)} className={styles.btnDelete}>
-                    Hapus
-                  </button>
+                  <button onClick={() => startEditStudent(s)} className={styles.btnEdit}>Edit</button>
+                  <button onClick={() => handleDeleteStudent(s.nisn)} className={styles.btnDelete}>Hapus</button>
                 </td>
               </tr>
             ))
           ) : (
-            <tr><td colSpan={5} style={{ textAlign: 'center' }}>Data siswa kosong</td></tr>
+            <tr><td colSpan={4} style={{textAlign: 'center'}}>Data Kosong</td></tr>
           )}
         </tbody>
       </table>
 
-      {/* SEKSI TABEL KANDIDAT */}
-      <h2>Daftar Kandidat</h2>
-      <table className={styles.table}>
-        <thead>
-          <tr><th>Nama</th><th>Visi</th><th>Foto</th><th>Aksi</th></tr>
-        </thead>
-        <tbody>
-          {candidates.map((c) => (
-            <tr key={c.id}>
-              <td>{c.name}</td>
-              <td>{c.vision?.substring(0, 30)}...</td>
-              <td>{c.photo ? "Ada" : "Tidak"}</td>
-              <td>
-                <button onClick={() => confirm("Hapus kandidat?")}>Hapus</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* --- FORM TAMBAH KANDIDAT --- */}
+      <h2>Tambah Kandidat</h2>
+      <div className={styles.form}>
+        <input type="text" placeholder="Nama Kandidat" value={name} onChange={e => setName(e.target.value)} />
+        <textarea placeholder="Visi" value={vision} onChange={e => setVision(e.target.value)} />
+        <textarea placeholder="Misi" value={mission} onChange={e => setMission(e.target.value)} />
+        <input type="file" onChange={e => setPhoto(e.target.files?.[0] || null)} />
+        <button onClick={handleAddCandidate}>Simpan Kandidat</button>
+      </div>
     </div>
   );
 }
