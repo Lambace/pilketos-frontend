@@ -18,7 +18,11 @@ export default function VotePage() {
         setCandidates(data);
       } catch (err) {
         setMessage("⚠️ Tidak bisa ambil data kandidat");
-      }
+      }finally {
+    // WAJIB ADA: Agar tulisan Loading hilang dan tombol muncul
+    setLoading(false); 
+  }
+};
     };
     fetchCandidates();
   }, []);
