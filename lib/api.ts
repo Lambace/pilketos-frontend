@@ -25,7 +25,16 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 export async function getCandidates() {
   return apiFetch("/candidates");
 }
+export const importStudents = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
 
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/import`, {
+    method: 'POST',
+    body: formData, // Jangan set Content-Type manual, biarkan browser yang menanganinya
+  });
+  return res.json();
+};
 // Tambah kandidat baru (FormData untuk Foto)
 export async function addCandidate(formData: FormData) {
   return apiFetch("/candidates", { 
