@@ -101,16 +101,19 @@ export default function AdminPage() {
       setMessage("⚠️ Gagal menghapus kandidat.");
     }
   };
-const handleResetAll = async () => {
-  if (confirm("⚠️ PERINGATAN! Semua suara yang masuk akan DIHAPUS PERMANEN. Anda yakin?")) {
-    try {
-      await resetAllVotes();
-      alert("Database suara berhasil dikosongkan.");
-      window.location.reload();
-    } catch (err) {
-      alert("Gagal mereset: " + err.message);
-    }
+// Tambahkan fungsi ini di dalam komponen AdminPage
+const handleresetAllVotes = async () => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/votes/reset`, {
+    method: "DELETE", // Atau POST tergantung rute di backend Anda
+  });
+
+  if (!res.ok) {
+    throw new Error("Gagal meriset data suara");
   }
+
+  alert("✅ Semua suara berhasil direset!");
+  // Opsional: muat ulang data atau status
+  window.location.reload(); 
 };
 
 const handleResetSingle = async (nisn: string) => {
