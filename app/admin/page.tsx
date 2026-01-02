@@ -87,20 +87,18 @@ export default function AdminPage() {
   };
 
   // ✅ Hapus kandidat
-  const handleDeleteCandidate = async (id: number) => {
-    const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus kandidat ini?");
-    if (!confirmDelete) return;
-
+ const handleDelete = async (nisn: string) => {
+  if (confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        setCandidates(candidates.filter((c) => c.id !== id));
-        setMessage("🗑️ Kandidat dihapus");
-      }
-    } catch {
-      setMessage("⚠️ Gagal menghapus kandidat.");
+      await deleteStudent(nisn);
+      // Filter state agar baris yang dihapus langsung hilang dari tabel
+      setStudents(students.filter(s => s.nisn !== nisn));
+      alert("Terhapus!");
+    } catch (err) {
+      alert("Gagal menghapus");
     }
-  };
+  }
+};
 // Tambahkan fungsi ini di dalam komponen AdminPage
 const handleresetAllVotes = async () => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/votes/reset`, {
