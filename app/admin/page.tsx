@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import styles from "./admin.module.css";
 import Link from "next/link";
-
+import { getStudents, deleteStudent, updateStudent, importStudents } from "@/lib/api";
 export default function AdminPage() {
   const [candidates, setCandidates] = useState<any[]>([]);
   const [message, setMessage] = useState("");
@@ -113,6 +113,21 @@ const handleresetAllVotes = async () => {
   // Opsional: muat ulang data atau status
   window.location.reload(); 
 };
+  
+  // Contoh fungsi update di admin/page.tsx
+const handleUpdate = async (nisn: string, updatedData: any) => {
+  try {
+    await updateStudent(nisn, updatedData); // Pastikan updateStudent sudah di-import di atas!
+    alert("Data berhasil diubah");
+    // Refresh data
+    const data = await getStudents();
+    setStudents(data);
+  } catch (err) {
+    alert("Gagal mengubah data");
+  }
+};
+
+  
 
 const handleResetSingle = async (nisn: string) => {
   if (confirm(`Izinkan NISN ${nisn} untuk memilih ulang?`)) {
