@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import styles from "./admin.module.css";
 import Link from "next/link";
-import { getStudents, deleteStudent, updateStudent, importStudents } from "@/lib/api";
+import { getStudents, deleteStudent, updateStudent, importStudents } from "../../lib/api";
 export default function AdminPage() {
   const [candidates, setCandidates] = useState<any[]>([]);
   const [message, setMessage] = useState("");
