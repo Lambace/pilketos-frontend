@@ -31,7 +31,7 @@ export const importStudents = async (file: File) => {
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/import`, {
     method: 'POST',
-    body: formData, // Jangan set Content-Type manual, biarkan browser yang menanganinya
+    body: formData, // Jangan pakai headers 'Content-Type'
   });
   return res.json();
 };
