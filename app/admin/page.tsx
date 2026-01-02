@@ -127,6 +127,24 @@ const handleResetSingle = async (nisn: string) => {
     }
   }
 };
+
+  // Tambahkan ini agar TypeScript tidak error lagi
+const resetStudentVote = async (nisn: string) => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/votes/reset/${nisn}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Gagal meriset pilihan siswa");
+
+    alert(`✅ Berhasil! Siswa dengan NISN ${nisn} sekarang bisa memilih lagi.`);
+    // Refresh data agar tampilan terupdate
+    window.location.reload(); 
+  } catch (err) {
+    console.error(err);
+    alert("⚠️ Terjadi kesalahan saat meriset data.");
+  }
+};
   return (
     <div className={styles.container}>
       {message && <p className={styles.message}>{message}</p>}
