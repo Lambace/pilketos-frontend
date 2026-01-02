@@ -75,10 +75,19 @@ export default function VotePage() {
             {candidates.map((c) => (
               <div key={c.id} className={styles.card}>
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}/upload/${c.photo}`}
-                  alt={c.name}
-                  className={styles.photo}
-                />
+                  <img
+  src={
+    c.photo && c.photo.startsWith('http') 
+      ? c.photo 
+      : `${process.env.NEXT_PUBLIC_API_URL}/upload/${c.photo}`
+  }
+  alt={c.name}
+  className={styles.photo}
+  onError={(e) => {
+    // Jika gambar gagal dimuat, ganti dengan gambar default
+    (e.target as HTMLImageElement).src = "/default-avatar.png";
+  }}
+/>
                 <h2>{c.name}</h2>
                 <p>
                   <strong>Visi:</strong> {c.vision}
