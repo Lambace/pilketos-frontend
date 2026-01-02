@@ -3,33 +3,51 @@ import { useState, useEffect } from "react";
 import styles from "./admin.module.css";
 import Link from "next/link";
 import { getStudents, deleteStudent, updateStudent, importStudents } from "../../lib/api";
+
 export default function AdminPage() {
+  // --- STATE KANDIDAT ---
   const [candidates, setCandidates] = useState<any[]>([]);
+  const [name, setName] = useState("");
+  const [vision, setVision] = useState("");
+  const [mission, setMission] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  
+  // --- STATE SISWA (BARU DITAMBAHKAN) ---
+  const [students, setStudents] = useState<any[]>([]);
+  
+  // --- STATE UI ---
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editVision, setEditVision] = useState("");
   const [editMission, setEditMission] = useState("");
 
-  const [name, setName] = useState("");
-  const [vision, setVision] = useState("");
-  const [mission, setMission] = useState("");
-  const [photo, setPhoto] = useState<File | null>(null);
-
+  // Ambil data saat halaman dimuat
   useEffect(() => {
-    const fetchCandidates = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates`);
-        const data = await res.json();
-        setCandidates(data);
-      } catch {
-        setMessage("⚠️ Tidak bisa menghubungi server.");
-      }
-    };
     fetchCandidates();
+    fetchStudentsList();
   }, []);
 
-  // ✅ Tambah kandidat
+  const fetchCandidates = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates`);
+      const data = await res.json();
+      setCandidates(data);
+    } catch {
+      setMessage("⚠️ Tidak bisa menghubungi server.");
+    }
+  };
+
+  const fetchStudentsList = async () => {
+    try {
+      const data = await getStudents();
+      setStudents(data);
+    } catch (err) {
+      console.error("Gagal ambil siswa:", err);
+    }
+  };
+
+  // --- LOGIKA KANDIDAT ---
   const handleAddCandidate = async () => {
     try {
       const formData = new FormData();
@@ -46,118 +64,39 @@ export default function AdminPage() {
       if (res.ok) {
         setCandidates([...candidates, data]);
         setMessage("✅ Kandidat berhasil ditambahkan");
-        setName("");
-        setPhoto(null);
-        setVision("");
-        setMission("");
-      } else setMessage("❌ " + (data.error || "Gagal tambah kandidat"));
+        setName(""); setVision(""); setMission(""); setPhoto(null);
+      } else setMessage("❌ " + (data.error || "Gagal"));
     } catch (err) {
-      console.error(err);
-      setMessage("⚠️ Tidak bisa menghubungi server.");
+      setMessage("⚠️ Error server.");
     }
   };
 
-  // ✅ Edit kandidat
-  const handleSaveEdit = async (id: number) => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: editName,
-          vision: editVision,
-          mission: editMission,
-          photo: null, // kalau mau support edit foto, tambahkan field upload
-        }),
-      });
-      if (res.ok) {
-        setCandidates(
-          candidates.map((c) =>
-            c.id === id
-              ? { ...c, name: editName, vision: editVision, mission: editMission }
-              : c
-          )
-        );
-        setMessage("✏️ Kandidat diperbarui");
-        setEditingId(null);
+  // --- LOGIKA SISWA (Hapus & Update) ---
+  const handleDeleteStudent = async (nisn: string) => {
+    if (confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
+      try {
+        await deleteStudent(nisn);
+        setStudents(students.filter(s => s.nisn !== nisn));
+        alert("Terhapus!");
+      } catch (err) {
+        alert("Gagal menghapus");
       }
-    } catch {
-      setMessage("⚠️ Gagal menyimpan perubahan.");
     }
   };
 
-  // ✅ Hapus kandidat
- const handleDelete = async (nisn: string) => {
-  if (confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     try {
-      await deleteStudent(nisn);
-      // Filter state agar baris yang dihapus langsung hilang dari tabel
-      setStudents(students.filter(s => s.nisn !== nisn));
-      alert("Terhapus!");
-    } catch (err) {
-      alert("Gagal menghapus");
+      setMessage("⏳ Mengimpor...");
+      await importStudents(file);
+      setMessage("✅ Import berhasil!");
+      fetchStudentsList(); // Refresh tabel
+    } catch (err: any) {
+      setMessage("❌ " + err.message);
     }
-  }
-};
-// Tambahkan fungsi ini di dalam komponen AdminPage
-const handleresetAllVotes = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/votes/reset`, {
-    method: "DELETE", // Atau POST tergantung rute di backend Anda
-  });
+  };
 
-  if (!res.ok) {
-    throw new Error("Gagal meriset data suara");
-  }
-
-  alert("✅ Semua suara berhasil direset!");
-  // Opsional: muat ulang data atau status
-  window.location.reload(); 
-};
-  
-  // Contoh fungsi update di admin/page.tsx
-const handleUpdate = async (nisn: string, updatedData: any) => {
-  try {
-    await updateStudent(nisn, updatedData); // Pastikan updateStudent sudah di-import di atas!
-    alert("Data berhasil diubah");
-    // Refresh data
-    const data = await getStudents();
-    setStudents(data);
-  } catch (err) {
-    alert("Gagal mengubah data");
-  }
-};
-
-  
-
-const handleResetSingle = async (nisn: string) => {
-  if (confirm(`Izinkan NISN ${nisn} untuk memilih ulang?`)) {
-    try {
-      await resetStudentVote(nisn);
-      alert("Siswa tersebut sekarang bisa login dan memilih lagi.");
-      window.location.reload();
-    } catch (err) {
-      alert("Gagal: " + err.message);
-    }
-  }
-};
-
-  // Tambahkan ini agar TypeScript tidak error lagi
-const resetStudentVote = async (nisn: string) => {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/votes/reset/${nisn}`, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) throw new Error("Gagal meriset pilihan siswa");
-
-    alert(`✅ Berhasil! Siswa dengan NISN ${nisn} sekarang bisa memilih lagi.`);
-    // Refresh data agar tampilan terupdate
-    window.location.reload(); 
-  } catch (err) {
-    console.error(err);
-    alert("⚠️ Terjadi kesalahan saat meriset data.");
-  }
-};
   return (
     <div className={styles.container}>
       {message && <p className={styles.message}>{message}</p>}
@@ -165,16 +104,18 @@ const resetStudentVote = async (nisn: string) => {
       <img src="/logo-vote.png" alt="Logo OSIS" className={styles.logoGlow} />
 
       <div className={styles.buttonGroup}>
-        <Link href="/nisn" className={styles.adminCard}>
-          <div className={styles.icon}>📝</div>
-          <div className={styles.text}>Input NISN</div>
-        </Link>
         <Link href="/hasil-vote" className={styles.adminCard}>
           <div className={styles.icon}>📊</div>
           <div className={styles.text}>Hasil Voting</div>
         </Link>
+        <div className={styles.adminCard} style={{cursor: 'pointer'}}>
+          <div className={styles.icon}>📥</div>
+          <input type="file" onChange={handleImportFile} style={{display:'none'}} id="importExcel" />
+          <label htmlFor="importExcel" style={{cursor: 'pointer'}} className={styles.text}>Import Siswa</label>
+        </div>
       </div>
 
+      {/* SEKSI FORM KANDIDAT */}
       <h2>Tambah Kandidat</h2>
       <div className={styles.form}>
         <input type="text" placeholder="Nama Kandidat" value={name} onChange={(e) => setName(e.target.value)} />
@@ -184,42 +125,57 @@ const resetStudentVote = async (nisn: string) => {
         <button onClick={handleAddCandidate}>Simpan Kandidat</button>
       </div>
 
+      {/* SEKSI TABEL SISWA */}
+      <h2>Daftar Siswa</h2>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>NISN</th>
+            <th>Nama</th>
+            <th>Tingkat</th>
+            <th>Kelas</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students && students.length > 0 ? (
+            students.map((s, index) => (
+              <tr key={s.nisn || index}>
+                <td>{s.nisn || "-"}</td>
+                <td>{s.name || s.nama || s.Nama || "-"}</td> 
+                <td>{s.tingkat || "-"}</td>
+                <td>{s.kelas || "-"}</td>
+                <td>
+                  <button onClick={() => handleDeleteStudent(s.nisn)} className={styles.btnDelete}>
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr><td colSpan={5} style={{ textAlign: 'center' }}>Data siswa kosong</td></tr>
+          )}
+        </tbody>
+      </table>
+
+      {/* SEKSI TABEL KANDIDAT */}
       <h2>Daftar Kandidat</h2>
       <table className={styles.table}>
         <thead>
-          <tr><th>Nama</th><th>Visi</th><th>Misi</th><th>Foto</th><th>Aksi</th></tr>
+          <tr><th>Nama</th><th>Visi</th><th>Foto</th><th>Aksi</th></tr>
         </thead>
         <tbody>
-  {students && students.length > 0 ? (
-    students.map((s, index) => (
-      <tr key={s.nisn || index}>
-        {/* Gunakan operator || "-" untuk semua kolom */}
-        <td>{s.nisn || "-"}</td>
-        <td>{s.name || s.nama || "-"}</td> 
-        <td>{s.tingkat || "-"}</td>
-        <td>{s.kelas || "-"}</td>
-        <td>
-          <button 
-            onClick={() => handleEdit(s)}
-            className="btn-edit"
-          >
-            Edit
-          </button>
-          <button 
-            onClick={() => handleDelete(s.nisn)}
-            className="btn-delete"
-          >
-            Hapus
-          </button>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan={5} style={{ textAlign: 'center' }}>Data siswa kosong</td>
-    </tr>
-  )}
-</tbody>
+          {candidates.map((c) => (
+            <tr key={c.id}>
+              <td>{c.name}</td>
+              <td>{c.vision?.substring(0, 30)}...</td>
+              <td>{c.photo ? "Ada" : "Tidak"}</td>
+              <td>
+                <button onClick={() => confirm("Hapus kandidat?")}>Hapus</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );
