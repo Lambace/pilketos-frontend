@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getStudents, deleteStudent, updateStudent, importStudents } from "../../lib/api";
 
 export default function AdminPage() {
-  // 1. Inisialisasi State agar tidak 'undefined'
+  // 1. Inisialisasi State
   const [candidates, setCandidates] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
   const [message, setMessage] = useState("");
@@ -23,7 +23,7 @@ export default function AdminPage() {
   const loadData = async () => {
     try {
       const dataSiswa = await getStudents();
-      setStudents(dataSiswa || []); // Pastikan jika null jadi array kosong
+      setStudents(dataSiswa || []); 
 
       const resKandidat = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/candidates`);
       const dataKandidat = await resKandidat.json();
@@ -37,13 +37,13 @@ export default function AdminPage() {
     loadData();
   }, []);
 
-  // 3. Fungsi Hapus Siswa (PASTI JALAN)
+  // 3. Fungsi Hapus Siswa
   const handleDeleteStudent = async (nisn: string) => {
     if (!confirm("Hapus siswa ini?")) return;
     try {
       await deleteStudent(nisn);
       alert("✅ Berhasil dihapus");
-      loadData(); // Refresh tabel
+      loadData(); 
     } catch (err) {
       alert("❌ Gagal menghapus");
     }
@@ -54,7 +54,7 @@ export default function AdminPage() {
     const newName = prompt("Masukkan Nama Baru:", editName);
     if (!newName) return;
     try {
-      await updateStudent(nisn, { name: newName, tingkat: "10", kelas: "A" }); // Sesuaikan data
+      await updateStudent(nisn, { name: newName, tingkat: "10", kelas: "A" }); 
       alert("✅ Berhasil diupdate");
       loadData();
     } catch (err) {
@@ -72,16 +72,31 @@ export default function AdminPage() {
       setMessage("✅ Import Berhasil!");
       loadData();
     } catch (err: any) {
-      setMessage("❌ Error: " + err.message);
+      // Jika error message adalah "undefined", tampilkan pesan general
+      const errorMsg = err.message === "undefined" ? "Terjadi kesalahan sistem" : err.message;
+      setMessage("❌ Error: " + errorMsg);
     }
   };
 
   return (
     <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
       <h1>Panel Admin</h1>
-      {message && <p style={{ color: "blue" }}>{message}</p>}
 
-      <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+      {/* --- BAGIAN PERBAIKAN PESAN UNDEFINED --- */}
+      {message && message !== "undefined" && (
+        <p style={{ 
+          color: message.includes("✅") ? "green" : "red", 
+          fontWeight: "bold",
+          padding: "10px",
+          backgroundColor: message.includes("✅") ? "#eaffea" : "#ffeaea",
+          borderRadius: "5px",
+          border: `1px solid ${message.includes("✅") ? "green" : "red"}`
+        }}>
+          {message}
+        </p>
+      )}
+
+      <div style={{ marginBottom: "20px", display: "flex", gap: "10px", marginTop: "10px" }}>
         <input type="file" onChange={handleImport} id="file-import" hidden />
         <label htmlFor="file-import" style={{ padding: "10px", background: "green", color: "white", cursor: "pointer", borderRadius: "5px" }}>
           📥 Import Excel
@@ -106,7 +121,6 @@ export default function AdminPage() {
             students.map((s) => (
               <tr key={s.nisn}>
                 <td>{s.nisn}</td>
-                {/* Solusi Anti-Undefined: Cek semua kemungkinan nama kolom */}
                 <td>{s.name || s.nama || s.Nama || "-"}</td>
                 <td>{s.tingkat || ""}-{s.kelas || ""}</td>
                 <td>
