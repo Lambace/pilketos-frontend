@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import styles from "./login.module.css?v=1";
-
+//import styles from "./login.module.css?v=1";
+const styles: any = {};
 export default function VotePage() {
   const router = useRouter();
   const [candidates, setCandidates] = useState<any[]>([]);
