@@ -38,21 +38,22 @@ export async function getStudents() {
 }
 
 // --- 4. FITUR UPDATE SISWA ---
-export async function updateStudent(nisn: string, data: { name: string; tingkat: string; kelas: string }) {
-  return apiFetch(`/students/${nisn}`, {
+export async function updateStudent(nisn: string, data: any) {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${nisn}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+  return res.json();
 }
 
 // --- 5. FITUR HAPUS SISWA ---
 export async function deleteStudent(nisn: string) {
-  return apiFetch(`/students/${nisn}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${nisn}`, {
     method: "DELETE",
   });
+  return res.json();
 }
-
 // --- 6. FITUR IMPORT EXCEL ---
 export async function importStudents(file: File) {
   const formData = new FormData();
