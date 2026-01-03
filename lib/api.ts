@@ -1,16 +1,20 @@
-const API_URL = "https://voting-backend-production-ea29.up.railway.app"; 
-// Note: Pastikan di backend route-nya diawali /api atau sesuaikan di sini
+const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
+// Helper untuk fetch dasar dengan penanganan error yang lebih detail
 async function apiFetch(endpoint: string, options: any = {}) {
   const res = await fetch(`${API_URL}${endpoint}`, options);
+  
+  // Ambil data respon (baik sukses maupun gagal)
+  const data = await res.json().catch(() => ({}));
+  
   if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Terjadi kesalahan pada server");
+    // Jika ada pesan error dari backend, gunakan itu, jika tidak gunakan default
+    throw new Error(data.message || data.error || "Terjadi kesalahan pada server");
   }
-  return res.json();
+  return data;
 }
 
-// --- 1. LOGIN ---
+// --- 1. FITUR LOGIN ---
 export async function login(nisn: string) {
   return apiFetch("/login", {
     method: "POST",
@@ -19,7 +23,7 @@ export async function login(nisn: string) {
   });
 }
 
-// --- 2. KANDIDAT & VOTING ---
+// --- 2. FITUR VOTING & KANDIDAT ---
 export async function getCandidates() {
   return apiFetch("/candidates");
 }
@@ -35,10 +39,15 @@ export async function submitVote(nisn: string, candidate_id: number) {
 // --- 3. MANAJEMEN SISWA (CRUD) ---
 
 export async function getStudents() {
-  return apiFetch("/students");
+  try {
+    return await apiFetch("/students");
+  } catch (err) {
+    console.error("Gagal mengambil siswa:", err);
+    return [];
+  }
 }
 
-// Tambah Siswa Manual (Sesuai kolom backend: nisn, name, tingkat, kelas)
+// ✅ Tambah Siswa Manual (Menghubungkan ke POST /students di backend)
 export async function addStudent(data: { nisn: string; name: string; tingkat: string; kelas: string }) {
   return apiFetch("/students", {
     method: "POST",
@@ -47,48 +56,51 @@ export async function addStudent(data: { nisn: string; name: string; tingkat: st
   });
 }
 
-// Update Siswa (Backend menggunakan ID primary key)
+// ✅ Update Siswa (Menggunakan NISN sesuai route backend: PUT /students/:nisn)
 export async function updateStudent(nisn: string, data: any) {
-  return apiFetch(`/students/${id}`, { 
+  return apiFetch(`/students/${nisn}`, { 
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 }
 
-// Hapus Siswa (Backend menggunakan ID primary key)
+// ✅ Hapus Siswa (Menggunakan NISN sesuai route backend: DELETE /students/:nisn)
 export async function deleteStudent(nisn: string) {
-  return apiFetch(`/students/${id}`, { 
+  return apiFetch(`/students/${nisn}`, { 
     method: "DELETE",
   });
 }
 
-// Reset Semua Siswa
+// ✅ Reset Semua Siswa (Menghubungkan ke rute DELETE baru untuk reset)
 export async function resetStudents() {
-  return apiFetch("/students", {
+  return apiFetch("/students-reset-all", {
     method: "DELETE",
   });
 }
 
-// --- 4. IMPORT & DOWNLOAD ---
+// --- 4. FITUR IMPORT & DOWNLOAD ---
 
+// ✅ Import Excel
 export async function importStudents(formData: FormData) {
-  // Langsung gunakan FormData dari parameter agar fleksibel
   const res = await fetch(`${API_URL}/students/import`, {
     method: "POST",
-    body: formData, 
+    body: formData, // Jangan set header Content-Type agar browser otomatis set boundary
   });
 
-  if (!res.ok) throw new Error("Gagal mengimpor data siswa");
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.message || "Gagal mengimpor data siswa");
+  }
+  return data;
 }
 
+// ✅ Download Format (Mengarah langsung ke endpoint download-format di backend)
 export async function downloadStudentFormat() {
-  // Mengarah langsung ke endpoint download-format di backend
   window.location.href = `${API_URL}/students/download-format`;
 }
 
-// --- 5. SETTINGS ---
+// --- 5. FITUR SETTINGS ---
 export async function getSettings() {
   return apiFetch("/settings");
 }
