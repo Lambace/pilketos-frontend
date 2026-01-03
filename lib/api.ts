@@ -1,4 +1,4 @@
-const API_URL = "https://voting-backend-production-ea29.up.railway.app/api"; 
+const API_URL = "https://voting-backend-production-ea29.up.railway.app"; 
 // Note: Pastikan di backend route-nya diawali /api atau sesuaikan di sini
 
 async function apiFetch(endpoint: string, options: any = {}) {
@@ -48,7 +48,7 @@ export async function addStudent(data: { nisn: string; name: string; tingkat: st
 }
 
 // Update Siswa (Backend menggunakan ID primary key)
-export async function updateStudent(id: number, data: any) {
+export async function updateStudent(nisn: string, data: any) {
   return apiFetch(`/students/${id}`, { 
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -57,7 +57,7 @@ export async function updateStudent(id: number, data: any) {
 }
 
 // Hapus Siswa (Backend menggunakan ID primary key)
-export async function deleteStudent(id: number) {
+export async function deleteStudent(nisn: string) {
   return apiFetch(`/students/${id}`, { 
     method: "DELETE",
   });
