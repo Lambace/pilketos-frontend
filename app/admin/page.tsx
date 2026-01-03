@@ -91,6 +91,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
         )}
 
+       {/* --- SECTION DATA SISWA --- */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
@@ -104,37 +105,75 @@ const handleSubmit = async (e: React.FormEvent) => {
                     const fd = new FormData(); fd.append("file", file);
                     importStudents(fd).then(() => { alert("Import Berhasil"); loadData(); });
                   }
+                }} style={{display:'none'}} />
+                <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
+              </div>
+            </div>
 
-{/* FORM INPUT KANDIDAT */}
-{view === "input-kandidat" && (
-  <section className={styles.formContainer}>
-    <h1>Input Kandidat Baru</h1>
-    <form onSubmit={handleSubmit}>
-      <div className={styles.inputField}>
-        <label>Nama Kandidat</label>
-        <input 
-          type="text" 
-          placeholder="Contoh: Andi & Budi"
-          value={formData.name} 
-          onChange={e => setFormData({...formData, name: e.target.value})} 
-          required 
-        />
-      </div>
-      <div className={styles.inputField}>
-        <label>Visi & Misi (Singkat)</label>
-        <textarea 
-          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
-          placeholder="Masukkan visi misi..."
-          onChange={e => setFormData({...formData, nisn: e.target.value})} // Sementara pakai field nisn atau buat state baru
-        />
-      </div>
-      <div className={styles.buttonGroupLarge}>
-        <button type="submit" className={styles.btnSave}>Simpan Kandidat</button>
-        <button type="button" className={styles.btnCancel} onClick={() => setView("dashboard")}>Batal</button>
-      </div>
-    </form>
-  </section>
-)}
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>NISN</th>
+                  <th>Nama</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.length > 0 ? (
+                  students.map((s) => (
+                    <tr key={s.nisn}>
+                      <td>{s.nisn}</td>
+                      <td>{s.name || s.nama || "-"}</td>
+                      <td>
+                        <div className={styles.actionButtons}>
+                          <button onClick={() => handleEdit(s)} className={styles.btnEdit}>Edit</button>
+                          <button onClick={() => handleDelete(s.nisn)} className={styles.btnDelete}>Hapus</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className={styles.empty}>Data tidak ditemukan / Kosong</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            <button onClick={async () => { if(confirm("Reset semua?")) { await resetStudents(); loadData(); } }} className={styles.btnReset}>⚠️ Reset Semua Siswa</button>
+          </section>
+        )}
+
+        {/* --- FORM INPUT KANDIDAT --- */}
+        {view === "input-kandidat" && (
+          <section className={styles.formContainer}>
+            <h1>Input Kandidat Baru</h1>
+            <form onSubmit={handleSubmit}>
+              <div className={styles.inputField}>
+                <label>Nama Kandidat</label>
+                <input 
+                  type="text" 
+                  placeholder="Contoh: Andi & Budi"
+                  value={formData.name} 
+                  onChange={e => setFormData({...formData, name: e.target.value})} 
+                  required 
+                />
+              </div>
+              <div className={styles.inputField}>
+                <label>Visi & Misi (Singkat)</label>
+                <textarea 
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                  placeholder="Masukkan visi misi..."
+                  value={formData.nisn} // Menggunakan field nisn sementara agar tidak error
+                  onChange={e => setFormData({...formData, nisn: e.target.value})} 
+                />
+              </div>
+              <div className={styles.buttonGroupLarge}>
+                <button type="submit" className={styles.btnSave}>Simpan Kandidat</button>
+                <button type="button" className={styles.btnCancel} onClick={() => setView("dashboard")}>Batal</button>
+              </div>
+            </form>
+          </section>
+        )}
             
                 }} style={{display:'none'}} />
                 <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
