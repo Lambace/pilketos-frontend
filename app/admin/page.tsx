@@ -11,7 +11,13 @@ export default function AdminPage() {
   const [view, setView] = useState("dashboard");
   const [students, setStudents] = useState<any[]>([]);
   const [candidates, setCandidates] = useState<any[]>([]);
-  const [formData, setFormData] = useState({ nisn: "", name: "", tingkat: "-", kelas: "-" });
+  const [formData, setFormData] = useState({ 
+    nisn: "", 
+    name: "", 
+    tingkat: "-", 
+    kelas: "-",
+    image_url: "" // Tambahkan untuk menangani input foto
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadData = async () => {
@@ -35,7 +41,7 @@ export default function AdminPage() {
         await addStudent(formData);
         alert("✅ Berhasil Simpan!");
       }
-      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-" });
+      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "" });
       loadData();
       setView("input-nisn");
     } catch (err: any) { alert("❌ " + err.message); }
@@ -49,15 +55,15 @@ export default function AdminPage() {
     } catch (err) { alert("Gagal hapus"); }
   };
 
-  // --- PERBAIKAN DI SINI: Nama fungsi addCandidate disamakan ---
+  // --- SUBMIT KANDIDAT ---
   const handleSubmitKandidat = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await addCandidate({
         name: formData.name,
-        photo: formData.image_url,
-        vision: formData.nisn, // Menggunakan field nisn untuk visi misi sementara
-        mission: "-"
+        photo: formData.image_url, // Mengirim URL ke kolom 'photo'
+        vision: formData.nisn,     // Menggunakan field nisn untuk visi
+        mission: "-"               // Default mission
       });
       alert("✅ Kandidat berhasil ditambahkan!");
       setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "" });
@@ -96,7 +102,7 @@ export default function AdminPage() {
             <div className={styles.headerRow}>
               <h1>Data Siswa</h1>
               <div className={styles.buttonGroupLarge}>
-                <button onClick={() => { setFormData({nisn:"", name:"", tingkat:"-", kelas:"-"}); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
+                <button onClick={() => { setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:""}); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
                 <button onClick={() => downloadStudentFormat()} className={styles.btnExcel}>📥 Download Format</button>
                 <input type="file" ref={fileInputRef} onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -118,7 +124,7 @@ export default function AdminPage() {
                     <td>{s.nisn}</td>
                     <td>{s.name || s.nama}</td>
                     <td>
-                      <button onClick={() => { setFormData(s); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
+                      <button onClick={() => { setFormData({...s, image_url: ""}); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
                       <button onClick={() => handleDelete(s.nisn)} className={styles.btnDelete}>Hapus</button>
                     </td>
                   </tr>
@@ -130,34 +136,68 @@ export default function AdminPage() {
         )}
 
         {view === "input-kandidat" && (
-          <section className={styles.formContainer}>
-            <h1>Input Kandidat Baru</h1>
-            <form onSubmit={handleSubmitKandidat}>
-              <div className={styles.inputField}>
-                <label>Nama Kandidat</label>
-                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+          <section>
+            <div className={styles.formContainer}>
+              <h1>Input Kandidat Baru</h1>
+              <form onSubmit={handleSubmitKandidat}>
+                <div className={styles.inputField}>
+                  <label>Nama Kandidat</label>
+                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                </div>
+                <div className={styles.inputField}>
+                  <label>URL Foto (Link Gambar)</label>
+                  <input type="text" placeholder="https://..." value={formData.image_url} onChange={e => setFormData({...formData, image_url: e.target.value})} required />
+                </div>
+                <div className={styles.inputField}>
+                  <label>Visi & Misi</label>
+                  <textarea 
+                    style={{ width: '100%', padding: '10px', minHeight: '100px', borderRadius: '8px' }} 
+                    value={formData.nisn} 
+                    onChange={e => setFormData({...formData, nisn: e.target.value})} 
+                    required 
+                  />
+                </div>
+                <button type="submit" className={styles.btnSave}>Simpan Kandidat</button>
+              </form>
+            </div>
+
+            {/* DAFTAR KANDIDAT DI BAWAH FORM */}
+            <div style={{ marginTop: '40px' }}>
+              <h2>Daftar Kandidat Terdaftar</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px', marginTop: '20px' }}>
+                {candidates.map((c) => (
+                  <div key={c.id} style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '12px', textAlign: 'center', backgroundColor: '#fff' }}>
+                    <img 
+                      src={c.photo} 
+                      alt={c.name} 
+                      style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px' }} 
+                      onError={(e) => {(e.target as HTMLImageElement).src = 'https://via.placeholder.com/100'}}
+                    />
+                    <h3 style={{ margin: '5px 0' }}>{c.name}</h3>
+                    <p style={{ fontSize: '12px', color: '#666' }}>ID: {c.id}</p>
+                  </div>
+                ))}
+                {candidates.length === 0 && <p>Belum ada kandidat.</p>}
               </div>
-              <div className={styles.inputField}>
-                <label>Visi & Misi</label>
-                <textarea 
-                  style={{ width: '100%', padding: '10px' }} 
-                  value={formData.nisn} 
-                  onChange={e => setFormData({...formData, nisn: e.target.value})} 
-                  required 
-                />
-              </div>
-              <button type="submit" className={styles.btnSave}>Simpan Kandidat</button>
-            </form>
+            </div>
           </section>
         )}
 
         {(view === "form-manual-nisn" || view === "edit-siswa") && (
           <section className={styles.formContainer}>
             <h2>{view === "edit-siswa" ? "Edit" : "Tambah"} Siswa</h2>
-            <input type="text" placeholder="NISN" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} />
-            <input type="text" placeholder="Nama" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-            <button onClick={handleSave} className={styles.btnSave}>Simpan</button>
-            <button onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
+            <div className={styles.inputField}>
+              <label>NISN</label>
+              <input type="text" placeholder="NISN" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} disabled={view === "edit-siswa"} />
+            </div>
+            <div className={styles.inputField}>
+              <label>Nama</label>
+              <input type="text" placeholder="Nama" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
+            <div className={styles.buttonGroupLarge}>
+              <button onClick={handleSave} className={styles.btnSave}>Simpan</button>
+              <button onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
+            </div>
           </section>
         )}
       </main>
