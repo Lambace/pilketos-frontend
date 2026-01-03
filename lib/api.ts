@@ -1,6 +1,6 @@
-const API_URL = "https://voting-backend-production-ea29.up.railway.app";
+const API_URL = "https://voting-backend-production-ea29.up.railway.app/api"; 
+// Note: Pastikan di backend route-nya diawali /api atau sesuaikan di sini
 
-// Helper untuk fetch dasar
 async function apiFetch(endpoint: string, options: any = {}) {
   const res = await fetch(`${API_URL}${endpoint}`, options);
   if (!res.ok) {
@@ -10,7 +10,7 @@ async function apiFetch(endpoint: string, options: any = {}) {
   return res.json();
 }
 
-// --- 1. FITUR LOGIN ---
+// --- 1. LOGIN ---
 export async function login(nisn: string) {
   return apiFetch("/login", {
     method: "POST",
@@ -19,7 +19,7 @@ export async function login(nisn: string) {
   });
 }
 
-// --- 2. FITUR VOTING & KANDIDAT ---
+// --- 2. KANDIDAT & VOTING ---
 export async function getCandidates() {
   return apiFetch("/candidates");
 }
@@ -32,60 +32,63 @@ export async function submitVote(nisn: string, candidate_id: number) {
   });
 }
 
-// --- 3. FITUR SISWA (AMBIL SEMUA) ---
+// --- 3. MANAJEMEN SISWA (CRUD) ---
+
 export async function getStudents() {
-  try {
-    const res = await fetch(`${API_URL}/students`);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch (err) {
-    return []; // Kembalikan array kosong agar tidak undefined
-  }
+  return apiFetch("/students");
 }
-// --- 4. FITUR UPDATE SISWA ---
-export async function updateStudent(nisn: string, data: any) {
-  // GANTI process.env MENJADI API_URL
-  const res = await fetch(`${API_URL}/students/${nisn}`, { 
+
+// Tambah Siswa Manual (Sesuai kolom backend: nisn, name, tingkat, kelas)
+export async function addStudent(data: { nisn: string; name: string; tingkat: string; kelas: string }) {
+  return apiFetch("/students", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+// Update Siswa (Backend menggunakan ID primary key)
+export async function updateStudent(id: number, data: any) {
+  return apiFetch(`/students/${id}`, { 
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Gagal update data");
-  return res.json();
 }
 
-// --- 5. FITUR HAPUS SISWA ---
-export async function deleteStudent(nisn: string) {
-  // GANTI process.env MENJADI API_URL
-  const res = await fetch(`${API_URL}/students/${nisn}`, { 
+// Hapus Siswa (Backend menggunakan ID primary key)
+export async function deleteStudent(id: number) {
+  return apiFetch(`/students/${id}`, { 
     method: "DELETE",
   });
-  if (!res.ok) throw new Error("Gagal menghapus data");
-  return res.json();
 }
-// --- 6. FITUR IMPORT EXCEL ---
-export async function importStudents(file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
 
+// Reset Semua Siswa
+export async function resetStudents() {
+  return apiFetch("/students", {
+    method: "DELETE",
+  });
+}
+
+// --- 4. IMPORT & DOWNLOAD ---
+
+export async function importStudents(formData: FormData) {
+  // Langsung gunakan FormData dari parameter agar fleksibel
   const res = await fetch(`${API_URL}/students/import`, {
     method: "POST",
-    body: formData, // Browser otomatis set boundary
+    body: formData, 
   });
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Gagal mengimpor data siswa");
-  }
+  if (!res.ok) throw new Error("Gagal mengimpor data siswa");
   return res.json();
 }
 
-// --- 7. FITUR DOWNLOAD FORMAT ---
 export async function downloadStudentFormat() {
+  // Mengarah langsung ke endpoint download-format di backend
   window.location.href = `${API_URL}/students/download-format`;
 }
 
-// --- 8. FITUR SETTINGS ---
+// --- 5. SETTINGS ---
 export async function getSettings() {
   return apiFetch("/settings");
 }
