@@ -100,6 +100,20 @@ export async function downloadStudentFormat() {
   window.location.href = `${API_URL}/students/download-format`;
 }
 
+export async function addCandidate(data: any) {
+  return apiFetch("/candidates", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteCandidate(id: number) {
+  return apiFetch(`/candidates/${id}`, {
+    method: "DELETE",
+  });
+}
+
 // --- 5. FITUR SETTINGS ---
 export async function getSettings() {
   return apiFetch("/settings");
