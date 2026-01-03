@@ -8,7 +8,6 @@ async function apiFetch(endpoint: string, options: any = {}) {
   const data = await res.json().catch(() => ({}));
   
   if (!res.ok) {
-    // Jika ada pesan error dari backend, gunakan itu, jika tidak gunakan default
     throw new Error(data.message || data.error || "Terjadi kesalahan pada server");
   }
   return data;
@@ -36,6 +35,31 @@ export async function submitVote(nisn: string, candidate_id: number) {
   });
 }
 
+// ✅ Tambah Kandidat
+export async function addCandidate(data: any) {
+  return apiFetch("/candidates", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+// ✅ UPDATE KANDIDAT (PENTING: Untuk fitur Edit)
+export async function updateCandidate(id: number, data: any) {
+  return apiFetch(`/candidates/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+// ✅ Hapus Kandidat
+export async function deleteCandidate(id: number) {
+  return apiFetch(`/candidates/${id}`, {
+    method: "DELETE",
+  });
+}
+
 // --- 3. MANAJEMEN SISWA (CRUD) ---
 
 export async function getStudents() {
@@ -47,7 +71,6 @@ export async function getStudents() {
   }
 }
 
-// ✅ Tambah Siswa Manual (Menghubungkan ke POST /students di backend)
 export async function addStudent(data: { nisn: string; name: string; tingkat: string; kelas: string }) {
   return apiFetch("/students", {
     method: "POST",
@@ -56,7 +79,6 @@ export async function addStudent(data: { nisn: string; name: string; tingkat: st
   });
 }
 
-// ✅ Update Siswa (Menggunakan NISN sesuai route backend: PUT /students/:nisn)
 export async function updateStudent(nisn: string, data: any) {
   return apiFetch(`/students/${nisn}`, { 
     method: "PUT",
@@ -65,27 +87,36 @@ export async function updateStudent(nisn: string, data: any) {
   });
 }
 
-// ✅ Hapus Siswa (Menggunakan NISN sesuai route backend: DELETE /students/:nisn)
 export async function deleteStudent(nisn: string) {
   return apiFetch(`/students/${nisn}`, { 
     method: "DELETE",
   });
 }
 
-// ✅ Reset Semua Siswa (Menghubungkan ke rute DELETE baru untuk reset)
 export async function resetStudents() {
   return apiFetch("/students-reset-all", {
     method: "DELETE",
   });
 }
 
-// --- 4. FITUR IMPORT & DOWNLOAD ---
+// --- 4. FITUR HASIL VOTE (QUICK COUNT) ---
 
-// ✅ Import Excel
+// ✅ Ambil hasil untuk Chart
+export async function getResults() {
+  return apiFetch("/results");
+}
+
+// ✅ Ambil Pemenang Sementara
+export async function getWinner() {
+  return apiFetch("/results/winner");
+}
+
+// --- 5. FITUR IMPORT & DOWNLOAD ---
+
 export async function importStudents(formData: FormData) {
   const res = await fetch(`${API_URL}/students/import`, {
     method: "POST",
-    body: formData, // Jangan set header Content-Type agar browser otomatis set boundary
+    body: formData, 
   });
 
   const data = await res.json().catch(() => ({}));
@@ -95,27 +126,11 @@ export async function importStudents(formData: FormData) {
   return data;
 }
 
-// ✅ Download Format (Mengarah langsung ke endpoint download-format di backend)
 export async function downloadStudentFormat() {
   window.location.href = `${API_URL}/students/download-format`;
 }
 
-// Fungsi untuk menambah ke tabel candidates
-export async function addCandidate(data: any) {
-  return apiFetch("/candidates", { // Rute API tetap ke /candidates
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-}
-
-export async function deleteCandidate(id: number) {
-  return apiFetch(`/candidates/${id}`, {
-    method: "DELETE",
-  });
-}
-
-// --- 5. FITUR SETTINGS ---
+// --- 6. FITUR SETTINGS ---
 export async function getSettings() {
   return apiFetch("/settings");
 }
