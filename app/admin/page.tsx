@@ -57,7 +57,7 @@ export default function AdminPage() {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   try {
-    await addCandidate(formData); // Kirim nama, visi, misi ke backend
+    await addCandidates(formData); // Kirim nama, visi, misi ke backend
     alert("Kandidat berhasil ditambahkan!");
     // Kosongkan form atau arahkan ke dashboard
   } catch (err) {
