@@ -94,20 +94,49 @@ export default function AdminPage() {
                 <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
               </div>
             </div>
-            <table className={styles.table}>
-              <thead><tr><th>NISN</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr></thead>
-              <tbody>
-                {students.map((s) => (
-                  <tr key={s.nisn}>
-                    <td>{s.nisn}</td><td>{s.name}</td><td>{s.tingkat} {s.kelas}</td>
-                    <td className={styles.tableActions}>
-                      <button className={styles.btnEdit} onClick={() => handleEdit(s)}>Edit</button>
-                      <button className={styles.btnDelete} onClick={() => handleDelete(s.nisn)}>Hapus</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+           <table className={styles.table}>
+  <thead>
+    <tr>
+      <th>NISN</th>
+      <th>Nama</th>
+      {/* Kolom Kelas sudah dihapus dari sini */}
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    {students.length > 0 ? (
+      students.map((s) => (
+        <tr key={s.nisn}>
+          <td>{s.nisn}</td>
+          <td>{s.name || s.nama || "-"}</td>
+          {/* Baris data kelas (s.tingkat/s.kelas) sudah dihapus dari sini */}
+          <td>
+            <div className={styles.actionButtons}>
+               <button 
+                onClick={() => handleEdit(s)} 
+                className={styles.btnEdit}
+              >
+                Edit
+              </button>
+              <button 
+                onClick={() => handleDelete(s.nisn)} 
+                className={styles.btnDelete}
+              >
+                Hapus
+              </button>
+            </div>
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan={3} className={styles.empty}> {/* colSpan diubah jadi 3 */}
+          Data tidak ditemukan / Kosong
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
             <button onClick={async () => { if(confirm("Reset semua?")) { await resetStudents(); loadData(); } }} className={styles.btnReset}>⚠️ Reset Semua Siswa</button>
           </section>
         )}
