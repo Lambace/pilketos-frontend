@@ -61,3 +61,64 @@
   align-items: center;
   margin-bottom: 20px;
 }
+
+/* Penempatan Tombol dengan Jarak (Gap) */
+.buttonGroupLarge {
+  display: flex;
+  gap: 15px; /* Jarak antar tombol lebih lebar */
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.buttonGroupSmall {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Tombol Manual */
+.btnManual {
+  background-color: #6200ea;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Form Styling */
+.formContainer {
+  max-width: 500px;
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.inputField {
+  margin-bottom: 15px;
+}
+
+.inputField label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.inputField input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btnSave { background: green; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+.btnCancel { background: #999; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+
+/* Table Action Spacing */
+.tableActions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
