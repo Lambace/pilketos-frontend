@@ -55,11 +55,12 @@ export default function AdminPage() {
     try {
       await addCandidate({
         name: formData.name,
+        photo: formData.image_url,
         vision: formData.nisn, // Menggunakan field nisn untuk visi misi sementara
         mission: "-"
       });
       alert("✅ Kandidat berhasil ditambahkan!");
-      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-" });
+      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "" });
       loadData();
       setView("dashboard");
     } catch (err) {
