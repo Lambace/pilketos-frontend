@@ -41,11 +41,6 @@ export default function AdminPage() {
     } catch (err: any) { alert("❌ " + err.message); }
   };
 
-  const handleEdit = (s: any) => {
-    setFormData({ nisn: s.nisn, name: s.name, tingkat: s.tingkat, kelas: s.kelas });
-    setView("edit-siswa");
-  };
-
   const handleDelete = async (nisn: string) => {
     if (!confirm("Hapus siswa ini?")) return;
     try {
@@ -54,20 +49,24 @@ export default function AdminPage() {
     } catch (err) { alert("Gagal hapus"); }
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    // PERBAIKAN: Hapus huruf 's', sesuaikan dengan nama yang di-import
-    await addCandidate(formData); 
-    alert("✅ Kandidat berhasil ditambahkan!");
-    setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-" }); // Reset form
-    loadData(); // Refresh data
-    setView("dashboard"); // Kembali ke dashboard
-  } catch (err) {
-    alert("❌ Gagal menyimpan data kandidat");
-  }
-};
-  
+  // --- PERBAIKAN DI SINI: Nama fungsi addCandidate disamakan ---
+  const handleSubmitKandidat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await addCandidate({
+        name: formData.name,
+        vision: formData.nisn, // Menggunakan field nisn untuk visi misi sementara
+        mission: "-"
+      });
+      alert("✅ Kandidat berhasil ditambahkan!");
+      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-" });
+      loadData();
+      setView("dashboard");
+    } catch (err) {
+      alert("❌ Gagal menyimpan data kandidat");
+    }
+  };
+
   return (
     <div className={styles.adminLayout}>
       <aside className={styles.sidebar}>
@@ -91,7 +90,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
         )}
 
-       {/* --- SECTION DATA SISWA --- */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
@@ -109,136 +107,56 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
               </div>
             </div>
-
             <table className={styles.table}>
               <thead>
-                <tr>
-                  <th>NISN</th>
-                  <th>Nama</th>
-                  <th>Aksi</th>
-                </tr>
+                <tr><th>NISN</th><th>Nama</th><th>Aksi</th></tr>
               </thead>
               <tbody>
-                {students.length > 0 ? (
-                  students.map((s) => (
-                    <tr key={s.nisn}>
-                      <td>{s.nisn}</td>
-                      <td>{s.name || s.nama || "-"}</td>
-                      <td>
-                        <div className={styles.actionButtons}>
-                          <button onClick={() => handleEdit(s)} className={styles.btnEdit}>Edit</button>
-                          <button onClick={() => handleDelete(s.nisn)} className={styles.btnDelete}>Hapus</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={3} className={styles.empty}>Data tidak ditemukan / Kosong</td>
+                {students.map((s) => (
+                  <tr key={s.nisn}>
+                    <td>{s.nisn}</td>
+                    <td>{s.name || s.nama}</td>
+                    <td>
+                      <button onClick={() => { setFormData(s); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
+                      <button onClick={() => handleDelete(s.nisn)} className={styles.btnDelete}>Hapus</button>
+                    </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
-            <button onClick={async () => { if(confirm("Reset semua?")) { await resetStudents(); loadData(); } }} className={styles.btnReset}>⚠️ Reset Semua Siswa</button>
+            <button onClick={async () => { if(confirm("Reset?")) { await resetStudents(); loadData(); } }} className={styles.btnReset}>⚠️ Reset Semua Siswa</button>
           </section>
         )}
 
-        {/* --- FORM INPUT KANDIDAT --- */}
         {view === "input-kandidat" && (
           <section className={styles.formContainer}>
             <h1>Input Kandidat Baru</h1>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmitKandidat}>
               <div className={styles.inputField}>
                 <label>Nama Kandidat</label>
-                <input 
-                  type="text" 
-                  placeholder="Contoh: Andi & Budi"
-                  value={formData.name} 
-                  onChange={e => setFormData({...formData, name: e.target.value})} 
+                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+              </div>
+              <div className={styles.inputField}>
+                <label>Visi & Misi</label>
+                <textarea 
+                  style={{ width: '100%', padding: '10px' }} 
+                  value={formData.nisn} 
+                  onChange={e => setFormData({...formData, nisn: e.target.value})} 
                   required 
                 />
               </div>
-              <div className={styles.inputField}>
-                <label>Visi & Misi (Singkat)</label>
-                <textarea 
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
-                  placeholder="Masukkan visi misi..."
-                  value={formData.nisn} // Menggunakan field nisn sementara agar tidak error
-                  onChange={e => setFormData({...formData, nisn: e.target.value})} 
-                />
-              </div>
-              <div className={styles.buttonGroupLarge}>
-                <button type="submit" className={styles.btnSave}>Simpan Kandidat</button>
-                <button type="button" className={styles.btnCancel} onClick={() => setView("dashboard")}>Batal</button>
-              </div>
+              <button type="submit" className={styles.btnSave}>Simpan Kandidat</button>
             </form>
-          </section>
-        )}
-            
-                }} style={{display:'none'}} />
-                <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
-              </div>
-            </div>
-           <table className={styles.table}>
-  <thead>
-    <tr>
-      <th>NISN</th>
-      <th>Nama</th>
-      {/* Kolom Kelas sudah dihapus dari sini */}
-      <th>Aksi</th>
-    </tr>
-  </thead>
-  <tbody>
-    {students.length > 0 ? (
-      students.map((s) => (
-        <tr key={s.nisn}>
-          <td>{s.nisn}</td>
-          <td>{s.name || s.nama || "-"}</td>
-          {/* Baris data kelas (s.tingkat/s.kelas) sudah dihapus dari sini */}
-          <td>
-            <div className={styles.actionButtons}>
-               <button 
-                onClick={() => handleEdit(s)} 
-                className={styles.btnEdit}
-              >
-                Edit
-              </button>
-              <button 
-                onClick={() => handleDelete(s.nisn)} 
-                className={styles.btnDelete}
-              >
-                Hapus
-              </button>
-            </div>
-          </td>
-        </tr>
-      ))
-    ) : (
-      <tr>
-        <td colSpan={3} className={styles.empty}> {/* colSpan diubah jadi 3 */}
-          Data tidak ditemukan / Kosong
-        </td>
-      </tr>
-    )}
-  </tbody>
-</table>
-            <button onClick={async () => { if(confirm("Reset semua?")) { await resetStudents(); loadData(); } }} className={styles.btnReset}>⚠️ Reset Semua Siswa</button>
           </section>
         )}
 
         {(view === "form-manual-nisn" || view === "edit-siswa") && (
           <section className={styles.formContainer}>
-            <h2>{view === "edit-siswa" ? "Edit Siswa" : "Tambah Siswa"}</h2>
-            <div className={styles.inputField}><label>NISN</label>
-              <input type="text" value={formData.nisn} disabled={view === "edit-siswa"} onChange={e => setFormData({...formData, nisn: e.target.value})} />
-            </div>
-            <div className={styles.inputField}><label>Nama</label>
-              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-            </div>
-            <div className={styles.buttonGroupLarge}>
-              <button className={styles.btnSave} onClick={handleSave}>Simpan</button>
-              <button className={styles.btnCancel} onClick={() => setView("input-nisn")}>Batal</button>
-            </div>
+            <h2>{view === "edit-siswa" ? "Edit" : "Tambah"} Siswa</h2>
+            <input type="text" placeholder="NISN" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} />
+            <input type="text" placeholder="Nama" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            <button onClick={handleSave} className={styles.btnSave}>Simpan</button>
+            <button onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
           </section>
         )}
       </main>
