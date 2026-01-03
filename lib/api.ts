@@ -100,8 +100,9 @@ export async function downloadStudentFormat() {
   window.location.href = `${API_URL}/students/download-format`;
 }
 
+// Fungsi untuk menambah ke tabel candidates
 export async function addCandidate(data: any) {
-  return apiFetch("/candidates", {
+  return apiFetch("/candidates", { // Rute API tetap ke /candidates
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
