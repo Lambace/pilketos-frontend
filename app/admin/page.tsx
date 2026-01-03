@@ -2,16 +2,26 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import styles from "./admin.module.css";
-// Hubungkan dengan lib/api yang memanggil route Express Anda
-import { getStudents, deleteStudent, getCandidates, addStudent, resetStudents, importStudents } from "../../lib/api";
+import { 
+  getStudents, 
+  deleteStudent, 
+  getCandidates, 
+  addStudent, 
+  resetStudents, 
+  importStudents, 
+  updateStudent,
+  downloadStudentFormat 
+} from "../../lib/api";
 
-type View = "dashboard" | "input-nisn" | "input-kandidat" | "form-manual-nisn";
+type View = "dashboard" | "input-nisn" | "input-kandidat" | "form-manual-nisn" | "edit-siswa";
 
 export default function AdminPage() {
   const [view, setView] = useState<View>("dashboard");
   const [students, setStudents] = useState<any[]>([]);
   const [candidates, setCandidates] = useState<any[]>([]);
-  const [formData, setFormData] = useState({ nisn: "", name: "", tingkat: "-", kelas: "-" });
+  
+  // Form States
+  const [formData, setFormData] = useState({ id: null, nisn: "", name: "", tingkat: "-", kelas: "-" });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadData = async () => {
@@ -25,11 +35,12 @@ export default function AdminPage() {
 
   useEffect(() => { loadData(); }, []);
 
-  // ✅ 1. DOWNLOAD FORMAT (student-format.xlsx dari backend)
+  // ✅ 1. DOWNLOAD FORMAT (Menggunakan fungsi dari lib/api)
   const handleDownloadFormat = () => {
-    // Pastikan URL mengarah ke port backend Anda (contoh: localhost:5000)
-    window.location.href = "http://localhost:5000/api/students/download-format";
-    alert("📥 Mengunduh format student-format.xlsx...");
+    try {
+      downloadStudentFormat();
+      alert("📥 Permintaan download dikirim ke server...");
+    } catch (err) { alert("❌ Gagal mendownload format."); }
   };
 
   // ✅ 2. IMPORT EXCEL
@@ -45,6 +56,7 @@ export default function AdminPage() {
       await importStudents(data);
       alert("✅ Berhasil mengimpor data!");
       loadData();
+      if (fileInputRef.current) fileInputRef.current.value = ""; // Reset input
     } catch (err) { alert("❌ Gagal mengimpor data."); }
   };
 
@@ -59,16 +71,37 @@ export default function AdminPage() {
     }
   };
 
-  // ✅ 4. SIMPAN MANUAL
-  const handleSaveManual = async () => {
+  // ✅ 4. SIMPAN (TAMBAH / UPDATE)
+  const handleSave = async () => {
     if (!formData.nisn || !formData.name) return alert("⚠️ NISN dan Nama wajib diisi!");
+    
     try {
-      await addStudent(formData); // Mengirim object {nisn, name, tingkat, kelas}
-      alert("✅ Siswa berhasil ditambahkan!");
-      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-" });
+      if (view === "edit-siswa" && formData.id) {
+        // Mode Update
+        await updateStudent(formData.id, formData);
+        alert("✅ Data siswa berhasil diperbarui!");
+      } else {
+        // Mode Tambah Manual
+        await addStudent(formData);
+        alert("✅ Siswa berhasil ditambahkan!");
+      }
+      
+      setFormData({ id: null, nisn: "", name: "", tingkat: "-", kelas: "-" });
       loadData();
       setView("input-nisn");
-    } catch (err) { alert("❌ Gagal menyimpan."); }
+    } catch (err) { alert("❌ Terjadi kesalahan saat menyimpan."); }
+  };
+
+  // ✅ 5. HANDLE EDIT BUTTON
+  const handleEditClick = (siswa: any) => {
+    setFormData({
+      id: siswa.id,
+      nisn: siswa.nisn,
+      name: siswa.name,
+      tingkat: siswa.tingkat || "-",
+      kelas: siswa.kelas || "-"
+    });
+    setView("edit-siswa");
   };
 
   return (
@@ -78,14 +111,14 @@ export default function AdminPage() {
         <h2 className={styles.logo}>E-Vote Admin</h2>
         <nav className={styles.nav}>
           <button onClick={() => setView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
-          <button onClick={() => setView("input-nisn")} className={view === "input-nisn" || view === "form-manual-nisn" ? styles.active : ""}>👤 Input NISN</button>
+          <button onClick={() => setView("input-nisn")} className={view === "input-nisn" || view === "form-manual-nisn" || view === "edit-siswa" ? styles.active : ""}>👤 Input NISN</button>
           <button onClick={() => setView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Input Kandidat</button>
           <Link href="/hasil-vote" className={styles.navLink}>📊 Hasil Vote</Link>
         </nav>
       </aside>
 
-      {/* CONTENT AREA */}
       <main className={styles.mainContent}>
+        {/* VIEW: DASHBOARD */}
         {view === "dashboard" && (
           <div className={styles.welcomeSection}>
             <h1>Dashboard Administrator 👋</h1>
@@ -94,18 +127,21 @@ export default function AdminPage() {
               <div className={styles.statCard}><h3>Kandidat</h3><p>{candidates.length}</p></div>
             </div>
             <div className={styles.infoBox}>
-              <h3>Selamat Datang!</h3>
-              <p>Gunakan sidebar untuk mengelola data pemilihan. Sistem saat ini berstatus <strong>Aktif</strong>.</p>
+              <p>Gunakan sidebar untuk mengelola data pemilihan. Pastikan data NISN sudah benar sebelum memulai voting.</p>
             </div>
           </div>
         )}
 
+        {/* VIEW: TABEL NISN */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
               <h1>Data Siswa</h1>
               <div className={styles.buttonGroupLarge}>
-                <button onClick={() => setView("form-manual-nisn")} className={styles.btnManual}>➕ Input Manual</button>
+                <button onClick={() => {
+                  setFormData({ id: null, nisn: "", name: "", tingkat: "-", kelas: "-" });
+                  setView("form-manual-nisn");
+                }} className={styles.btnManual}>➕ Input Manual</button>
                 <button onClick={handleDownloadFormat} className={styles.btnExcel}>📥 Download Format</button>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{display:'none'}} accept=".xlsx,.xls" />
                 <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
@@ -117,34 +153,43 @@ export default function AdminPage() {
                 <tr><th>NISN</th><th>Nama</th><th>Kelas</th><th>Aksi</th></tr>
               </thead>
               <tbody>
-                {students.map((s) => (
+                {students.length > 0 ? students.map((s) => (
                   <tr key={s.id}>
                     <td>{s.nisn}</td>
                     <td>{s.name}</td>
                     <td>{s.tingkat} {s.kelas}</td>
                     <td className={styles.tableActions}>
-                      <button className={styles.btnEdit}>Edit</button>
-                      <button onClick={() => deleteStudent(s.id).then(loadData)} className={styles.btnDelete}>Hapus</button>
+                      <button className={styles.btnEdit} onClick={() => handleEditClick(s)}>Edit</button>
+                      <button onClick={() => {
+                        if(confirm("Hapus siswa ini?")) deleteStudent(s.id).then(loadData);
+                      }} className={styles.btnDelete}>Hapus</button>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr><td colSpan={4} className={styles.empty}>Belum ada data siswa.</td></tr>
+                )}
               </tbody>
             </table>
             <button onClick={handleResetData} className={styles.btnReset}>⚠️ Hapus Semua Data Siswa</button>
           </section>
         )}
 
-        {view === "form-manual-nisn" && (
+        {/* VIEW: FORM MANUAL (TAMBAH & EDIT) */}
+        {(view === "form-manual-nisn" || view === "edit-siswa") && (
           <section className={styles.formContainer}>
-            <h2>Tambah Siswa Manual</h2>
-            <div className={styles.inputField}><label>NISN</label>
+            <h2>{view === "edit-siswa" ? "Edit Data Siswa" : "Tambah Siswa Manual"}</h2>
+            <div className={styles.inputField}>
+              <label>NISN</label>
               <input type="text" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} />
             </div>
-            <div className={styles.inputField}><label>Nama</label>
+            <div className={styles.inputField}>
+              <label>Nama</label>
               <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
             </div>
             <div className={styles.buttonGroupLarge}>
-              <button className={styles.btnSave} onClick={handleSaveManual}>Simpan</button>
+              <button className={styles.btnSave} onClick={handleSave}>
+                {view === "edit-siswa" ? "Update Data" : "Simpan Data"}
+              </button>
               <button className={styles.btnCancel} onClick={() => setView("input-nisn")}>Batal</button>
             </div>
           </section>
