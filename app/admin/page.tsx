@@ -1,64 +1,38 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getStudents, deleteStudent, updateStudent, importStudents } from "../../lib/api";
+import styles from "./admin.module.css"; // Pastikan file ini ada
+import { getStudents, deleteStudent, updateStudent } from "../../lib/api";
 
 export default function AdminPage() {
   const [students, setStudents] = useState<any[]>([]);
 
   const loadData = async () => {
-    try {
-      const data = await getStudents();
-      // Paksa jadi array kosong jika data yang datang rusak/null
-      setStudents(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error("Koneksi gagal");
-    }
+    const data = await getStudents();
+    setStudents(Array.isArray(data) ? data : []);
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleDelete = async (nisn: string) => {
-    if (!confirm("Hapus siswa ini?")) return;
-    try {
-      await deleteStudent(nisn);
-      alert("✅ Berhasil dihapus");
-      loadData();
-    } catch (err) {
-      alert("❌ Gagal menghapus");
-    }
-  };
-
-  const handleUpdate = async (nisn: string, oldName: string) => {
-    const newName = prompt("Nama Baru:", oldName);
-    if (!newName) return;
-    try {
-      await updateStudent(nisn, { name: newName, tingkat: "10", kelas: "A" });
-      alert("✅ Berhasil diupdate");
-      loadData();
-    } catch (err) {
-      alert("❌ Gagal update");
-    }
-  };
+  useEffect(() => { loadData(); }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Panel Admin</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Panel Admin</h1>
       
-      {/* Tombol Navigasi */}
-      <div style={{ marginBottom: "20px" }}>
-        <Link href="/hasil-vote" style={{ padding: "10px", background: "blue", color: "white", textDecoration: "none" }}>
-          📊 Hasil Vote
+      <div className={styles.buttonGroup}>
+        <Link href="/hasil-vote" className={styles.adminCard}>
+          <div className={styles.icon}>📊</div>
+          <div className={styles.text}>Hasil Vote</div>
         </Link>
+        {/* Tombol lainnya... */}
       </div>
 
-      <table border={1} style={{ width: "100%", borderCollapse: "collapse" }}>
+      <h2 className={styles.subtitle}>Daftar Siswa</h2>
+      <table className={styles.table}>
         <thead>
           <tr>
             <th>NISN</th>
             <th>Nama</th>
+            <th>Kelas</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -67,16 +41,20 @@ export default function AdminPage() {
             students.map((s) => (
               <tr key={s.nisn}>
                 <td>{s.nisn}</td>
-                {/* Cari property name, nama, atau Nama */}
-                <td>{s.name || s.nama || s.Nama || "-"}</td>
+                <td>{s.name || s.nama || "-"}</td>
+                <td>{s.tingkat} {s.kelas}</td>
                 <td>
-                  <button onClick={() => handleUpdate(s.nisn, s.name || s.nama)}>Edit</button>
-                  <button onClick={() => handleDelete(s.nisn)} style={{ color: "red" }}>Hapus</button>
+                  <button 
+                    onClick={() => deleteStudent(s.nisn).then(loadData)} 
+                    className={styles.btnDelete}
+                  >
+                    Hapus
+                  </button>
                 </td>
               </tr>
             ))
           ) : (
-            <tr><td colSpan={3} align="center">Data tidak ditemukan / Kosong</td></tr>
+            <tr><td colSpan={4} className={styles.empty}>Data tidak ditemukan / Kosong</td></tr>
           )}
         </tbody>
       </table>
