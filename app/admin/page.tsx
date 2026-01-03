@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import styles from "./admin.module.css";
 import { 
-  getStudents, deleteStudent, getCandidates, addStudent, 
+  getStudents, deleteStudent, getCandidates, addCandidate, addStudent, 
   resetStudents, importStudents, updateStudent, downloadStudentFormat 
 } from "../../lib/api";
 
