@@ -4,44 +4,8 @@ import Link from "next/link";
 import styles from "./admin.module.css";
 import { getStudents, deleteStudent, getCandidates } from "../../lib/api";
 
-{view === "dashboard" && (
-  <div className={styles.welcomeSection}>
-    <div className={styles.welcomeText}>
-      <h1>Selamat Datang kembali, Admin! 👋</h1>
-      <p>Ini adalah pusat kendali sistem E-Voting SMK2 Kolaka. Pantau progres dan kelola data pemilih dengan mudah di sini.</p>
-    </div>
-
-    {/* Statistik Singkat agar Dashboard tidak kosong */}
-    <div className={styles.statsGrid}>
-      <div className={styles.statCard}>
-        <h3>Total Pemilih</h3>
-        <p className={styles.statNumber}>{students.length}</p>
-        <span>Siswa terdaftar di sistem</span>
-      </div>
-      <div className={styles.statCard}>
-        <h3>Total Kandidat</h3>
-        <p className={styles.statNumber}>{candidates.length}</p>
-        <span>Calon ketua & wakil</span>
-      </div>
-      <div className={styles.statCard}>
-        <h3>Status Sistem</h3>
-        <p className={styles.statStatus}>Aktif</p>
-        <span>Siap menerima suara</span>
-      </div>
-    </div>
-
-    {/* Panduan Cepat */}
-    <div className={styles.infoBox}>
-      <h3>Petunjuk Cepat:</h3>
-      <ul>
-        <li>Gunakan menu <strong>Input NISN</strong> untuk mengunggah daftar siswa melalui Excel atau Manual.</li>
-        <li>Pastikan semua foto <strong>Kandidat</strong> sudah terunggah sebelum pemilihan dimulai.</li>
-        <li>Hasil perolehan suara dapat dipantau secara real-time melalui menu <strong>Hasil Vote</strong>.</li>
-      </ul>
-    </div>
-  </div>
-)}
-
+// Definisikan tipe halaman yang tersedia
+type View = "dashboard" | "input-nisn" | "input-kandidat" | "form-manual-nisn";
 
 export default function AdminPage() {
   const [view, setView] = useState<View>("dashboard");
@@ -55,7 +19,9 @@ export default function AdminPage() {
     setCandidates(Array.isArray(cData) ? cData : []);
   };
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    loadData();
+  }, []);
 
   return (
     <div className={styles.adminLayout}>
@@ -63,29 +29,82 @@ export default function AdminPage() {
       <aside className={styles.sidebar}>
         <h2 className={styles.logo}>E-Vote Admin</h2>
         <nav className={styles.nav}>
-          <button onClick={() => setView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
-          <button onClick={() => setView("input-nisn")} className={view === "input-nisn" ? styles.active : ""}>👤 Input NISN</button>
-          <button onClick={() => setView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Input Kandidat</button>
-          <Link href="/hasil-vote" className={styles.navLink}>📊 Hasil Vote</Link>
+          <button 
+            onClick={() => setView("dashboard")} 
+            className={view === "dashboard" ? styles.active : ""}
+          >
+            🏠 Dashboard
+          </button>
+          <button 
+            onClick={() => setView("input-nisn")} 
+            className={view === "input-nisn" || view === "form-manual-nisn" ? styles.active : ""}
+          >
+            👤 Input NISN
+          </button>
+          <button 
+            onClick={() => setView("input-kandidat")} 
+            className={view === "input-kandidat" ? styles.active : ""}
+          >
+            🗳️ Input Kandidat
+          </button>
+          <Link href="/hasil-vote" className={styles.navLink}>
+            📊 Hasil Vote
+          </Link>
         </nav>
       </aside>
 
       {/* CONTENT AREA */}
       <main className={styles.mainContent}>
         
+        {/* VIEW: DASHBOARD (TEKS SAMBUTAN) */}
+        {view === "dashboard" && (
+          <div className={styles.welcomeSection}>
+            <div className={styles.welcomeText}>
+              <h1>Selamat Datang kembali, Admin! 👋</h1>
+              <p>Ini adalah pusat kendali sistem E-Voting SMK2 Kolaka. Pantau progres dan kelola data pemilih dengan mudah di sini.</p>
+            </div>
+
+            <div className={styles.statsGrid}>
+              <div className={styles.statCard}>
+                <h3>Total Pemilih</h3>
+                <p className={styles.statNumber}>{students.length}</p>
+                <span>Siswa terdaftar</span>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Total Kandidat</h3>
+                <p className={styles.statNumber}>{candidates.length}</p>
+                <span>Calon ketua & wakil</span>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Status Sistem</h3>
+                <p className={styles.statStatus}>Aktif</p>
+                <span>Siap menerima suara</span>
+              </div>
+            </div>
+
+            <div className={styles.infoBox}>
+              <h3>Petunjuk Cepat:</h3>
+              <ul>
+                <li>Gunakan menu <strong>Input NISN</strong> untuk mengelola daftar pemilih.</li>
+                <li>Gunakan menu <strong>Input Kandidat</strong> untuk mengatur profil calon.</li>
+                <li>Klik <strong>Hasil Vote</strong> untuk melihat perolehan suara real-time.</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* VIEW: INPUT NISN */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
               <h1>Manajemen Data NISN</h1>
-              {/* Jarak antar tombol diatur di CSS buttonGroup */}
               <div className={styles.buttonGroupLarge}>
                 <button onClick={() => setView("form-manual-nisn")} className={styles.btnManual}>➕ Input Manual</button>
                 <button className={styles.btnExcel}>📥 Download Excel</button>
                 <button className={styles.btnImport}>📤 Import Data</button>
               </div>
             </div>
-            
+
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -137,7 +156,7 @@ export default function AdminPage() {
           <section>
             <h1>Data Kandidat</h1>
             <div className={styles.candidateGrid}>
-              {candidates.map((c) => (
+              {candidates.length > 0 ? candidates.map((c) => (
                 <div key={c.id} className={styles.candidateCard}>
                   <div className={styles.photoBox}>Foto</div>
                   <h4>{c.nama}</h4>
@@ -146,9 +165,11 @@ export default function AdminPage() {
                     <button className={styles.btnDelete}>Hapus</button>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p>Belum ada kandidat.</p>
+              )}
             </div>
-            <button className={styles.btnGreen}>+ Tambah Kandidat Baru</button>
+            <button className={styles.btnGreen} style={{marginTop: '20px'}}>+ Tambah Kandidat Baru</button>
           </section>
         )}
 
