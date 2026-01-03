@@ -71,26 +71,32 @@ export default function AdminPage() {
     }
   };
 
-  // ✅ 4. SIMPAN (TAMBAH / UPDATE)
   const handleSave = async () => {
-    if (!formData.nisn || !formData.name) return alert("⚠️ NISN dan Nama wajib diisi!");
-    
-    try {
-      if (view === "edit-siswa" && formData.id) {
-        // Mode Update
-        await updateStudent(formData.id, formData);
-        alert("✅ Data siswa berhasil diperbarui!");
-      } else {
-        // Mode Tambah Manual
-        await addStudent(formData);
-        alert("✅ Siswa berhasil ditambahkan!");
-      }
-      
-      setFormData({ id: null, nisn: "", name: "", tingkat: "-", kelas: "-" });
-      loadData();
-      setView("input-nisn");
-    } catch (err) { alert("❌ Terjadi kesalahan saat menyimpan."); }
+  if (!formData.nisn || !formData.name) return alert("⚠️ NISN dan Nama wajib diisi!");
+  
+  // Pastikan tingkat dan kelas tidak kosong agar database tidak error
+  const dataToSend = {
+    ...formData,
+    tingkat: formData.tingkat || "-", // Beri nilai default
+    kelas: formData.kelas || "-"      // Beri nilai default
   };
+
+  try {
+    if (view === "edit-siswa" && formData.id) {
+      await updateStudent(formData.id, dataToSend);
+      alert("✅ Data berhasil diperbarui!");
+    } else {
+      await addStudent(dataToSend);
+      alert("✅ Siswa berhasil ditambahkan!");
+    }
+    // ... sisa kode reset form
+  } catch (err) {
+    console.error(err); // Lihat error spesifik di console inspect element
+    alert("❌ Terjadi kesalahan saat menyimpan. Cek NISN apakah sudah terdaftar?");
+  }
+};
+
+        
 
   // ✅ 5. HANDLE EDIT BUTTON
   const handleEditClick = (siswa: any) => {
