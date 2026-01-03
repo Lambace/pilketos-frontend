@@ -54,6 +54,17 @@ export default function AdminPage() {
     } catch (err) { alert("Gagal hapus"); }
   };
 
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    await addCandidate(formData); // Kirim nama, visi, misi ke backend
+    alert("Kandidat berhasil ditambahkan!");
+    // Kosongkan form atau arahkan ke dashboard
+  } catch (err) {
+    alert("Gagal menyimpan data");
+  }
+};
+  
   return (
     <div className={styles.adminLayout}>
       <aside className={styles.sidebar}>
