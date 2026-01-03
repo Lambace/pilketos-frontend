@@ -124,23 +124,41 @@ export default function HasilVotePage() {
   };
 
   return (
-    <header className={styles.topBar}>
+   <header className={styles.topBar} style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
   <Link 
     href="/admin" 
-    className={`${styles.button} ${styles.buttonPrimary}`}
     style={{ 
-      padding: '8px 16px',   // Mengatur jarak dalam (atas-bawah, kiri-kanan)
-      fontSize: '14px',      // Memperkecil ukuran teks
-      width: 'auto',         // Memastikan lebar mengikuti teks, tidak full
-      minWidth: 'unset',     // Menghapus batas minimal lebar jika ada
-      height: 'fit-content'  // Menyesuaikan tinggi dengan isi
+      padding: '5px 12px',
+      fontSize: '12px',
+      fontWeight: '500',
+      textDecoration: 'none',
+      color: '#fff',
+      border: '1px solid rgba(255,255,255,0.3)', // Garis tipis transparan
+      borderRadius: '4px',
+      backgroundColor: 'transparent',
+      display: 'inline-flex',
+      alignItems: 'center',
+      transition: 'all 0.2s'
     }}
+    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
   >
-    ⬅️ Admin
+    ⬅ Admin
   </Link>
-  <h1 className={styles.headerTitle} style={{ fontSize: '20px' }}>Laporan E-Voting</h1>
+  
+  <h1 className={styles.headerTitle} style={{ 
+    fontSize: '18px', 
+    margin: 0, 
+    flexGrow: 1, 
+    textAlign: 'center',
+    opacity: 0.9 
+  }}>
+    Laporan E-Voting
+  </h1>
+  
+  {/* Spacer di kanan agar judul tetap di tengah secara visual */}
+  <div style={{ width: '80px' }}></div>
 </header>
-
       <div className={styles.layout}>
         {/* Kolom kiri: Tabel & Info */}
         <div className={styles.leftCol}>
