@@ -44,19 +44,23 @@ export async function getStudents() {
 }
 // --- 4. FITUR UPDATE SISWA ---
 export async function updateStudent(nisn: string, data: any) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${nisn}`, {
+  // GANTI process.env MENJADI API_URL
+  const res = await fetch(`${API_URL}/students/${nisn}`, { 
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
+  if (!res.ok) throw new Error("Gagal update data");
   return res.json();
 }
 
 // --- 5. FITUR HAPUS SISWA ---
 export async function deleteStudent(nisn: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${nisn}`, {
+  // GANTI process.env MENJADI API_URL
+  const res = await fetch(`${API_URL}/students/${nisn}`, { 
     method: "DELETE",
   });
+  if (!res.ok) throw new Error("Gagal menghapus data");
   return res.json();
 }
 // --- 6. FITUR IMPORT EXCEL ---
