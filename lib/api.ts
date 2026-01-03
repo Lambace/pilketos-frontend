@@ -100,7 +100,7 @@ export async function downloadStudentFormat() {
   window.location.href = `${API_URL}/students/download-format`;
 }
 
-export async function addCandidates(data: any) {
+export async function addCandidate(data: any) {
   return apiFetch("/candidates", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
