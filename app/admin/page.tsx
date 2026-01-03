@@ -4,7 +4,7 @@ import Link from "next/link";
 import styles from "./admin.module.css";
 import { getStudents, deleteStudent, getCandidates } from "../../lib/api";
 
-type View = "dashboard" | "input-nisn" | "input-kandidat";
+type View = "dashboard" | "input-nisn" | "input-kandidat" | "form-manual-nisn";
 
 export default function AdminPage() {
   const [view, setView] = useState<View>("dashboard");
@@ -19,9 +19,6 @@ export default function AdminPage() {
   };
 
   useEffect(() => { loadData(); }, []);
-
-  // Handler untuk Tombol
-  const handleReset = () => { if(confirm("Reset semua data?")) { /* logik reset */ } };
 
   return (
     <div className={styles.adminLayout}>
@@ -38,18 +35,15 @@ export default function AdminPage() {
 
       {/* CONTENT AREA */}
       <main className={styles.mainContent}>
-        {view === "dashboard" && (
-          <div>
-            <h1>Selamat Datang Admin</h1>
-            <p>Pilih menu di samping untuk mengelola data pemungutan suara.</p>
-          </div>
-        )}
-
+        
+        {/* VIEW: INPUT NISN */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
               <h1>Manajemen Data NISN</h1>
-              <div className={styles.actionBtns}>
+              {/* Jarak antar tombol diatur di CSS buttonGroup */}
+              <div className={styles.buttonGroupLarge}>
+                <button onClick={() => setView("form-manual-nisn")} className={styles.btnManual}>➕ Input Manual</button>
                 <button className={styles.btnExcel}>📥 Download Excel</button>
                 <button className={styles.btnImport}>📤 Import Data</button>
               </div>
@@ -64,31 +58,53 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {students.map((s) => (
+                {students.length > 0 ? students.map((s) => (
                   <tr key={s.nisn}>
                     <td>{s.nisn}</td>
                     <td>{s.nama || s.name}</td>
-                    <td>
+                    <td className={styles.tableActions}>
                       <button className={styles.btnEdit}>Edit</button>
                       <button onClick={() => deleteStudent(s.nisn).then(loadData)} className={styles.btnDelete}>Hapus</button>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr><td colSpan={3} className={styles.empty}>Data Kosong</td></tr>
+                )}
               </tbody>
             </table>
-            <button onClick={handleReset} className={styles.btnReset}>Reset Data Siswa</button>
+            <button onClick={() => confirm("Reset data?")} className={styles.btnReset}>⚠️ Reset Semua Data Siswa</button>
           </section>
         )}
 
+        {/* VIEW: FORM MANUAL NISN */}
+        {view === "form-manual-nisn" && (
+          <section className={styles.formContainer}>
+            <h2>Tambah Siswa Manual</h2>
+            <div className={styles.inputField}>
+              <label>NISN</label>
+              <input type="text" placeholder="Masukkan NISN..." />
+            </div>
+            <div className={styles.inputField}>
+              <label>Nama Lengkap</label>
+              <input type="text" placeholder="Masukkan Nama..." />
+            </div>
+            <div className={styles.buttonGroupLarge}>
+              <button className={styles.btnSave} onClick={() => setView("input-nisn")}>Simpan</button>
+              <button className={styles.btnCancel} onClick={() => setView("input-nisn")}>Batal</button>
+            </div>
+          </section>
+        )}
+
+        {/* VIEW: INPUT KANDIDAT */}
         {view === "input-kandidat" && (
           <section>
             <h1>Data Kandidat</h1>
             <div className={styles.candidateGrid}>
               {candidates.map((c) => (
                 <div key={c.id} className={styles.candidateCard}>
-                  <img src={c.foto} alt={c.nama} width={100} />
+                  <div className={styles.photoBox}>Foto</div>
                   <h4>{c.nama}</h4>
-                  <div className={styles.cardActions}>
+                  <div className={styles.buttonGroupSmall}>
                     <button className={styles.btnEdit}>Edit</button>
                     <button className={styles.btnDelete}>Hapus</button>
                   </div>
@@ -98,6 +114,7 @@ export default function AdminPage() {
             <button className={styles.btnGreen}>+ Tambah Kandidat Baru</button>
           </section>
         )}
+
       </main>
     </div>
   );
