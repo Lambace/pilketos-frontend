@@ -4,7 +4,44 @@ import Link from "next/link";
 import styles from "./admin.module.css";
 import { getStudents, deleteStudent, getCandidates } from "../../lib/api";
 
-type View = "dashboard" | "input-nisn" | "input-kandidat" | "form-manual-nisn";
+{view === "dashboard" && (
+  <div className={styles.welcomeSection}>
+    <div className={styles.welcomeText}>
+      <h1>Selamat Datang kembali, Admin! 👋</h1>
+      <p>Ini adalah pusat kendali sistem E-Voting SMK2 Kolaka. Pantau progres dan kelola data pemilih dengan mudah di sini.</p>
+    </div>
+
+    {/* Statistik Singkat agar Dashboard tidak kosong */}
+    <div className={styles.statsGrid}>
+      <div className={styles.statCard}>
+        <h3>Total Pemilih</h3>
+        <p className={styles.statNumber}>{students.length}</p>
+        <span>Siswa terdaftar di sistem</span>
+      </div>
+      <div className={styles.statCard}>
+        <h3>Total Kandidat</h3>
+        <p className={styles.statNumber}>{candidates.length}</p>
+        <span>Calon ketua & wakil</span>
+      </div>
+      <div className={styles.statCard}>
+        <h3>Status Sistem</h3>
+        <p className={styles.statStatus}>Aktif</p>
+        <span>Siap menerima suara</span>
+      </div>
+    </div>
+
+    {/* Panduan Cepat */}
+    <div className={styles.infoBox}>
+      <h3>Petunjuk Cepat:</h3>
+      <ul>
+        <li>Gunakan menu <strong>Input NISN</strong> untuk mengunggah daftar siswa melalui Excel atau Manual.</li>
+        <li>Pastikan semua foto <strong>Kandidat</strong> sudah terunggah sebelum pemilihan dimulai.</li>
+        <li>Hasil perolehan suara dapat dipantau secara real-time melalui menu <strong>Hasil Vote</strong>.</li>
+      </ul>
+    </div>
+  </div>
+)}
+
 
 export default function AdminPage() {
   const [view, setView] = useState<View>("dashboard");
