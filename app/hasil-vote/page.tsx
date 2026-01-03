@@ -124,13 +124,22 @@ export default function HasilVotePage() {
   };
 
   return (
-    <div className={styles.container}>
-      <header className={styles.topBar}>
-        <Link href="/admin" className={`${styles.button} ${styles.buttonPrimary}`}>
-          ⬅️ Kembali ke Admin
-        </Link>
-        <h1 className={styles.headerTitle}>Hasil Pemilihan Ketua OSIS</h1>
-      </header>
+    <header className={styles.topBar}>
+  <Link 
+    href="/admin" 
+    className={`${styles.button} ${styles.buttonPrimary}`}
+    style={{ 
+      padding: '8px 16px',   // Mengatur jarak dalam (atas-bawah, kiri-kanan)
+      fontSize: '14px',      // Memperkecil ukuran teks
+      width: 'auto',         // Memastikan lebar mengikuti teks, tidak full
+      minWidth: 'unset',     // Menghapus batas minimal lebar jika ada
+      height: 'fit-content'  // Menyesuaikan tinggi dengan isi
+    }}
+  >
+    ⬅️ Admin
+  </Link>
+  <h1 className={styles.headerTitle} style={{ fontSize: '20px' }}>Laporan E-Voting</h1>
+</header>
 
       <div className={styles.layout}>
         {/* Kolom kiri: Tabel & Info */}
