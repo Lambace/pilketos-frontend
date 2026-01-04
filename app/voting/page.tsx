@@ -87,7 +87,7 @@ export default function VotePage() {
   return (
     <div className={styles.voteContent}>
       <img src="/logo-osis.png" alt="Logo OSIS" className={styles.logo} />
-      <h1>E-VOTING KETUA & WAKIL KETUA OSIS</h1>
+      <h1>SILAHKAN PILIH KANDIDAT ANDA !!! OSIS</h1>
       <p className={styles.subtitle}>Gunakan hak suara Anda secara bijak, jujur, dan adil.</p>
 
       {loading ? (
