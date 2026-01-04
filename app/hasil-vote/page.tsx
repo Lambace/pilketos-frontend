@@ -123,92 +123,64 @@ export default function HasilVotePage() {
         </header>
       )}
 
-      {/* --- GRID LAYOUT --- */}
-      <div style={{ 
-        display: 'flex', 
-        flexWrap: 'wrap',
-        gap: '30px', 
-        padding: isCleanMode ? '40px' : '30px',
-        maxWidth: '1800px',
-        margin: '0 auto'
-      }}>
-        
-        {/* KOLOM KIRI (25%) */}
-        <div style={{ flex: '1 1 300px', maxWidth: isCleanMode ? '350px' : '400px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
-          {/* Tabel Perolehan */}
-          <div style={{ backgroundColor: '#181818', padding: '20px', borderRadius: '16px', border: '1px solid #222' }}>
-            <h2 style={{ fontSize: '18px', marginBottom: '20px', color: '#aaa', textTransform: 'uppercase' }}>Detail Suara</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <tbody>
-                {results.map((r) => (
-                  <tr key={r.id} style={{ borderBottom: '1px solid #222' }}>
-                    <td style={{ padding: '15px 0', fontSize: '16px' }}>{r.name}</td>
-                    <td style={{ padding: '15px 0', textAlign: 'right', fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>{r.suara}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+     {/* --- GRID LAYOUT --- */}
+<div style={{ 
+  display: 'flex', 
+  flexWrap: 'wrap', // Memungkinkan kolom turun ke bawah saat layar sempit
+  gap: '30px', 
+  padding: isCleanMode ? '40px' : '20px',
+  maxWidth: '100%', 
+  margin: '0 auto',
+  boxSizing: 'border-box'
+}}>
+  
+  {/* KOLOM KIRI (25% di Desktop, 100% di Mobile) */}
+  <div style={{ 
+    flex: '1 1 300px', 
+    width: '100%', // Memastikan lebar penuh di layar kecil
+    maxWidth: isCleanMode ? '350px' : '400px', 
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: '20px' 
+  }}>
+    {/* ... Isi Tabel & Winner Card ... */}
+  </div>
 
-          {/* Winner Card dengan Animasi Glow */}
-          {winner && (
-            <div style={{ 
-              background: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)', 
-              padding: '30px', 
-              borderRadius: '16px', 
-              border: '1px solid #2563eb',
-              textAlign: 'center',
-              boxShadow: '0 0 30px rgba(37, 99, 235, 0.2)',
-              transition: 'all 0.5s ease'
-            }}>
-              <p style={{ color: '#60a5fa', margin: '0 0 10px 0', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>🏆 Memimpin</p>
-              <h3 style={{ fontSize: '28px', margin: '0 0 15px 0', lineHeight: '1.2' }}>{winner.name}</h3>
-              <div style={{ display: 'inline-block', backgroundColor: '#2563eb', padding: '8px 25px', borderRadius: '50px', fontSize: '20px', fontWeight: 'bold' }}>
-                {winner.suara} Suara
-              </div>
-            </div>
-          )}
-        </div>
+  {/* KOLOM KANAN (75% di Desktop, 100% di Mobile) */}
+  <div style={{ 
+    flex: '3 1 600px', 
+    width: '100%', // Penyelamat: Memastikan lebar kolom sama dengan grafik di HP
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: '20px' 
+  }}>
+    <div className={styles.chartWrapper} style={{ 
+      backgroundColor: '#181818', 
+      padding: '20px', 
+      borderRadius: '16px', 
+      border: '1px solid #222',
+      height: isCleanMode ? '80vh' : '450px',
+      width: '100%', // Menjamin grafik mengisi seluruh ruang kolom
+      boxSizing: 'border-box',
+      position: 'relative'
+    }}>
+      {loading ? (
+        <div style={{ color: '#555', textAlign: 'center', paddingTop: '100px' }}>Menghubungkan...</div>
+      ) : (
+        <Bar data={chartData} options={chartOptions} />
+      )}
+    </div>
 
-        {/* KOLOM KANAN (75%) */}
-        <div style={{ flex: '3 1 600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ 
-            backgroundColor: '#181818', 
-            padding: '30px', 
-            borderRadius: '16px', 
-            border: '1px solid #222',
-            height: isCleanMode ? '80vh' : '600px',
-            position: 'relative'
-          }}>
-            {loading ? (
-              <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#555' }}>Menghubungkan ke server...</div>
-            ) : (
-              <Bar data={chartData} options={chartOptions} />
-            )}
-          </div>
-
-          <button 
-            onClick={() => setIsCleanMode(!isCleanMode)} 
-            style={{ 
-              alignSelf: 'flex-end',
-              padding: '12px 25px', 
-              borderRadius: '8px', 
-              backgroundColor: isCleanMode ? '#222' : '#7f1d1d', 
-              color: isCleanMode ? '#888' : '#fff', 
-              border: '1px solid #333', 
-              fontSize: '14px',
-              fontWeight: 'bold', 
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-          >
-            {isCleanMode ? "👁️ Tampilkan Navigasi" : "🧹 Bersihkan Tampilan"}
-          </button>
-        </div>
-
-      </div>
-
+    {/* Tombol Clean Mode juga akan mengikuti lebar grafik */}
+    <button 
+      onClick={() => setIsCleanMode(!isCleanMode)} 
+      className={styles.btnClear}
+      style={{ width: '100%', alignSelf: 'stretch' }}
+    >
+      {isCleanMode ? "👁️ Tampilkan Navigasi" : "🧹 Bersihkan Tampilan"}
+    </button>
+  </div>
+</div>
       {!isCleanMode && (
         <footer style={{ textAlign: 'center', padding: '40px', color: '#333', fontSize: '12px', letterSpacing: '1px' }}>
           SMKN 2 KOLAKA • E-VOTING ENGINE v2.0 • 2026
