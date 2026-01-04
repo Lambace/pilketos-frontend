@@ -131,8 +131,16 @@ export default function HasilVotePage() {
       </header>
 
       {/* --- MAIN CONTENT --- */}
-      <div className={styles.layout} style={{ padding: '20px' }}>
-        <div className={styles.leftCol}>
+<div className={styles.layout} style={{ 
+  padding: '10px', 
+  display: 'flex', 
+  flexDirection: 'column', // Supaya bertumpuk ke bawah di HP
+  alignItems: 'center', 
+  gap: '20px',
+  width: '100%',
+  boxSizing: 'border-box' 
+}}>
+        <div className={styles.leftCol} style={{ width: '100%', maxWidth: '500px' }}>
           <div className={styles.logoBox}>
             <img src="/logo-osis.png" alt="Logo OSIS" className={styles.logoLeft} style={{ width: '80px' }} />
           </div>
@@ -184,8 +192,16 @@ export default function HasilVotePage() {
           {status && <p className={styles.message} style={{ color: '#f59e0b' }}>{status}</p>}
         </div>
 
-        <div className={styles.rightCol}>
-          <div className={styles.chartWrapper} style={{ height: '400px', backgroundColor: '#222', padding: '20px', borderRadius: '12px' }}>
+       <div className={styles.rightCol} style={{ width: '100%', maxWidth: '600px' }}>
+    <div className={styles.chartWrapper} style={{ 
+      height: '350px', 
+      width: '100%', // Menyesuaikan lebar kontainer
+      backgroundColor: '#222', 
+      padding: '15px', 
+      borderRadius: '12px',
+      boxSizing: 'border-box',
+      overflow: 'hidden' // Mencegah grafik keluar garis
+    }}>
             {loading ? (
               <p style={{ color: '#fff' }}>Memuat Grafik...</p>
             ) : (
