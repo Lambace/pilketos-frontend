@@ -126,30 +126,51 @@ export default function HasilVotePage() {
      {/* --- GRID LAYOUT --- */}
 <div style={{ 
   display: 'flex', 
-  flexWrap: 'wrap', // Memungkinkan kolom turun ke bawah saat layar sempit
-  gap: '30px', 
-  padding: isCleanMode ? '40px' : '20px',
-  maxWidth: '100%', 
+  flexWrap: 'wrap', 
+  gap: '20px', 
+  padding: isCleanMode ? '40px' : '15px',
+  maxWidth: '1800px',
   margin: '0 auto',
   boxSizing: 'border-box'
 }}>
   
-  {/* KOLOM KIRI (25% di Desktop, 100% di Mobile) */}
+  {/* KOLOM KIRI (Tabel & Winner) */}
   <div style={{ 
+    // Di Desktop: flex-grow 1 (25%), di Mobile: lebar 100%
     flex: '1 1 300px', 
-    width: '100%', // Memastikan lebar penuh di layar kecil
-    maxWidth: isCleanMode ? '350px' : '400px', 
+    width: '100%', 
+    maxWidth: isCleanMode ? (typeof window !== 'undefined' && window.innerWidth < 992 ? '100%' : '350px') : '100%',
     display: 'flex', 
     flexDirection: 'column', 
     gap: '20px' 
   }}>
-    {/* ... Isi Tabel & Winner Card ... */}
+    {/* Isi Tabel & Winner Card tetap muncul di sini */}
+    <div className={styles.tableCard} style={{ backgroundColor: '#181818', padding: '20px', borderRadius: '16px', border: '1px solid #222' }}>
+        <h2 style={{ fontSize: '18px', marginBottom: '15px', color: '#aaa' }}>Detail Suara</h2>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <tbody>
+            {results.map((r) => (
+              <tr key={r.id} style={{ borderBottom: '1px solid #222' }}>
+                <td style={{ padding: '12px 0', fontSize: '15px' }}>{r.name}</td>
+                <td style={{ padding: '12px 0', textAlign: 'right', fontSize: '16px', fontWeight: 'bold', color: '#3b82f6' }}>{r.suara}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+    </div>
+
+    {winner && (
+       <div className={styles.winnerCard}>
+          {/* ... konten winner ... */}
+       </div>
+    )}
   </div>
 
-  {/* KOLOM KANAN (75% di Desktop, 100% di Mobile) */}
+  {/* KOLOM KANAN (Grafik) */}
   <div style={{ 
+    // Di Desktop: flex-grow 3 (75%), di Mobile: lebar 100%
     flex: '3 1 600px', 
-    width: '100%', // Penyelamat: Memastikan lebar kolom sama dengan grafik di HP
+    width: '100%', 
     display: 'flex', 
     flexDirection: 'column', 
     gap: '20px' 
@@ -159,24 +180,14 @@ export default function HasilVotePage() {
       padding: '20px', 
       borderRadius: '16px', 
       border: '1px solid #222',
-      height: isCleanMode ? '80vh' : '450px',
-      width: '100%', // Menjamin grafik mengisi seluruh ruang kolom
-      boxSizing: 'border-box',
-      position: 'relative'
+      height: isCleanMode ? '70vh' : '450px',
+      width: '100%',
+      boxSizing: 'border-box'
     }}>
-      {loading ? (
-        <div style={{ color: '#555', textAlign: 'center', paddingTop: '100px' }}>Menghubungkan...</div>
-      ) : (
-        <Bar data={chartData} options={chartOptions} />
-      )}
+      {loading ? <p>Loading...</p> : <Bar data={chartData} options={chartOptions} />}
     </div>
 
-    {/* Tombol Clean Mode juga akan mengikuti lebar grafik */}
-    <button 
-      onClick={() => setIsCleanMode(!isCleanMode)} 
-      className={styles.btnClear}
-      style={{ width: '100%', alignSelf: 'stretch' }}
-    >
+    <button onClick={() => setIsCleanMode(!isCleanMode)} className={styles.btnClear} style={{ width: '100%' }}>
       {isCleanMode ? "👁️ Tampilkan Navigasi" : "🧹 Bersihkan Tampilan"}
     </button>
   </div>
