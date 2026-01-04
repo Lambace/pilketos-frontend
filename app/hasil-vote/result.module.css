@@ -1,180 +1,79 @@
-/* Container Utama */
-.pageWrapper {
-  background-color: #1a1a1a;
-  min-height: 100vh;
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.mainTitle {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Pengaturan Grid Utama */
+.gridWrapper {
+  display: grid;
+  grid-template-columns: 1fr; /* Default 1 kolom untuk HP */
+  gap: 30px;
+}
+
+/* Layar Besar (Desktop) */
+@media (min-width: 992px) {
+  .gridWrapper {
+    grid-template-columns: 1fr 1fr; /* Bagi 2 kolom sama besar */
+    align-items: start;
+  }
+}
+
+/* Card Styling */
+.sectionCard, .winnerCard, .chartCard {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Tombol Admin (Kiri) */
+.btnAdmin {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #34495e;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Tombol Bersihkan (Kanan Bawah) */
+.btnClear {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden; /* Mencegah scroll horizontal */
-}
-
-/* Header / Top Bar */
-.topBar {
-  background-color: #222;
-  border-bottom: 1px solid #333;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.headerTitle {
-  color: #ffffff;
-  font-size: 1.2rem;
+  padding: 12px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   font-weight: bold;
-  margin: 0;
+}
+
+.winnerCard {
+  background: linear-gradient(135deg, #f1c40f, #f39c12);
+  color: white;
   text-align: center;
 }
 
-/* Layout Konten */
-.layout {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; /* Kunci agar grafik pindah ke bawah di HP */
-  gap: 20px;
-  padding: 20px;
-  justify-content: center;
-  width: 100%;
-  box-sizing: border-box;
+.winnerName {
+  font-size: 24px;
+  font-weight: bold;
 }
 
-/* Kolom Kiri (Tabel & Info) */
-.leftCol {
-  flex: 1 1 350px; /* Minimal lebar 350px sebelum wrap */
-  max-width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* Kolom Kanan (Grafik) */
-.rightCol {
-  flex: 1 1 450px; /* Minimal lebar 450px */
-  max-width: 100%;
-  width: 100%;
-}
-
-/* Box Grafik agar Responsif */
-.chartWrapper {
-  background-color: #222;
-  padding: 20px;
-  border-radius: 12px;
-  height: 400px; /* Tinggi di Desktop */
-  width: 100%;
-  box-sizing: border-box;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  position: relative; /* Penting untuk Chart.js responsive */
-}
-
-/* Tabel Perolehan */
 .table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #222;
-  border-radius: 8px;
-  overflow: hidden;
-  color: white;
 }
 
-.table th {
-  background-color: #14b8a6; /* Warna Teal sesuai Screenshot */
+.table th, .table td {
   padding: 12px;
+  border-bottom: 1px solid #eee;
   text-align: left;
-  font-size: 0.9rem;
-}
-
-.table td {
-  padding: 12px;
-  border-bottom: 1px solid #333;
-  font-size: 1rem;
-}
-
-.count {
-  font-weight: bold;
-  text-align: center;
-  color: #22c55e;
-}
-
-/* Kartu Pemenang */
-.winnerCard {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #334155;
-  text-align: center;
-  color: white;
-}
-
-.badge {
-  background-color: #f59e0b;
-  color: #000;
-  padding: 5px 15px;
-  border-radius: 20px;
-  display: inline-block;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-/* Tombol */
-.button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.buttonDanger {
-  background-color: #ef4444;
-  color: white;
-  margin-top: 10px;
-}
-
-/* Footer */
-.footerResult {
-  padding: 20px;
-  text-align: center;
-  color: #666;
-  font-size: 0.8rem;
-}
-
-/* --- RESPONSIVITAS (HP/TABLET) --- */
-@media (max-width: 768px) {
-  .layout {
-    padding: 10px;
-    flex-direction: column; /* Paksa bertumpuk */
-  }
-
-  .chartWrapper {
-    height: 300px; /* Perkecil tinggi di HP */
-    padding: 10px;
-  }
-
-  .headerTitle {
-    font-size: 1rem;
-  }
-
-  .topBar {
-    padding: 10px;
-  }
-
-  .leftCol, .rightCol {
-    flex: 1 1 auto;
-    width: 100%;
-  }
-}
-
-/* Animasi sederhana */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.winnerCard, .chartWrapper {
-  animation: fadeIn 0.5s ease-out;
 }
