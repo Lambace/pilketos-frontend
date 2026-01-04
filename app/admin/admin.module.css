@@ -62,12 +62,14 @@
 }
 
 .candidateCard {
+  position: relative; /* WAJIB: Agar badge nomor urut menempel di pojok card */
   background: white;
   border-radius: 12px;
   padding: 15px;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   border: 1px solid #eee;
+  overflow: hidden; /* Agar lencana tidak keluar batas */
 }
 
 .candidateThumb {
@@ -77,9 +79,10 @@
   border-radius: 10px;
   background: #f9f9f9;
   margin-bottom: 10px;
+  border: 1px solid #eee;
 }
 
-/* Tabel */
+/* --- TABEL --- */
 .table {
   width: 100%;
   background: white;
@@ -98,9 +101,9 @@
   color: #333;
 }
 
-/* Tombol-Tombol */
-.btnDelete { background: #ff4d4d; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
-.btnEdit { background: #ffc107; color: #000; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+/* --- TOMBOL-TOMBOL --- */
+.btnDelete { background: #ff4d4d; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-size: 12px; }
+.btnEdit { background: #ffc107; color: #000; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; font-size: 12px; }
 .btnExcel { background: #217346; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
 .btnImport { background: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
 .btnManual { background-color: #6200ea; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
@@ -159,6 +162,7 @@
   margin: 10px 0 0 0;
 }
 
+/* --- FORM --- */
 .formContainer {
   background: white;
   padding: 30px;
@@ -175,11 +179,21 @@
   display: block;
   font-weight: bold;
   margin-bottom: 8px;
+  font-size: 14px;
 }
 
-.inputField input {
+.inputField input, .inputField textarea {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box; /* Sangat penting agar padding tidak merusak lebar */
+}
+
+/* Gaya Khusus untuk Input Angka */
+.inputField input[type="number"] {
+  width: 100px; /* Tidak perlu terlalu lebar untuk nomor urut */
+  text-align: center;
+  font-weight: bold;
 }
