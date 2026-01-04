@@ -8,7 +8,6 @@ import {
   updateCandidate, deleteCandidate 
 } from "../../lib/api";
 
-// Sesuaikan dengan URL Backend Anda
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 export default function AdminPage() {
@@ -17,8 +16,6 @@ export default function AdminPage() {
   const [candidates, setCandidates] = useState<any[]>([]);
   const [isEditingKandidat, setIsEditingKandidat] = useState(false);
   const [currentKandidatId, setCurrentKandidatId] = useState<number | null>(null);
-  
-  // State untuk file fisik
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({ 
@@ -65,17 +62,16 @@ export default function AdminPage() {
     setFormData({
       ...formData,
       name: c.name,
-      image_url: c.photo, // Ini berisi path dari server (/upload/candidates/...)
+      image_url: c.photo,
       nisn: c.vision 
     });
-    setSelectedFile(null); // Reset pilihan file saat mulai edit
+    setSelectedFile(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmitKandidat = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // WAJIB menggunakan FormData untuk upload file
       const data = new FormData();
       data.append("name", formData.name);
       data.append("vision", formData.nisn);
@@ -84,7 +80,6 @@ export default function AdminPage() {
       if (selectedFile) {
         data.append("photo", selectedFile);
       } else if (isEditingKandidat) {
-        // Jika edit tapi tidak ganti foto, kirim path foto lama
         data.append("photo", formData.image_url);
       }
 
@@ -97,14 +92,13 @@ export default function AdminPage() {
         alert("✅ Kandidat ditambahkan!");
       }
 
-      // Reset
       setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "" });
       setSelectedFile(null);
       setIsEditingKandidat(false);
       setCurrentKandidatId(null);
       loadData();
     } catch (err) {
-      alert("❌ Gagal menyimpan data kandidat. Pastikan backend mendukung upload.");
+      alert("❌ Gagal menyimpan data kandidat.");
     }
   };
 
@@ -121,18 +115,16 @@ export default function AdminPage() {
       </aside>
 
       <main className={styles.mainContent}>
-        {/* VIEW DASHBOARD */}
         {view === "dashboard" && (
           <div className={styles.welcomeSection}>
             <h1>Dashboard Administrator 👋</h1>
             <div className={styles.statsGrid}>
-              <div className={styles.statCard}><h3>Total Siswa</h3><p>{students.length}</p></div>
-              <div className={styles.statCard}><h3>Total Kandidat</h3><p>{candidates.length}</p></div>
+              <div className={styles.statCard}><h3>Total Siswa</h3><p className={styles.statNumber}>{students.length}</p></div>
+              <div className={styles.statCard}><h3>Total Kandidat</h3><p className={styles.statNumber}>{candidates.length}</p></div>
             </div>
           </div>
         )}
 
-        {/* VIEW INPUT KANDIDAT (UPLOAD LOKAL) */}
         {view === "input-kandidat" && (
           <section>
             <div className={styles.formContainer}>
@@ -144,18 +136,10 @@ export default function AdminPage() {
                 </div>
                 
                 <div className={styles.inputField}>
-                  <label>Pilih Foto Kandidat (Upload Lokal)</label>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                    ref={candidatePhotoRef}
-                  />
-                  
-                  {/* Preview Gambar */}
+                  <label>Pilih Foto (Upload Lokal)</label>
+                  <input type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} ref={candidatePhotoRef} />
                   {(selectedFile || formData.image_url) && (
                     <div style={{ marginTop: '10px' }}>
-                      <p style={{ fontSize: '12px', color: '#666' }}>Pratinjau:</p>
                       <img 
                         src={selectedFile ? URL.createObjectURL(selectedFile) : `${API_URL}${formData.image_url}`} 
                         alt="preview" 
@@ -169,8 +153,7 @@ export default function AdminPage() {
                 <div className={styles.inputField}>
                   <label>Visi & Misi</label>
                   <textarea 
-                    className={styles.textarea}
-                    placeholder="Tuliskan visi dan misi kandidat di sini..."
+                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', minHeight: '100px' }}
                     value={formData.nisn} 
                     onChange={e => setFormData({...formData, nisn: e.target.value})} 
                     required 
@@ -178,15 +161,9 @@ export default function AdminPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button type="submit" className={styles.btnSave}>
-                    {isEditingKandidat ? "Update Data" : "Simpan Kandidat"}
-                  </button>
+                  <button type="submit" className={styles.btnSave}>Simpan</button>
                   {isEditingKandidat && (
-                    <button type="button" onClick={() => {
-                      setIsEditingKandidat(false);
-                      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "" });
-                      setSelectedFile(null);
-                    }} className={styles.btnCancel}>Batal</button>
+                    <button type="button" onClick={() => { setIsEditingKandidat(false); setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:""}); }} className={styles.btnCancel}>Batal</button>
                   )}
                 </div>
               </form>
@@ -194,19 +171,19 @@ export default function AdminPage() {
 
             <div style={{ marginTop: '40px' }}>
               <h2>Daftar Kandidat</h2>
-              <div className={styles.candidateGridCustom}>
+              <div className={styles.candidateGrid}>
                 {candidates.map((c) => (
-                  <div key={c.id} className={styles.candidateCardItem}>
+                  <div key={c.id} className={styles.candidateCard}>
                     <img 
                       src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"} 
                       alt={c.name} 
                       className={styles.candidateThumb}
-                      onError={(e) => {(e.target as HTMLImageElement).src = '/logo-osis.png'}}
+                      onError={(e) => (e.currentTarget.src = "/logo-osis.png")}
                     />
                     <h3>{c.name}</h3>
-                    <div className={styles.actionBtns}>
-                      <button onClick={() => handleEditKandidat(c)} className={styles.btnSmallEdit}>Edit</button>
-                      <button onClick={() => { if(confirm("Hapus?")) deleteCandidate(c.id).then(loadData); }} className={styles.btnSmallDelete}>Hapus</button>
+                    <div className={styles.buttonGroupSmall}>
+                      <button onClick={() => handleEditKandidat(c)} className={styles.btnEdit}>Edit</button>
+                      <button onClick={() => { if(confirm("Hapus?")) deleteCandidate(c.id).then(loadData); }} className={styles.btnDelete}>Hapus</button>
                     </div>
                   </div>
                 ))}
@@ -215,7 +192,6 @@ export default function AdminPage() {
           </section>
         )}
 
-        {/* VIEW INPUT NISN / SISWA */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
@@ -253,7 +229,6 @@ export default function AdminPage() {
           </section>
         )}
 
-        {/* FORM MANUAL SISWA */}
         {(view === "form-manual-nisn" || view === "edit-siswa") && (
           <section className={styles.formContainer}>
             <h2>{view === "edit-siswa" ? "Edit" : "Tambah"} Siswa</h2>
