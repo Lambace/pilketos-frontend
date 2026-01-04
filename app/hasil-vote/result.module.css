@@ -155,19 +155,36 @@
 
 /* --- RESPONSIVE MOBILE --- */
 @media (max-width: 992px) {
+  @media (max-width: 992px) {
   .topBar {
     padding: 15px 20px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 15px; /* Memberi jarak aman antara tombol dan judul */
   }
 
   /* JUDUL DIKECILKAN DI SINI */
   .mainTitle {
-    font-size: 13px;       /* Ukuran kecil agar proporsional */
-    letter-spacing: 1px;
-    text-align: right;     /* Teks rata kanan */
-    flex-grow: 1;          /* Mengambil ruang tersisa untuk mendorong ke kanan */
-    margin: 0;
-    padding-left: 10px;    /* Jarak agar tidak menempel dengan tombol jika teks panjang */
-    color: #aaa;           /* Warna sedikit redup agar tidak terlalu dominan */
+    font-size: 12px;           /* Ukuran font kecil agar muat */
+    text-align: right; 
+    flex-grow: 1;
+    color: #888;              /* Warna abu-abu agar elegan */
+
+    /* Tombol Admin */
+    .btnAdmin {
+    padding: 8px 12px;
+    font-size: 11px;
+    flex-shrink: 0;            /* Tombol tidak boleh gepeng */
+    white-space: nowrap;       /* Tombol juga satu baris */
+  }
+    /* --- LOGIKA SATU BARIS --- */
+    white-space: nowrap;       /* Paksa teks tidak turun ke bawah */
+    overflow: hidden;          /* Sembunyikan teks yang meluber */
+    text-overflow: ellipsis;   /* Beri titik tiga (...) jika terlalu panjang */
+    
+    display: block;            /* Memastikan properti overflow bekerja */
+    max-width: 100%;
   }
 
   .layout {
