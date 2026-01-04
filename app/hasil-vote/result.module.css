@@ -1,79 +1,183 @@
-.container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+/* Container Utama */
+.pageWrapper {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: #0f0f0f;
+  min-height: 100vh;
+  color: #ffffff;
 }
 
+/* Header/TopBar */
+.topBar {
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  background-color: #181818;
+  border-bottom: 1px solid #222;
+}
+
+/* Tipografi */
 .mainTitle {
   text-align: center;
-  margin-bottom: 30px;
+  letter-spacing: 2px;
+  margin: 0;
+  flex-grow: 1;
 }
 
-/* Pengaturan Grid Utama */
-.gridWrapper {
-  display: grid;
-  grid-template-columns: 1fr; /* Default 1 kolom untuk HP */
+/* Pengaturan Grid Layout (25% Kiri - 75% Kanan) */
+.layout {
+  display: flex;
+  flex-wrap: wrap;
   gap: 30px;
+  padding: 30px;
+  max-width: 1800px;
+  margin: 0 auto;
+  animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Layar Besar (Desktop) */
-@media (min-width: 992px) {
-  .gridWrapper {
-    grid-template-columns: 1fr 1fr; /* Bagi 2 kolom sama besar */
-    align-items: start;
-  }
+/* Animasi Masuk */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Card Styling */
-.sectionCard, .winnerCard, .chartCard {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+/* Kolom Kiri (25%) */
+.leftCol {
+  flex: 1 1 320px; /* Lebar dasar 320px, bisa membesar hingga 25% */
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Tombol Admin (Kiri) */
-.btnAdmin {
-  display: inline-block;
-  padding: 10px 20px;
-  background-color: #34495e;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
-  margin-bottom: 20px;
+/* Kolom Kanan (75%) */
+.rightCol {
+  flex: 3 1 600px; /* Rasio 3 kali lipat lebih lebar dari kiri */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Tombol Bersihkan (Kanan Bawah) */
-.btnClear {
-  width: 100%;
-  padding: 12px;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
+/* Card Styling (Dark Mode) */
+.sectionCard, .chartWrapper, .tableCard {
+  background-color: #181818;
+  padding: 25px;
+  border-radius: 16px;
+  border: 1px solid #222;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.winnerCard {
-  background: linear-gradient(135deg, #f1c40f, #f39c12);
-  color: white;
-  text-align: center;
-}
-
-.winnerName {
-  font-size: 24px;
-  font-weight: bold;
-}
-
+/* Tabel Perolehan */
 .table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 10px;
 }
 
-.table th, .table td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
+.table th {
   text-align: left;
+  color: #666;
+  font-size: 14px;
+  text-transform: uppercase;
+  padding: 12px 0;
+  border-bottom: 2px solid #222;
+}
+
+.table td {
+  padding: 18px 0;
+  border-bottom: 1px solid #222;
+  font-size: 16px;
+}
+
+.count {
+  text-align: right;
+  font-weight: bold;
+  color: #3b82f6; /* Warna biru untuk angka */
+  font-size: 18px;
+}
+
+/* Winner Card (Glow Effect) */
+.winnerCard {
+  background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid #2563eb;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(37, 99, 235, 0.2);
+  transition: all 0.5s ease;
+}
+
+.winnerName {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 10px 0;
+  color: #ffffff;
+}
+
+.badge {
+  display: inline-block;
+  background-color: #2563eb;
+  color: white;
+  padding: 8px 25px;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Tombol-Tombol */
+.btnAdmin {
+  padding: 10px 20px;
+  background-color: #222;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  border: 1px solid #333;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.btnAdmin:hover {
+  background-color: #333;
+}
+
+.btnClear {
+  align-self: flex-end;
+  padding: 12px 25px;
+  background-color: #7f1d1d; /* Merah gelap */
+  color: white;
+  border: 1px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.btnClear:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
+}
+
+/* Footer */
+.footerResult {
+  text-align: center;
+  padding: 40px;
+  color: #333;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* Responsive Mobile */
+@media (max-width: 992px) {
+  .layout {
+    flex-direction: column;
+    padding: 15px;
+  }
+  
+  .leftCol, .rightCol {
+    max-width: 100%;
+    flex: 1 1 auto;
+  }
+  
+  .chartWrapper {
+    height: 400px !important; /* Grafik sedikit lebih kecil di HP */
+  }
 }
