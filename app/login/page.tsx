@@ -28,16 +28,11 @@ export default function LoginPage() {
     }
 
     try {
-      // ✅ panggil API login dari lib/api.ts
-      const data = await login(nisn); // password kosong, karena login pakai NISN
-
+      const data = await login(nisn);
       if (!data.success) {
         setError(data.message || "Login gagal");
       } else {
-        // ✅ simpan NISN ke localStorage
         localStorage.setItem("nisn", nisn);
-
-        // redirect ke voting
         router.push("/voting");
       }
     } catch {
@@ -53,7 +48,7 @@ export default function LoginPage() {
         {showGolput ? (
           <img src="/golput.png" alt="Golput" className={`${styles.golput} ${styles.fadeOut}`} />
         ) : (
-          <>
+          <div className={styles.brandContainer}>
             <img
               src="/logo-vote.png"
               alt="Logo OSIS"
@@ -61,7 +56,7 @@ export default function LoginPage() {
             />
             <h1 className={`${styles.fadeIn} ${styles.delay2}`}>PEMILIHAN KETUA OSIS</h1>
             <h2 className={`${styles.fadeIn} ${styles.delay3}`}>SMK NEGERI 2 KOLAKA</h2>
-          </>
+          </div>
         )}
       </div>
 
@@ -72,12 +67,13 @@ export default function LoginPage() {
             placeholder="Masukkan NISN"
             value={nisn}
             onChange={(e) => setNisn(e.target.value)}
+            maxLength={10}
             required
           />
           <button type="submit" disabled={loading}>
-            {loading ? "Loading..." : "Login"}
+            {loading ? "Mengecek..." : "LOGIN"}
           </button>
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {error && <p className={styles.errorText}>{error}</p>}
         </form>
       )}
     </div>
