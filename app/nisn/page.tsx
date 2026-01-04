@@ -1,4 +1,4 @@
-ini kode pagenya "use client";
+"use client";
 import { useState, useEffect } from "react";
 import styles from "./nisn.module.css";
 import Link from "next/link";
