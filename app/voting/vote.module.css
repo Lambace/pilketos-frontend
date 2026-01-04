@@ -1,86 +1,10 @@
 .voteContent {
   padding: 2rem;
   text-align: center;
-  margin: 0;
-  background-color: #121212; /* Sesuaikan dengan tema gelap */
   min-height: 100vh;
+  background-color: #121212;
   color: white;
-}
-
-.candidateGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 kolom sesuai permintaan */
-  gap: 1.5rem;
-  max-width: 1000px;
-  margin: 2rem auto;
-}
-
-.card {
-  background: #1e1e1e;
-  padding: 1rem;
-  border-radius: 10px;
-  color: white;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid #333;
-}
-
-/* CONTAINER FOTO & NOMOR */
-.imageWrapper {
-  position: relative; /* Dasar posisi absolute nomor */
-}
-
-.nomorBadge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-  background-color: #0072ff; /* Warna Biru */
-  color: white;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-weight: 900;
-  font-size: 1.2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.info h2 {
-  margin-top: 1rem;
-  font-size: 1.2rem;
-  color: #fff;
-}
-
-.voteButton {
-  margin-top: 1rem;
-  padding: 0.8rem;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(90deg, #00c6ff, #0072ff);
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.voteButton:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
-}
-
-.voteButton:disabled {
-  background: #555;
-  cursor: not-allowed;
+  font-family: sans-serif;
 }
 
 .logo {
@@ -92,21 +16,121 @@
 .subtitle {
   color: #aaa;
   margin-bottom: 2rem;
-}
-
-.footer {
-  margin-top: 3rem;
-  color: #666;
   font-size: 0.9rem;
 }
 
-/* Responsif untuk HP layar sangat kecil */
-@media (max-width: 480px) {
+.mainWrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.candidateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+/* KARTU KANDIDAT */
+.card {
+  background: #1e1e1e;
+  padding: 1rem;
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #333;
+  transition: transform 0.3s ease;
+}
+
+/* CONTAINER FOTO (PENTING) */
+.imageWrapper {
+  position: relative; /* Kunci koordinat untuk nomorBadge */
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: #333;
+}
+
+/* LENCANA NOMOR URUT */
+.nomorBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 10px; /* Sudut tumpul */
+  font-weight: 800;
+  font-size: 1.2rem;
+  /* Efek Melayang */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.info h2 {
+  margin: 1.2rem 0;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.voteButton {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3);
+}
+
+.voteButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5);
+  filter: brightness(1.1);
+}
+
+.voteButton:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.footer {
+  margin-top: 4rem;
+  color: #555;
+  font-size: 0.8rem;
+}
+
+/* Responsive Tablet/HP */
+@media (max-width: 600px) {
   .candidateGrid {
-    gap: 0.8rem;
+    gap: 1rem;
+  }
+  .imageWrapper {
+    height: 180px;
   }
   .nomorBadge {
+    padding: 4px 10px;
     font-size: 1rem;
-    padding: 3px 8px;
+    top: 8px;
+    left: 8px;
+  }
+  .info h2 {
+    font-size: 1rem;
   }
 }
