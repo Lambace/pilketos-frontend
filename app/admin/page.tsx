@@ -4,7 +4,7 @@ import Link from "next/link";
 import styles from "./admin.module.css";
 import { 
   getStudents, deleteStudent, getCandidates, addCandidate, addStudent, 
-  importStudents, updateStudent, downloadStudentFormat,
+  resetStudents, importStudents, updateStudent, downloadStudentFormat,
   updateCandidate, deleteCandidate 
 } from "../../lib/api";
 
@@ -24,7 +24,7 @@ export default function AdminPage() {
     tingkat: "-", 
     kelas: "-",
     image_url: "",
-    nomor_urut: "" 
+    nomor_urut: "" // State baru untuk nomor urut
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,8 +64,8 @@ export default function AdminPage() {
       ...formData,
       name: c.name,
       image_url: c.photo,
-      nisn: c.vision || "", 
-      nomor_urut: c.nomor_urut || "" 
+      nisn: c.vision, // vision disimpan di field nisn pada formData anda
+      nomor_urut: c.nomor_urut || "" // Ambil nomor urut dari DB
     });
     setSelectedFile(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -78,7 +78,7 @@ export default function AdminPage() {
       data.append("name", formData.name);
       data.append("vision", formData.nisn);
       data.append("mission", "-");
-      data.append("nomor_urut", formData.nomor_urut); 
+      data.append("nomor_urut", formData.nomor_urut); // Kirim nomor urut ke API
       
       if (selectedFile) {
         data.append("photo", selectedFile);
@@ -110,10 +110,9 @@ export default function AdminPage() {
       <aside className={styles.sidebar}>
         <h2 className={styles.logo}>E-Vote Admin</h2>
         <nav className={styles.nav}>
-          {/* Tambahkan type="button" agar tidak reload page */}
-          <button type="button" onClick={() => setView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
-          <button type="button" onClick={() => setView("input-nisn")} className={view.includes("nisn") || view === "edit-siswa" ? styles.active : ""}>👤 Data Siswa</button>
-          <button type="button" onClick={() => setView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Data Kandidat</button>
+          <button onClick={() => setView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
+          <button onClick={() => setView("input-nisn")} className={view.includes("nisn") || view === "edit-siswa" ? styles.active : ""}>👤 Data Siswa</button>
+          <button onClick={() => setView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Data Kandidat</button>
           <Link href="/hasil-vote" className={styles.navLink}>📊 Hasil Vote</Link>
         </nav>
       </aside>
@@ -134,22 +133,49 @@ export default function AdminPage() {
             <div className={styles.formContainer}>
               <h1>{isEditingKandidat ? "📝 Edit Kandidat" : "➕ Input Kandidat Baru"}</h1>
               <form onSubmit={handleSubmitKandidat}>
+                
+                {/* INPUT NOMOR URUT */}
                 <div className={styles.inputField}>
-                  <label>Nomor Urut</label>
-                  <input type="number" placeholder="Nomor urut" value={formData.nomor_urut} onChange={e => setFormData({...formData, nomor_urut: e.target.value})} required />
+                  <label>Nomor Urut (Contoh: 1, 2, 3)</label>
+                  <input 
+                    type="number" 
+                    placeholder="Masukkan angka nomor urut"
+                    value={formData.nomor_urut} 
+                    onChange={e => setFormData({...formData, nomor_urut: e.target.value})} 
+                    required 
+                  />
                 </div>
+
                 <div className={styles.inputField}>
                   <label>Nama Kandidat</label>
                   <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                 </div>
+                
                 <div className={styles.inputField}>
-                  <label>Pilih Foto</label>
+                  <label>Pilih Foto (Upload Lokal)</label>
                   <input type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} ref={candidatePhotoRef} />
+                  {(selectedFile || formData.image_url) && (
+                    <div style={{ marginTop: '10px' }}>
+                      <img 
+                        src={selectedFile ? URL.createObjectURL(selectedFile) : `${API_URL}${formData.image_url}`} 
+                        alt="preview" 
+                        style={{ width: '80px', height: '80px', borderRadius: '8px', objectFit: 'cover', border: '2px solid #ddd' }} 
+                        onError={(e) => (e.currentTarget.src = "/logo-osis.png")} 
+                      />
+                    </div>
+                  )}
                 </div>
+
                 <div className={styles.inputField}>
                   <label>Visi & Misi</label>
-                  <textarea style={{ width: '100%', minHeight: '100px' }} value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} required />
+                  <textarea 
+                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', minHeight: '100px' }}
+                    value={formData.nisn} 
+                    onChange={e => setFormData({...formData, nisn: e.target.value})} 
+                    required 
+                  />
                 </div>
+
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button type="submit" className={styles.btnSave}>Simpan</button>
                   {isEditingKandidat && (
@@ -164,7 +190,20 @@ export default function AdminPage() {
               <div className={styles.candidateGrid}>
                 {candidates.map((c) => (
                   <div key={c.id} className={styles.candidateCard}>
-                    <img src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"} alt={c.name} className={styles.candidateThumb} onError={(e) => (e.currentTarget.src = "/logo-osis.png")} />
+                    {/* Badge Nomor Urut di Card List Admin */}
+                    <div style={{ 
+                      position: 'absolute', top: '5px', left: '5px', backgroundColor: '#3b82f6', 
+                      color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' 
+                    }}>
+                      #{String(c.nomor_urut || 0).padStart(2, '0')}
+                    </div>
+
+                    <img 
+                      src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"} 
+                      alt={c.name} 
+                      className={styles.candidateThumb}
+                      onError={(e) => (e.currentTarget.src = "/logo-osis.png")}
+                    />
                     <h3>{c.name}</h3>
                     <div className={styles.buttonGroupSmall}>
                       <button onClick={() => handleEditKandidat(c)} className={styles.btnEdit}>Edit</button>
@@ -177,6 +216,7 @@ export default function AdminPage() {
           </section>
         )}
 
+        {/* ... (View lainnya tetap sama) ... */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
@@ -195,11 +235,14 @@ export default function AdminPage() {
               </div>
             </div>
             <table className={styles.table}>
-              <thead><tr><th>NISN</th><th>Nama</th><th>Aksi</th></tr></thead>
+              <thead>
+                <tr><th>NISN</th><th>Nama</th><th>Aksi</th></tr>
+              </thead>
               <tbody>
                 {students.map((s) => (
                   <tr key={s.nisn}>
-                    <td>{s.nisn}</td><td>{s.name || s.nama}</td>
+                    <td>{s.nisn}</td>
+                    <td>{s.name || s.nama}</td>
                     <td>
                       <button onClick={() => { setFormData({...s, image_url: "", nomor_urut: ""}); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
                       <button onClick={() => { if(confirm("Hapus?")) deleteStudent(s.nisn).then(loadData); }} className={styles.btnDelete}>Hapus</button>
