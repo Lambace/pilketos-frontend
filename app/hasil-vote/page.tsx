@@ -15,8 +15,8 @@ import styles from "./result.module.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// GANTI DENGAN URL BACKEND RAILWAY ANDA
-const API_URL = "https://backend-produksi-anda.railway.app"; 
+// ✅ SINKRONISASI URL BACKEND RAILWAY
+const API_URL = "https://voting-backend-production-ea29.up.railway.app"; 
 
 export default function HasilVotePage() {
   const [results, setResults] = useState<{ id: number; name: string; suara: number }[]>([]);
@@ -26,17 +26,16 @@ export default function HasilVotePage() {
 
   const fetchData = async () => {
     try {
-      // 1. Ambil Hasil Perolehan Suara dari rute /results (resultsRoutes)
+      // 1. Ambil Hasil Perolehan Suara
       const resResults = await fetch(`${API_URL}/results`);
       const dataResults = await resResults.json();
       const formattedResults = Array.isArray(dataResults) ? dataResults : [];
       setResults(formattedResults);
 
-      // 2. Ambil Pemenang dari rute /results/winner
+      // 2. Ambil Pemenang
       const resWinner = await fetch(`${API_URL}/results/winner`);
       if (resWinner.ok) {
         const dataWinner = await resWinner.json();
-        // Hanya set winner jika suara > 0
         if (dataWinner && dataWinner.suara > 0) {
           setWinner(dataWinner);
         } else {
@@ -52,19 +51,17 @@ export default function HasilVotePage() {
 
   useEffect(() => {
     fetchData();
-    // Real-time update setiap 5 detik
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ Fungsi Reset Tampilan (Hanya di UI)
   const handleResetResults = () => {
-    if(confirm("Ini hanya meriset tampilan sementara di layar ini. Data asli di database tetap aman. Lanjutkan?")) {
+    if(confirm("Ini hanya meriset tampilan sementara di layar ini. Data asli di database tetap aman.")) {
         const resetData = results.map((r) => ({ ...r, suara: 0 }));
         setResults(resetData);
         setWinner(null);
         setStatus("Tampilan direset secara lokal ⚠️");
-        setTimeout(() => setStatus(""), 3000); // Hilangkan pesan setelah 3 detik
+        setTimeout(() => setStatus(""), 3000);
     }
   };
 
@@ -74,14 +71,7 @@ export default function HasilVotePage() {
       {
         label: "Jumlah Suara",
         data: results.map((r) => r.suara),
-        backgroundColor: [
-          "#22c55e", // Hijau
-          "#3b82f6", // Biru
-          "#f59e0b", // Kuning
-          "#ef4444", // Merah
-          "#8b5cf6", // Ungu
-          "#14b8a6", // Teal
-        ],
+        backgroundColor: ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6"],
         borderRadius: 8,
       },
     ],
@@ -98,75 +88,56 @@ export default function HasilVotePage() {
         color: "#ffffff",
         font: { size: 18, weight: 'bold' as const }
       },
-      tooltip: {
-        callbacks: {
-          label: (context: any) => ` Suara: ${context.raw}`
-        }
-      }
     },
     scales: {
       y: {
         beginAtZero: true,
         grid: { color: "rgba(255, 255, 255, 0.1)" },
-        ticks: { 
-          color: "#ffffff", 
-          stepSize: 1,
-          font: { size: 14 }
-        }
+        ticks: { color: "#ffffff", stepSize: 1 }
       },
       x: {
-        ticks: { 
-          color: "#ffffff",
-          font: { size: 14, weight: 'bold' as const }
-        }
+        ticks: { color: "#ffffff", font: { weight: 'bold' as const } }
       }
     }
   };
 
   return (
-   <header className={styles.topBar} style={{ padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-  <Link 
-    href="/admin" 
-    style={{ 
-      padding: '5px 12px',
-      fontSize: '12px',
-      fontWeight: '500',
-      textDecoration: 'none',
-      color: '#fff',
-      border: '1px solid rgba(255,255,255,0.3)', // Garis tipis transparan
-      borderRadius: '4px',
-      backgroundColor: 'transparent',
-      display: 'inline-flex',
-      alignItems: 'center',
-      transition: 'all 0.2s'
-    }}
-    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
-    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-  >
-    ⬅ Admin
-  </Link>
-  
-  <h1 className={styles.headerTitle} style={{ 
-    fontSize: '18px', 
-    margin: 0, 
-    flexGrow: 1, 
-    textAlign: 'center',
-    opacity: 0.9 
-  }}>
-    Laporan E-Voting
-  </h1>
-  
-  {/* Spacer di kanan agar judul tetap di tengah secara visual */}
-  <div style={{ width: '80px' }}></div>
-</header>
-      <div className={styles.layout}>
-        {/* Kolom kiri: Tabel & Info */}
+    <div className={styles.pageWrapper} style={{ backgroundColor: '#1a1a1a', minHeight: '100vh' }}>
+      {/* --- HEADER --- */}
+      <header className={styles.topBar} style={{ padding: '15px 20px', display: 'flex', alignItems: 'center', backgroundColor: '#222', borderBottom: '1px solid #333' }}>
+        <Link 
+          href="/admin" 
+          style={{ 
+            padding: '8px 16px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            textDecoration: 'none',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '6px',
+            backgroundColor: 'rgba(255,255,255,0.05)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            zIndex: 10 // Memastikan tombol di lapisan atas
+          }}
+        >
+          ⬅ Kembali ke Admin
+        </Link>
+
+        <h1 style={{ fontSize: '20px', margin: 0, flexGrow: 1, textAlign: 'center', color: '#fff' }}>
+          Laporan Real-Time E-Voting
+        </h1>
+        <div style={{ width: '120px' }}></div> {/* Spacer agar judul tetap tengah */}
+      </header>
+
+      {/* --- MAIN CONTENT --- */}
+      <div className={styles.layout} style={{ padding: '20px' }}>
         <div className={styles.leftCol}>
           <div className={styles.logoBox}>
-            <img src="/logo-osis.png" alt="Logo OSIS" className={styles.logoLeft} />
+            <img src="/logo-osis.png" alt="Logo OSIS" className={styles.logoLeft} style={{ width: '80px' }} />
           </div>
 
-          <h2 className={styles.title}>Tabel Perolehan</h2>
+          <h2 className={styles.title} style={{ color: '#fff' }}>Tabel Perolehan</h2>
 
           <table className={styles.table}>
             <thead>
@@ -185,8 +156,8 @@ export default function HasilVotePage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={2} style={{ textAlign: 'center', padding: '20px' }}>
-                    {loading ? "Menghubungkan ke server..." : "Belum ada data kandidat"}
+                  <td colSpan={2} style={{ textAlign: 'center', color: '#ccc' }}>
+                    {loading ? "Sinkronisasi..." : "Belum ada data"}
                   </td>
                 </tr>
               )}
@@ -207,31 +178,24 @@ export default function HasilVotePage() {
             )}
           </div>
 
-          <button
-            onClick={handleResetResults}
-            className={`${styles.button} ${styles.buttonDanger}`}
-          >
+          <button onClick={handleResetResults} className={`${styles.button} ${styles.buttonDanger}`}>
             🧹 Bersihkan Tampilan
           </button>
-
-          {status && <p className={styles.message}>{status}</p>}
+          {status && <p className={styles.message} style={{ color: '#f59e0b' }}>{status}</p>}
         </div>
 
-        {/* Kolom kanan: Grafik */}
         <div className={styles.rightCol}>
-          <div className={styles.chartWrapper}>
+          <div className={styles.chartWrapper} style={{ height: '400px', backgroundColor: '#222', padding: '20px', borderRadius: '12px' }}>
             {loading ? (
-              <div className={styles.loadingChart}>
-                 <p>Sinkronisasi Data...</p>
-              </div>
+              <p style={{ color: '#fff' }}>Memuat Grafik...</p>
             ) : (
               <Bar data={chartData} options={chartOptions} />
             )}
           </div>
         </div>
       </div>
-      
-      <footer className={styles.footerResult}>
+
+      <footer className={styles.footerResult} style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
         Sistem E-Voting Real-Time &copy; 2024
       </footer>
     </div>
