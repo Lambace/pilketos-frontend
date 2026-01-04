@@ -195,7 +195,7 @@ export default function AdminPage() {
                       position: 'absolute', top: '5px', left: '5px', backgroundColor: '#3b82f6', 
                       color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' 
                     }}>
-                      #{String(c.nomor_urut || 0).padStart(2, '0')}
+                      {String(c.nomor_urut || 0).padStart(2, '0')}
                     </div>
 
                     <img 
