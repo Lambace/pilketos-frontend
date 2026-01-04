@@ -23,7 +23,8 @@ export default function AdminPage() {
     name: "", 
     tingkat: "-", 
     kelas: "-",
-    image_url: "" 
+    image_url: "",
+    nomor_urut: "" // State baru untuk nomor urut
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +51,7 @@ export default function AdminPage() {
         await addStudent(formData);
         alert("✅ Berhasil Simpan Siswa!");
       }
-      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "" });
+      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "", nomor_urut: "" });
       loadData();
       setView("input-nisn");
     } catch (err: any) { alert("❌ " + err.message); }
@@ -63,7 +64,8 @@ export default function AdminPage() {
       ...formData,
       name: c.name,
       image_url: c.photo,
-      nisn: c.vision 
+      nisn: c.vision, // vision disimpan di field nisn pada formData anda
+      nomor_urut: c.nomor_urut || "" // Ambil nomor urut dari DB
     });
     setSelectedFile(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -76,6 +78,7 @@ export default function AdminPage() {
       data.append("name", formData.name);
       data.append("vision", formData.nisn);
       data.append("mission", "-");
+      data.append("nomor_urut", formData.nomor_urut); // Kirim nomor urut ke API
       
       if (selectedFile) {
         data.append("photo", selectedFile);
@@ -92,7 +95,7 @@ export default function AdminPage() {
         alert("✅ Kandidat ditambahkan!");
       }
 
-      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "" });
+      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "", nomor_urut: "" });
       setSelectedFile(null);
       setIsEditingKandidat(false);
       setCurrentKandidatId(null);
@@ -130,6 +133,19 @@ export default function AdminPage() {
             <div className={styles.formContainer}>
               <h1>{isEditingKandidat ? "📝 Edit Kandidat" : "➕ Input Kandidat Baru"}</h1>
               <form onSubmit={handleSubmitKandidat}>
+                
+                {/* INPUT NOMOR URUT */}
+                <div className={styles.inputField}>
+                  <label>Nomor Urut (Contoh: 1, 2, 3)</label>
+                  <input 
+                    type="number" 
+                    placeholder="Masukkan angka nomor urut"
+                    value={formData.nomor_urut} 
+                    onChange={e => setFormData({...formData, nomor_urut: e.target.value})} 
+                    required 
+                  />
+                </div>
+
                 <div className={styles.inputField}>
                   <label>Nama Kandidat</label>
                   <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
@@ -163,7 +179,7 @@ export default function AdminPage() {
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button type="submit" className={styles.btnSave}>Simpan</button>
                   {isEditingKandidat && (
-                    <button type="button" onClick={() => { setIsEditingKandidat(false); setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:""}); }} className={styles.btnCancel}>Batal</button>
+                    <button type="button" onClick={() => { setIsEditingKandidat(false); setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:"", nomor_urut:""}); }} className={styles.btnCancel}>Batal</button>
                   )}
                 </div>
               </form>
@@ -174,6 +190,14 @@ export default function AdminPage() {
               <div className={styles.candidateGrid}>
                 {candidates.map((c) => (
                   <div key={c.id} className={styles.candidateCard}>
+                    {/* Badge Nomor Urut di Card List Admin */}
+                    <div style={{ 
+                      position: 'absolute', top: '5px', left: '5px', backgroundColor: '#3b82f6', 
+                      color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' 
+                    }}>
+                      #{String(c.nomor_urut || 0).padStart(2, '0')}
+                    </div>
+
                     <img 
                       src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"} 
                       alt={c.name} 
@@ -192,12 +216,13 @@ export default function AdminPage() {
           </section>
         )}
 
+        {/* ... (View lainnya tetap sama) ... */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
               <h1>Data Siswa</h1>
               <div className={styles.buttonGroupLarge}>
-                <button onClick={() => { setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:""}); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
+                <button onClick={() => { setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:"", nomor_urut:""}); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
                 <button onClick={() => downloadStudentFormat()} className={styles.btnExcel}>📥 Format Excel</button>
                 <input type="file" ref={fileInputRef} style={{display:'none'}} onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -219,7 +244,7 @@ export default function AdminPage() {
                     <td>{s.nisn}</td>
                     <td>{s.name || s.nama}</td>
                     <td>
-                      <button onClick={() => { setFormData({...s, image_url: ""}); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
+                      <button onClick={() => { setFormData({...s, image_url: "", nomor_urut: ""}); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
                       <button onClick={() => { if(confirm("Hapus?")) deleteStudent(s.nisn).then(loadData); }} className={styles.btnDelete}>Hapus</button>
                     </td>
                   </tr>
