@@ -8,6 +8,7 @@ import {
   updateCandidate, deleteCandidate 
 } from "../../lib/api";
 
+// PASTIKAN TIDAK ADA KARAKTER ANEH DI AKHIR URL INI
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 export default function AdminPage() {
@@ -38,9 +39,8 @@ export default function AdminPage() {
 
   useEffect(() => { loadData(); }, []);
 
-  // FUNGSI SIMPAN SISWA YANG DIPERBAIKI
   const handleSaveSiswa = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Mencegah reload halaman
     if (!formData.nisn || !formData.name) return alert("⚠️ NISN dan Nama wajib diisi!");
     
     setLoading(true);
@@ -54,7 +54,7 @@ export default function AdminPage() {
         });
         alert("✅ Berhasil Update Siswa!");
       } else {
-        // Pastikan field sesuai dengan database (nisn, name, tingkat, kelas)
+        // Memanggil fungsi dari lib/api
         await addStudent({
             nisn: formData.nisn,
             name: formData.name,
@@ -64,13 +64,12 @@ export default function AdminPage() {
         alert("✅ Berhasil Simpan Siswa!");
       }
       
-      // Reset dan balik ke tabel
       setFormData({ nisn: "", name: "", tingkat: "X", kelas: "Umum", image_url: "", nomor_urut: "" });
       await loadData();
       setView("input-nisn");
     } catch (err: any) { 
-      console.error("Error Server:", err);
-      alert("❌ Gagal Simpan: " + (err.message || "Terjadi kesalahan pada server. Pastikan NISN belum ada di database.")); 
+      console.error("Detail Error:", err);
+      alert("❌ Gagal Simpan: Pastikan koneksi internet stabil dan NISN belum terdaftar."); 
     } finally {
       setLoading(false);
     }
@@ -81,6 +80,7 @@ export default function AdminPage() {
       <aside className={styles.sidebar}>
         <h2 className={styles.logo}>E-Vote Admin</h2>
         <nav className={styles.nav}>
+          {/* Gunakan type="button" agar tidak memicu submit form */}
           <button type="button" onClick={() => setView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
           <button type="button" onClick={() => setView("input-nisn")} className={view.includes("nisn") || view === "edit-siswa" ? styles.active : ""}>👤 Data Siswa</button>
           <button type="button" onClick={() => setView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Data Kandidat</button>
@@ -138,35 +138,21 @@ export default function AdminPage() {
             <h2>{view === "edit-siswa" ? "Edit" : "Tambah"} Siswa</h2>
             <form onSubmit={handleSaveSiswa}>
                 <div className={styles.inputField}>
-                <label>NISN</label>
-                <input type="text" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} disabled={view === "edit-siswa"} required />
+                    <label>NISN</label>
+                    <input type="text" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} disabled={view === "edit-siswa"} required />
                 </div>
                 <div className={styles.inputField}>
-                <label>Nama Lengkap</label>
-                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                    <label>Nama Lengkap</label>
+                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                 </div>
                 <div className={styles.buttonGroupLarge}>
-                <button type="submit" className={styles.btnSave} disabled={loading}>
-                    {loading ? "Menyimpan..." : "Simpan"}
-                </button>
-                <button type="button" onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
+                    <button type="submit" className={styles.btnSave} disabled={loading}>
+                        {loading ? "Menyimpan..." : "Simpan"}
+                    </button>
+                    <button type="button" onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
                 </div>
             </form>
           </section>
-        )}
-
-        {/* View Kandidat tetap sama seperti kode asli Anda */}
-        {view === "input-kandidat" && (
-            <section>
-                <div className={styles.candidateGrid}>
-                    {candidates.map(c => (
-                        <div key={c.id} className={styles.candidateCard}>
-                            <img src={`${API_URL}${c.photo}`} className={styles.candidateThumb} alt="" onError={e => e.currentTarget.src="/logo-osis.png"} />
-                            <h3>{c.name}</h3>
-                        </div>
-                    ))}
-                </div>
-            </section>
         )}
       </main>
     </div>
