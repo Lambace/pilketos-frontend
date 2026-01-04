@@ -61,20 +61,26 @@ export default function LoginPage() {
       </div>
 
       {!showGolput && (
-        <form onSubmit={handleLogin} className={`${styles.loginForm} ${styles.fadeIn} ${styles.delay4}`}>
-          <input
-            type="text"
-            placeholder="Masukkan NISN"
-            value={nisn}
-            onChange={(e) => setNisn(e.target.value)}
-            maxLength={10}
-            required
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? "Mengecek..." : "LOGIN"}
-          </button>
-          {error && <p className={styles.errorText}>{error}</p>}
-        </form>
+        <>
+          <form onSubmit={handleLogin} className={`${styles.loginForm} ${styles.fadeIn} ${styles.delay4}`}>
+            <input
+              type="text"
+              placeholder="Masukkan NISN"
+              value={nisn}
+              onChange={(e) => setNisn(e.target.value)}
+              maxLength={10}
+              required
+            />
+            <button type="submit" disabled={loading}>
+              {loading ? "MENGECEK..." : "LOGIN"}
+            </button>
+            {error && <p className={styles.errorText}>{error}</p>}
+          </form>
+
+          <footer className={`${styles.footer} ${styles.fadeIn} ${styles.delay5}`}>
+            E-PILKETOS SMKN 2 KOLAKA @ 2026 <p>Design By. Chatty Programmer </p>
+          </footer>
+        </>
       )}
     </div>
   );
