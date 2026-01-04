@@ -4,6 +4,7 @@
   background-color: #0f0f0f;
   min-height: 100vh;
   color: #ffffff;
+  overflow-x: hidden;
 }
 
 /* Header/TopBar */
@@ -23,10 +24,10 @@
   flex-grow: 1;
 }
 
-/* Pengaturan Grid Layout (25% Kiri - 75% Kanan) */
+/* Pengaturan Layout Utama */
 .layout {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Memungkinkan kolom turun ke bawah di HP */
   gap: 30px;
   padding: 30px;
   max-width: 1800px;
@@ -34,36 +35,45 @@
   animation: fadeIn 0.8s ease-in-out;
 }
 
-/* Animasi Masuk */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Kolom Kiri (25%) */
+/* Kolom Kiri (25% Desktop) */
 .leftCol {
-  flex: 1 1 320px; /* Lebar dasar 320px, bisa membesar hingga 25% */
-  max-width: 400px;
+  flex: 1 1 320px;
+  max-width: 400px; /* Batas lebar di desktop */
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
-/* Kolom Kanan (75%) */
+/* Kolom Kanan (75% Desktop) */
 .rightCol {
-  flex: 3 1 600px; /* Rasio 3 kali lipat lebih lebar dari kiri */
+  flex: 3 1 600px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
-/* Card Styling (Dark Mode) */
+/* Card Styling */
 .sectionCard, .chartWrapper, .tableCard {
   background-color: #181818;
   padding: 25px;
   border-radius: 16px;
   border: 1px solid #222;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box; /* Sangat penting agar padding tidak merusak lebar */
+}
+
+.chartWrapper {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
 }
 
 /* Tabel Perolehan */
@@ -91,11 +101,11 @@
 .count {
   text-align: right;
   font-weight: bold;
-  color: #3b82f6; /* Warna biru untuk angka */
+  color: #3b82f6;
   font-size: 18px;
 }
 
-/* Winner Card (Glow Effect) */
+/* Winner Card */
 .winnerCard {
   background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
   padding: 30px;
@@ -106,24 +116,7 @@
   transition: all 0.5s ease;
 }
 
-.winnerName {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #ffffff;
-}
-
-.badge {
-  display: inline-block;
-  background-color: #2563eb;
-  color: white;
-  padding: 8px 25px;
-  border-radius: 50px;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-/* Tombol-Tombol */
+/* Tombol */
 .btnAdmin {
   padding: 10px 20px;
   background-color: #222;
@@ -132,64 +125,52 @@
   border-radius: 8px;
   border: 1px solid #333;
   font-size: 14px;
-  transition: background 0.3s;
-}
-
-.btnAdmin:hover {
-  background-color: #333;
 }
 
 .btnClear {
-  align-self: flex-end;
   padding: 12px 25px;
-  background-color: #7f1d1d; /* Merah gelap */
+  background-color: #7f1d1d;
   color: white;
   border: 1px solid #333;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  width: 100%; /* Tombol melebar penuh di semua layar */
   transition: all 0.3s;
 }
 
-.btnClear:hover {
-  background-color: #b91c1c;
-  transform: scale(1.05);
-}
-
-/* Footer */
-.footerResult {
-  text-align: center;
-  padding: 40px;
-  color: #333;
-  font-size: 12px;
-  letter-spacing: 1px;
-}
-
-/* Responsive Mobile */
+/* --- PENYESUAIAN LAYAR KECIL (MOBILE/TABLET) --- */
 @media (max-width: 992px) {
   .layout {
-    flex-direction: column;
-    padding: 15px;
+    flex-direction: column; /* Paksa urutan vertikal */
+    padding: 20px;
+    gap: 20px;
   }
   
   .leftCol, .rightCol {
-    max-width: 100%;
-    flex: 1 1 auto;
+    max-width: 100% !important; /* Hilangkan batasan 400px kolom kiri */
+    flex: 1 1 100% !important;
+    width: 100% !important;
   }
-  
+
   .chartWrapper {
-  overflow: hidden; /* Mencegah grafik "balapan" keluar dari kotak */
-  display: flex;
-  flex-direction: column;
-}
-}
-@media (max-width: 768px) {
-  .chartWrapper {
-    padding: 10px !important; /* Kurangi padding di HP agar grafik lebih luas */
-    height: 350px !important; /* Tinggi yang ideal untuk layar HP */
+    min-height: 350px !important;
+    padding: 15px !important;
   }
-  
+
+  .table td {
+    padding: 12px 0; /* Perkecil padding tabel di HP agar hemat ruang */
+    font-size: 14px;
+  }
+}
+
+/* Tambahan khusus layar sangat kecil */
+@media (max-width: 480px) {
   .layout {
-    padding: 10px !important; /* Kurangi margin luar di HP */
+    padding: 10px;
+  }
+  
+  .chartWrapper {
+    height: 300px !important;
   }
 }
