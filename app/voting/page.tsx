@@ -12,22 +12,6 @@ export default function VotePage() {
   const [message, setMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // ✅ FUNGSI OTOMATIS: Mengubah link Drive biasa menjadi Direct Link Gambar
-  const getDirectLink = (url: string) => {
-  if (!url) return "/logo-osis.png";
-  console.log("URL Gambar Asli:", url); // Tambahkan ini untuk cek di F12 (Console)
-  
-  if (url.includes("drive.google.com")) {
-    const fileId = url.split("/d/")[1]?.split("/")[0] || url.split("id=")[1]?.split("&")[0];
-    if (fileId) {
-      const result = `https://drive.google.com/uc?export=view&id=${fileId}`;
-      console.log("Direct Link Hasil Konversi:", result);
-      return result;
-    }
-  }
-  return url;
-};
-
   useEffect(() => {
     const nisn = localStorage.getItem("nisn");
     if (!nisn) {
@@ -101,24 +85,26 @@ export default function VotePage() {
           <div className={styles.candidateGrid}>
             {candidates.map((c) => (
               <div key={c.id} className={styles.card}>
-               <div className={styles.imageWrapper} style={{ width: '100%', height: '250px', position: 'relative', overflow: 'hidden', backgroundColor: '#333' }}>
-<img
-    // Hasilnya: https://voting-backend-production-ea29.up.railway.app/upload/candidates/foto.jpg
-    src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"}
-    alt={c.name}
-    className={styles.photo}
-    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-    onError={(e) => {
-      // Jika gambar tetap gagal dimuat, pakai logo cadangan
-      (e.target as HTMLImageElement).src = "/logo-osis.png";
-    }}
-  />
-</div>
+                <div className={styles.imageWrapper} style={{ width: '100%', height: '250px', position: 'relative', overflow: 'hidden', backgroundColor: '#333', borderRadius: '8px' }}>
+                  
+                  {/* --- LENCANA NOMOR URUT --- */}
+                  <div className={styles.nomorBadge}>
+                    {String(c.nomor_urut || 0).padStart(2, '0')}
+                  </div>
+
+                  <img
+                    src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"}
+                    alt={c.name}
+                    className={styles.photo}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/logo-osis.png";
+                    }}
+                  />
+                </div>
                 
                 <div className={styles.info}>
-                  
                   <h2>{c.name}</h2>
-                 
                   <button
                     onClick={() => handleVote(c.id, c.name)}
                     disabled={isProcessing}
