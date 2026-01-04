@@ -24,11 +24,10 @@ export default function AdminPage() {
     tingkat: "-", 
     kelas: "-",
     image_url: "",
-    nomor_urut: "" // State baru untuk nomor urut
+    nomor_urut: "" 
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const candidatePhotoRef = useRef<HTMLInputElement>(null);
 
   const loadData = async () => {
     try {
@@ -36,12 +35,29 @@ export default function AdminPage() {
       const cData = await getCandidates();
       setStudents(Array.isArray(sData) ? sData : []);
       setCandidates(Array.isArray(cData) ? cData : []);
-    } catch (err) { console.error(err); }
+    } catch (err) { 
+      console.error("Gagal memuat data:", err); 
+    }
   };
 
   useEffect(() => { loadData(); }, []);
 
-  const handleSaveSiswa = async () => {
+  // Handler Hapus Siswa
+  const handleDeleteSiswa = async (nisn: string) => {
+    if (confirm("Apakah Anda yakin ingin menghapus siswa ini?")) {
+      try {
+        await deleteStudent(nisn);
+        alert("✅ Siswa berhasil dihapus");
+        await loadData();
+      } catch (err) {
+        alert("❌ Gagal menghapus siswa");
+      }
+    }
+  };
+
+  // Handler Simpan Siswa
+  const handleSaveSiswa = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!formData.nisn || !formData.name) return alert("⚠️ NISN dan Nama wajib diisi!");
     try {
       if (view === "edit-siswa") {
@@ -52,9 +68,24 @@ export default function AdminPage() {
         alert("✅ Berhasil Simpan Siswa!");
       }
       setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "", nomor_urut: "" });
-      loadData();
+      await loadData();
       setView("input-nisn");
-    } catch (err: any) { alert("❌ " + err.message); }
+    } catch (err: any) { alert("❌ Gagal menyimpan"); }
+  };
+
+  // Handler Reset Semua Siswa (Fungsi Baru di Top Bar)
+  const handleResetSiswa = async () => {
+    if (confirm("⚠️ PERINGATAN: Hapus SELURUH data siswa?")) {
+      if (confirm("Tindakan ini permanen. Lanjutkan?")) {
+        try {
+          await resetStudents();
+          alert("✅ Semua data siswa telah dihapus.");
+          await loadData();
+        } catch (err) {
+          alert("❌ Gagal mereset data.");
+        }
+      }
+    }
   };
 
   const handleEditKandidat = (c: any) => {
@@ -64,10 +95,11 @@ export default function AdminPage() {
       ...formData,
       name: c.name,
       image_url: c.photo,
-      nisn: c.vision, // vision disimpan di field nisn pada formData anda
-      nomor_urut: c.nomor_urut || "" // Ambil nomor urut dari DB
+      nisn: c.vision || "", 
+      nomor_urut: c.nomor_urut || ""
     });
     setSelectedFile(null);
+    setView("input-kandidat");
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -78,12 +110,10 @@ export default function AdminPage() {
       data.append("name", formData.name);
       data.append("vision", formData.nisn);
       data.append("mission", "-");
-      data.append("nomor_urut", formData.nomor_urut); // Kirim nomor urut ke API
+      data.append("nomor_urut", formData.nomor_urut);
       
       if (selectedFile) {
         data.append("photo", selectedFile);
-      } else if (isEditingKandidat) {
-        data.append("photo", formData.image_url);
       }
 
       if (isEditingKandidat && currentKandidatId) {
@@ -98,10 +128,20 @@ export default function AdminPage() {
       setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "", nomor_urut: "" });
       setSelectedFile(null);
       setIsEditingKandidat(false);
-      setCurrentKandidatId(null);
-      loadData();
+      await loadData();
     } catch (err) {
       alert("❌ Gagal menyimpan data kandidat.");
+    }
+  };
+
+  const handleDeleteKandidat = async (id: number) => {
+    if (confirm("Hapus kandidat ini?")) {
+      try {
+        await deleteCandidate(id);
+        await loadData();
+      } catch (err) {
+        alert("Gagal menghapus");
+      }
     }
   };
 
@@ -133,102 +173,62 @@ export default function AdminPage() {
             <div className={styles.formContainer}>
               <h1>{isEditingKandidat ? "📝 Edit Kandidat" : "➕ Input Kandidat Baru"}</h1>
               <form onSubmit={handleSubmitKandidat}>
-                
-                {/* INPUT NOMOR URUT */}
                 <div className={styles.inputField}>
-                  <label>Nomor Urut (Contoh: 1, 2, 3)</label>
-                  <input 
-                    type="number" 
-                    placeholder="Masukkan angka nomor urut"
-                    value={formData.nomor_urut} 
-                    onChange={e => setFormData({...formData, nomor_urut: e.target.value})} 
-                    required 
-                  />
+                  <label>Nomor Urut</label>
+                  <input type="number" value={formData.nomor_urut} onChange={e => setFormData({...formData, nomor_urut: e.target.value})} required />
                 </div>
-
                 <div className={styles.inputField}>
                   <label>Nama Kandidat</label>
                   <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                 </div>
-                
                 <div className={styles.inputField}>
-                  <label>Pilih Foto (Upload Lokal)</label>
-                  <input type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} ref={candidatePhotoRef} />
-                  {(selectedFile || formData.image_url) && (
-                    <div style={{ marginTop: '10px' }}>
-                      <img 
-                        src={selectedFile ? URL.createObjectURL(selectedFile) : `${API_URL}${formData.image_url}`} 
-                        alt="preview" 
-                        style={{ width: '80px', height: '80px', borderRadius: '8px', objectFit: 'cover', border: '2px solid #ddd' }} 
-                        onError={(e) => (e.currentTarget.src = "/logo-osis.png")} 
-                      />
-                    </div>
-                  )}
+                  <label>Foto</label>
+                  <input type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
                 </div>
-
                 <div className={styles.inputField}>
                   <label>Visi & Misi</label>
-                  <textarea 
-                    style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', minHeight: '100px' }}
-                    value={formData.nisn} 
-                    onChange={e => setFormData({...formData, nisn: e.target.value})} 
-                    required 
-                  />
+                  <textarea value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} required />
                 </div>
-
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className={styles.buttonGroupSmall}>
                   <button type="submit" className={styles.btnSave}>Simpan</button>
                   {isEditingKandidat && (
-                    <button type="button" onClick={() => { setIsEditingKandidat(false); setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:"", nomor_urut:""}); }} className={styles.btnCancel}>Batal</button>
+                    <button type="button" onClick={() => setIsEditingKandidat(false)} className={styles.btnCancel}>Batal</button>
                   )}
                 </div>
               </form>
             </div>
 
-            <div style={{ marginTop: '40px' }}>
-              <h2>Daftar Kandidat</h2>
-              <div className={styles.candidateGrid}>
-                {candidates.map((c) => (
-                  <div key={c.id} className={styles.candidateCard}>
-                    {/* Badge Nomor Urut di Card List Admin */}
-                    <div style={{ 
-                      position: 'absolute', top: '5px', left: '5px', backgroundColor: '#3b82f6', 
-                      color: 'white', padding: '2px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' 
-                    }}>
-                      {String(c.nomor_urut || 0).padStart(2, '0')}
-                    </div>
-
-                    <img 
-                      src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"} 
-                      alt={c.name} 
-                      className={styles.candidateThumb}
-                      onError={(e) => (e.currentTarget.src = "/logo-osis.png")}
-                    />
-                    <h3>{c.name}</h3>
-                    <div className={styles.buttonGroupSmall}>
-                      <button onClick={() => handleEditKandidat(c)} className={styles.btnEdit}>Edit</button>
-                      <button onClick={() => { if(confirm("Hapus?")) deleteCandidate(c.id).then(loadData); }} className={styles.btnDelete}>Hapus</button>
-                    </div>
+            <div className={styles.candidateGrid}>
+              {candidates.map((c) => (
+                <div key={c.id} className={styles.candidateCard}>
+                  <div className={styles.badge}>{String(c.nomor_urut || 0).padStart(2, '0')}</div>
+                  <img src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"} className={styles.candidateThumb} alt={c.name} />
+                  <h3>{c.name}</h3>
+                  <div className={styles.buttonGroupSmall}>
+                    <button onClick={() => handleEditKandidat(c)} className={styles.btnEdit}>Edit</button>
+                    <button onClick={() => handleDeleteKandidat(c.id)} className={styles.btnDelete}>Hapus</button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </section>
         )}
 
-        {/* ... (View lainnya tetap sama) ... */}
         {view === "input-nisn" && (
           <section>
             <div className={styles.headerRow}>
               <h1>Data Siswa</h1>
               <div className={styles.buttonGroupLarge}>
-                <button onClick={() => { setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:"", nomor_urut:""}); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
+                <button onClick={handleResetSiswa} className={styles.btnReset}>🗑️ Reset Semua</button>
+                <button onClick={() => setView("form-manual-nisn")} className={styles.btnManual}>➕ Input Manual</button>
                 <button onClick={() => downloadStudentFormat()} className={styles.btnExcel}>📥 Format Excel</button>
-                <input type="file" ref={fileInputRef} style={{display:'none'}} onChange={(e) => {
+                <input type="file" ref={fileInputRef} style={{display:'none'}} onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if(file) {
                     const fd = new FormData(); fd.append("file", file);
-                    importStudents(fd).then(() => { alert("Import Berhasil"); loadData(); });
+                    await importStudents(fd);
+                    alert("Import Berhasil");
+                    loadData();
                   }
                 }} />
                 <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
@@ -244,8 +244,8 @@ export default function AdminPage() {
                     <td>{s.nisn}</td>
                     <td>{s.name || s.nama}</td>
                     <td>
-                      <button onClick={() => { setFormData({...s, image_url: "", nomor_urut: ""}); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
-                      <button onClick={() => { if(confirm("Hapus?")) deleteStudent(s.nisn).then(loadData); }} className={styles.btnDelete}>Hapus</button>
+                      <button onClick={() => { setFormData({...s, name: s.name || s.nama}); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
+                      <button onClick={() => handleDeleteSiswa(s.nisn)} className={styles.btnDelete}>Hapus</button>
                     </td>
                   </tr>
                 ))}
@@ -257,18 +257,20 @@ export default function AdminPage() {
         {(view === "form-manual-nisn" || view === "edit-siswa") && (
           <section className={styles.formContainer}>
             <h2>{view === "edit-siswa" ? "Edit" : "Tambah"} Siswa</h2>
-            <div className={styles.inputField}>
-              <label>NISN</label>
-              <input type="text" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} disabled={view === "edit-siswa"} />
-            </div>
-            <div className={styles.inputField}>
-              <label>Nama</label>
-              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-            </div>
-            <div className={styles.buttonGroupLarge}>
-              <button onClick={handleSaveSiswa} className={styles.btnSave}>Simpan</button>
-              <button onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
-            </div>
+            <form onSubmit={handleSaveSiswa}>
+              <div className={styles.inputField}>
+                <label>NISN</label>
+                <input type="text" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} disabled={view === "edit-siswa"} />
+              </div>
+              <div className={styles.inputField}>
+                <label>Nama</label>
+                <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+              </div>
+              <div className={styles.buttonGroupLarge}>
+                <button type="submit" className={styles.btnSave}>Simpan</button>
+                <button type="button" onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
+              </div>
+            </form>
           </section>
         )}
       </main>
