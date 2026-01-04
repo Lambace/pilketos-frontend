@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "./vote.module.css";
 
-// SESUAIKAN DENGAN URL BACKEND RAILWAY ANDA
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 export default function VotePage() {
@@ -13,8 +12,21 @@ export default function VotePage() {
   const [message, setMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // ✅ FUNGSI OTOMATIS: Mengubah link Drive biasa menjadi Direct Link Gambar
+  const getDirectLink = (url: string) => {
+    if (!url) return "/logo-osis.png";
+    
+    // Jika link mengandung 'drive.google.com', ubah formatnya secara otomatis
+    if (url.includes("drive.google.com")) {
+      const fileId = url.split("/d/")[1]?.split("/")[0] || url.split("id=")[1]?.split("&")[0];
+      if (fileId) {
+        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+      }
+    }
+    return url; // Jika bukan link drive (misal link hosting lain), gunakan apa adanya
+  };
+
   useEffect(() => {
-    // 1. PROTEKSI HALAMAN: Cek apakah sudah login
     const nisn = localStorage.getItem("nisn");
     if (!nisn) {
       alert("Akses ditolak. Silakan login terlebih dahulu.");
@@ -22,7 +34,6 @@ export default function VotePage() {
       return;
     }
 
-    // 2. AMBIL DATA KANDIDAT
     const fetchCandidates = async () => {
       try {
         const res = await fetch(`${API_URL}/candidates`);
@@ -31,7 +42,7 @@ export default function VotePage() {
         setCandidates(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        setMessage("⚠️ Gagal memuat daftar kandidat. Pastikan koneksi internet stabil.");
+        setMessage("⚠️ Gagal memuat daftar kandidat.");
       } finally {
         setLoading(false);
       }
@@ -41,8 +52,7 @@ export default function VotePage() {
   }, [router]);
 
   const handleVote = async (candidateId: number, candidateName: string) => {
-    // 3. KONFIRMASI PILIHAN
-    const confirmVote = confirm(`Apakah Anda yakin ingin memberikan suara kepada: ${candidateName}? \n\n(Tindakan ini hanya bisa dilakukan satu kali)`);
+    const confirmVote = confirm(`Apakah Anda yakin memilih: ${candidateName}?`);
     if (!confirmVote) return;
 
     setIsProcessing(true);
@@ -56,24 +66,17 @@ export default function VotePage() {
       });
 
       const data = await res.json();
-
       if (res.ok) {
-        alert("✅ " + (data.message || "Terima kasih! Suara Anda telah berhasil disimpan."));
-        
-        // 4. LOGOUT OTOMATIS: Hapus sesi agar tidak bisa vote lagi
-        localStorage.removeItem("nisn");
-        localStorage.removeItem("role"); 
-        
+        alert("✅ Berhasil menyimpan suara!");
+        localStorage.clear();
         router.push("/login"); 
       } else {
-        // Jika backend mengirim error (misal: "Sudah pernah memilih")
-        alert("❌ Gagal: " + (data.error || "Terjadi kesalahan saat menyimpan suara."));
-        localStorage.removeItem("nisn"); // Tetap logout untuk keamanan
+        alert("❌ Gagal: " + (data.error || "Terjadi kesalahan."));
+        localStorage.clear();
         router.push("/login");
       }
     } catch (err) {
-      console.error("Error:", err);
-      alert("⚠️ Terjadi kesalahan koneksi ke server.");
+      alert("⚠️ Terjadi kesalahan koneksi.");
     } finally {
       setIsProcessing(false);
     }
@@ -81,9 +84,7 @@ export default function VotePage() {
 
   return (
     <div className={styles.voteContent}>
-      {/* Pastikan file logo-osis.png ada di folder /public */}
       <img src="/logo-osis.png" alt="Logo OSIS" className={styles.logo} />
-      
       <h1>E-VOTING KETUA OSIS</h1>
       <p className={styles.subtitle}>Gunakan hak suara Anda secara bijak, jujur, dan adil.</p>
 
@@ -95,14 +96,13 @@ export default function VotePage() {
         </div>
       ) : (
         <div className={styles.mainWrapper}>
-          {message && <p className={styles.errorMessage}>{message}</p>}
-          
           <div className={styles.candidateGrid}>
             {candidates.map((c) => (
               <div key={c.id} className={styles.card}>
                 <div className={styles.imageWrapper}>
+                  {/* ✅ SRC MENGGUNAKAN FUNGSI OTOMATIS */}
                   <img
-                    src={c.photo || "/logo-osis.png"}
+                    src={getDirectLink(c.photo)} 
                     alt={c.name}
                     className={styles.photo}
                     onError={(e) => {
@@ -114,7 +114,6 @@ export default function VotePage() {
                 <div className={styles.info}>
                   <span className={styles.candidateNumber}>Kandidat #{c.id}</span>
                   <h2>{c.name}</h2>
-                  
                   <div className={styles.visionMission}>
                     <p><strong>Visi:</strong> {c.vision || "-"}</p>
                     <p><strong>Misi:</strong> {c.mission || "-"}</p>
@@ -125,7 +124,7 @@ export default function VotePage() {
                     disabled={isProcessing}
                     className={styles.voteButton}
                   >
-                    {isProcessing ? "Menyimpan Suara..." : "Berikan Suara"}
+                    {isProcessing ? "Menyimpan..." : "Berikan Suara"}
                   </button>
                 </div>
               </div>
