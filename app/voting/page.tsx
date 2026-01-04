@@ -138,7 +138,7 @@ export default function VotePage() {
       )}
       
       <footer className={styles.footer}>
-        &copy; 2024 Panitia Pemilihan Ketua OSIS
+        &copy; 2026 Panitia Pemilihan Ketua OSIS
       </footer>
     </div>
   );
