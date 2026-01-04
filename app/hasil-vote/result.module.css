@@ -16,18 +16,20 @@
   border-bottom: 1px solid #222;
 }
 
-/* Tipografi */
+/* Tipografi Judul */
 .mainTitle {
   text-align: center;
   letter-spacing: 2px;
   margin: 0;
   flex-grow: 1;
+  font-size: 20px; /* Default Desktop */
+  text-transform: uppercase;
 }
 
 /* Pengaturan Layout Utama */
 .layout {
   display: flex;
-  flex-wrap: wrap; /* Memungkinkan kolom turun ke bawah di HP */
+  flex-wrap: wrap;
   gap: 30px;
   padding: 30px;
   max-width: 1800px;
@@ -40,17 +42,17 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Kolom Kiri (25% Desktop) */
+/* Kolom Kiri */
 .leftCol {
   flex: 1 1 320px;
-  max-width: 400px; /* Batas lebar di desktop */
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   width: 100%;
 }
 
-/* Kolom Kanan (75% Desktop) */
+/* Kolom Kanan */
 .rightCol {
   flex: 3 1 600px;
   display: flex;
@@ -66,7 +68,7 @@
   border-radius: 16px;
   border: 1px solid #222;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  box-sizing: border-box; /* Sangat penting agar padding tidak merusak lebar */
+  box-sizing: border-box;
 }
 
 .chartWrapper {
@@ -80,16 +82,6 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.table th {
-  text-align: left;
-  color: #666;
-  font-size: 14px;
-  text-transform: uppercase;
-  padding: 12px 0;
-  border-bottom: 2px solid #222;
 }
 
 .table td {
@@ -113,7 +105,21 @@
   border: 1px solid #2563eb;
   text-align: center;
   box-shadow: 0 0 40px rgba(37, 99, 235, 0.2);
-  transition: all 0.5s ease;
+}
+
+.winnerName {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.badge {
+  display: inline-block;
+  background-color: #2563eb;
+  color: white;
+  padding: 8px 25px;
+  border-radius: 50px;
+  font-weight: bold;
 }
 
 /* Tombol */
@@ -125,6 +131,7 @@
   border-radius: 8px;
   border: 1px solid #333;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .btnClear {
@@ -135,42 +142,59 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  width: 100%; /* Tombol melebar penuh di semua layar */
-  transition: all 0.3s;
+  width: 100%;
 }
 
-/* --- PENYESUAIAN LAYAR KECIL (MOBILE/TABLET) --- */
+/* Footer */
+.footerResult {
+  text-align: center;
+  padding: 40px;
+  color: #444;
+  font-size: 11px;
+}
+
+/* --- RESPONSIVE MOBILE --- */
 @media (max-width: 992px) {
+  .topBar {
+    padding: 15px 20px;
+  }
+
+  /* JUDUL DIKECILKAN DI SINI */
+  .mainTitle {
+    font-size: 14px; /* Ukuran lebih kecil agar tidak dominan */
+    letter-spacing: 1px;
+    padding: 0 10px;
+  }
+
   .layout {
-    flex-direction: column; /* Paksa urutan vertikal */
-    padding: 20px;
+    flex-direction: column;
+    padding: 15px;
     gap: 20px;
   }
   
   .leftCol, .rightCol {
-    max-width: 100% !important; /* Hilangkan batasan 400px kolom kiri */
+    max-width: 100% !important;
     flex: 1 1 100% !important;
     width: 100% !important;
+  }
+
+  .winnerName {
+    font-size: 22px; /* Nama pemenang juga disesuaikan */
   }
 
   .chartWrapper {
     min-height: 350px !important;
     padding: 15px !important;
   }
-
-  .table td {
-    padding: 12px 0; /* Perkecil padding tabel di HP agar hemat ruang */
-    font-size: 14px;
-  }
 }
 
-/* Tambahan khusus layar sangat kecil */
 @media (max-width: 480px) {
-  .layout {
-    padding: 10px;
+  .mainTitle {
+    font-size: 12px; /* Lebih kecil lagi untuk HP layar sempit */
   }
   
-  .chartWrapper {
-    height: 300px !important;
+  .btnAdmin {
+    padding: 8px 12px;
+    font-size: 11px;
   }
 }
