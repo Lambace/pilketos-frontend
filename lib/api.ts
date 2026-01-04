@@ -1,5 +1,4 @@
-const API_URL = "https://voting-backend-production-ea29.up.railway.app";
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://voting-backend-production-ea29.up.railway.app";
 // Helper Fetch agar tidak terjadi typo URL
 async function apiFetch(endpoint: string, options: any = {}) {
   const res = await fetch(`${API_URL}${endpoint}`, options);
