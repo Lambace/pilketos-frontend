@@ -125,7 +125,7 @@ export default function HasilVotePage() {
         </Link>
 
         <h1 style={{ fontSize: '20px', margin: 0, flexGrow: 1, textAlign: 'center', color: '#fff' }}>
-          Laporan Real-Time E-Voting
+          Grafik Perolehan Suara
         </h1>
         <div style={{ width: '120px' }}></div> {/* Spacer agar judul tetap tengah */}
       </header>
@@ -196,7 +196,7 @@ export default function HasilVotePage() {
       </div>
 
       <footer className={styles.footerResult} style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
-        Sistem E-Voting Real-Time &copy; 2024
+        E-Voting SMKN 2 KOLAKA &copy; 2026
       </footer>
     </div>
   );
