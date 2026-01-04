@@ -1,8 +1,11 @@
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 async function apiFetch(endpoint: string, options: any = {}) {
-  const res = await fetch(`${API_URL}${endpoint}`, options);
+  // Membersihkan endpoint dari spasi tidak sengaja
+  const cleanEndpoint = endpoint.trim();
+  const res = await fetch(`${API_URL}${cleanEndpoint}`, options);
   const data = await res.json().catch(() => ({}));
+  
   if (!res.ok) {
     throw new Error(data.message || data.error || "Terjadi kesalahan pada server");
   }
@@ -31,31 +34,26 @@ export async function submitVote(nisn: string, candidate_id: number) {
   });
 }
 
-// ✅ TAMBAH KANDIDAT (Disesuaikan untuk FormData/Upload File)
 export async function addCandidate(formData: FormData) {
   const res = await fetch(`${API_URL}/candidates`, {
     method: "POST",
-    body: formData, // Langsung masukkan formData tanpa JSON.stringify
-    // PENTING: Jangan tambahkan headers Content-Type di sini
+    body: formData,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Gagal tambah kandidat");
   return data;
 }
 
-// ✅ UPDATE KANDIDAT (Disesuaikan untuk FormData/Upload File)
 export async function updateCandidate(id: number, formData: FormData) {
   const res = await fetch(`${API_URL}/candidates/${id}`, {
     method: "PUT",
     body: formData,
-    // PENTING: Jangan tambahkan headers Content-Type di sini
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Gagal update kandidat");
   return data;
 }
 
-// ✅ Hapus Kandidat
 export async function deleteCandidate(id: number) {
   return apiFetch(`/candidates/${id}`, {
     method: "DELETE",
@@ -63,7 +61,6 @@ export async function deleteCandidate(id: number) {
 }
 
 // --- 3. MANAJEMEN SISWA (CRUD) ---
-
 export async function getStudents() {
   try {
     return await apiFetch("/students");
@@ -101,44 +98,22 @@ export async function resetStudents() {
   });
 }
 
-// --- 4. FITUR HASIL VOTE (QUICK COUNT) ---
-
+// --- 4. HASIL ---
 export async function getResults() {
   return apiFetch("/results");
 }
 
-export async function getWinner() {
-  return apiFetch("/results/winner");
-}
-
-// --- 5. FITUR IMPORT & DOWNLOAD ---
-
+// --- 5. IMPORT & DOWNLOAD ---
 export async function importStudents(formData: FormData) {
   const res = await fetch(`${API_URL}/students/import`, {
     method: "POST",
     body: formData, 
   });
-
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data.message || "Gagal mengimpor data siswa");
-  }
+  if (!res.ok) throw new Error(data.message || "Gagal mengimpor data siswa");
   return data;
 }
 
 export async function downloadStudentFormat() {
   window.location.href = `${API_URL}/students/download-format`;
-}
-
-// --- 6. FITUR SETTINGS ---
-export async function getSettings() {
-  return apiFetch("/settings");
-}
-
-export async function updateSettings(data: any) {
-  return apiFetch("/settings", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
 }
