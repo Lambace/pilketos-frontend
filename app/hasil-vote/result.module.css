@@ -1,137 +1,180 @@
-.container {
-  padding: 16px;
-  font-family: "Segoe UI", sans-serif;
-  background-color: #f8fafc; /* abu-abu muda */
+/* Container Utama */
+.pageWrapper {
+  background-color: #1a1a1a;
   min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* Mencegah scroll horizontal */
 }
 
+/* Header / Top Bar */
 .topBar {
+  background-color: #222;
+  border-bottom: 1px solid #333;
+  padding: 15px;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 16px;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.layout {
-  display: flex;
-  gap: 16px;
-}
-
-/* Kolom kiri */
-.leftCol {
-  flex: 0 0 16%;
-  border-right: 2px solid #e2e8f0;
-  padding-right: 16px;
-}
-
-.logoBox {
-  background: #ffffff;
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.logoLeft {
-  width: 120px;
-  height: auto;
-}
-
-.title {
+.headerTitle {
+  color: #ffffff;
   font-size: 1.2rem;
   font-weight: bold;
-  margin-bottom: 12px;
-  color: #1e293b;
+  margin: 0;
+  text-align: center;
 }
 
-.table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  margin-top: 24px; 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-  border-radius: 12px; 
-  overflow: hidden; 
-  font-family: Arial, sans-serif; 
+/* Layout Konten */
+.layout {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* Kunci agar grafik pindah ke bawah di HP */
+  gap: 20px;
+  padding: 20px;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.table thead { 
-  background: linear-gradient(135deg, #1e90ff, #00c853); /* biru ke hijau */ 
-  color: white; 
-  font-weight: bold; 
+/* Kolom Kiri (Tabel & Info) */
+.leftCol {
+  flex: 1 1 350px; /* Minimal lebar 350px sebelum wrap */
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.table th, .table td { 
-  padding: 12px 16px; 
-  text-align: center; 
+/* Kolom Kanan (Grafik) */
+.rightCol {
+  flex: 1 1 450px; /* Minimal lebar 450px */
+  max-width: 100%;
+  width: 100%;
 }
 
-.table tbody tr:nth-child(even) { 
-  background-color: #f9f9f9; 
-
+/* Box Grafik agar Responsif */
+.chartWrapper {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 12px;
+  height: 400px; /* Tinggi di Desktop */
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  position: relative; /* Penting untuk Chart.js responsive */
 }
 
-.table tbody tr:hover { 
-  background-color: #e0f7fa; /* efek hover */ 
-  transition: background-color 0.2s ease; 
+/* Tabel Perolehan */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  color: white;
 }
 
-.button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+.table th {
+  background-color: #14b8a6; /* Warna Teal sesuai Screenshot */
+  padding: 12px;
+  text-align: left;
   font-size: 0.9rem;
-  border: none;
-}
-.buttonPrimary { 
-  background: linear-gradient(135deg, #1e90ff, #00c853); /* biru ke hijau */ 
-  color: white; 
-  font-weight: bold; 
-  padding: 10px 20px; 
-  border: none; 
-  border-radius: 12px; 
-  text-decoration: none; 
-  display: inline-block; 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
-  transition: transform 0.2s ease; 
 }
 
-  .buttonPrimary:hover { 
-    transform: scale(1.05); 
-  }
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+  font-size: 1rem;
+}
+
+.count {
+  font-weight: bold;
+  text-align: center;
+  color: #22c55e;
+}
+
+/* Kartu Pemenang */
+.winnerCard {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  text-align: center;
+  color: white;
+}
+
+.badge {
+  background-color: #f59e0b;
+  color: #000;
+  padding: 5px 15px;
+  border-radius: 20px;
+  display: inline-block;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Tombol */
+.button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
 
 .buttonDanger {
-  display: none;
+  background-color: #ef4444;
+  color: white;
+  margin-top: 10px;
 }
 
-.message {
-  margin-top: 8px;
-  color: #ef4444;
-  font-size: 0.85rem;
-}
-
-/* Kolom kanan */
-.rightCol {
-  flex: 1;
-  padding-left: 16px;
-}
-
-.chartWrapper {
-  background: #ffffff;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.noData {
-  margin-top: 12px;
+/* Footer */
+.footerResult {
+  padding: 20px;
   text-align: center;
-  color: #64748b;
-  font-style: italic;
+  color: #666;
+  font-size: 0.8rem;
 }
 
-.winner {
-  margin-top: 16px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #22c55e;
-  text-align: center;
+/* --- RESPONSIVITAS (HP/TABLET) --- */
+@media (max-width: 768px) {
+  .layout {
+    padding: 10px;
+    flex-direction: column; /* Paksa bertumpuk */
+  }
+
+  .chartWrapper {
+    height: 300px; /* Perkecil tinggi di HP */
+    padding: 10px;
+  }
+
+  .headerTitle {
+    font-size: 1rem;
+  }
+
+  .topBar {
+    padding: 10px;
+  }
+
+  .leftCol, .rightCol {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
+/* Animasi sederhana */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.winnerCard, .chartWrapper {
+  animation: fadeIn 0.5s ease-out;
 }
