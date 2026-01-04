@@ -2,12 +2,17 @@
   padding: 2rem;
   text-align: center;
   margin: 0;
+  background-color: #121212; /* Sesuaikan dengan tema gelap */
+  min-height: 100vh;
+  color: white;
 }
 
 .candidateGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* selalu 2 kolom */
+  grid-template-columns: repeat(2, 1fr); /* 2 kolom sesuai permintaan */
   gap: 1.5rem;
+  max-width: 1000px;
+  margin: 2rem auto;
 }
 
 .card {
@@ -15,19 +20,44 @@
   padding: 1rem;
   border-radius: 10px;
   color: white;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-
-  /* flex agar tombol selalu di bawah */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border: 1px solid #333;
+}
+
+/* CONTAINER FOTO & NOMOR */
+.imageWrapper {
+  position: relative; /* Dasar posisi absolute nomor */
+}
+
+.nomorBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  background-color: #0072ff; /* Warna Biru */
+  color: white;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .photo {
   width: 100%;
-  min-height: 200px; /* Beri tinggi minimal */
-  background-color: #444; /* Warna abu-abu sebagai placeholder */
+  height: 100%;
+  object-fit: cover;
   display: block;
+}
+
+.info h2 {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #fff;
 }
 
 .voteButton {
@@ -38,21 +68,45 @@
   background: linear-gradient(90deg, #00c6ff, #0072ff);
   color: white;
   font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .voteButton:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+}
+
+.voteButton:disabled {
+  background: #555;
+  cursor: not-allowed;
 }
 
 .logo {
-  z-index: 99999;
-  width: 250px;       /* ukuran logo */
+  width: 150px;
   display: block;
-  margin-left: auto;
-  margin-right: auto; /* posisi tengah */
+  margin: 0 auto 1rem;
 }
 
+.subtitle {
+  color: #aaa;
+  margin-bottom: 2rem;
+}
 
+.footer {
+  margin-top: 3rem;
+  color: #666;
+  font-size: 0.9rem;
+}
 
+/* Responsif untuk HP layar sangat kecil */
+@media (max-width: 480px) {
+  .candidateGrid {
+    gap: 0.8rem;
+  }
+  .nomorBadge {
+    font-size: 1rem;
+    padding: 3px 8px;
+  }
+}
