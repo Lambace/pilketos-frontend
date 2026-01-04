@@ -25,16 +25,27 @@ export default function HasilVotePage() {
 
   const fetchData = async () => {
     try {
+      // 1. Fetch Data Hasil
       const resResults = await fetch(`${API_URL}/results`);
       const dataResults = await resResults.json();
-      // Pastikan backend mengembalikan field 'suara' atau sesuaikan dengan 'vote_count'
       const formatted = Array.isArray(dataResults) ? dataResults : [];
       setResults(formatted);
 
-      const resWinner = await fetch(`${API_URL}/results/winner`);
-      if (resWinner.ok) {
-        const dataWinner = await resWinner.json();
-        setWinner(dataWinner?.suara > 0 ? dataWinner : null);
+      // 2. Logika Penentuan Pemenang (Cari suara tertinggi dari array results)
+      if (formatted.length > 0) {
+        const sorted = [...formatted].sort((a, b) => b.suara - a.suara);
+        const top = sorted[0];
+
+        // Set pemenang jika suara > 0
+        if (top.suara > 0) {
+          setWinner({
+            id: top.id,
+            name: top.name,
+            suara: top.suara
+          });
+        } else {
+          setWinner(null);
+        }
       }
     } catch (err) {
       console.error("⚠️ Gagal fetch data:", err);
@@ -98,7 +109,7 @@ export default function HasilVotePage() {
       y: {
         beginAtZero: true,
         grid: { color: "rgba(255, 255, 255, 0.05)" },
-        ticks: { color: "#888", font: { size: 14 }, stepSize: 1 }
+        ticks: { color: "#888", font: { size: 14 } }
       },
       x: {
         grid: { display: false },
@@ -108,92 +119,78 @@ export default function HasilVotePage() {
   };
 
   return (
-    <div className={styles.pageWrapper} style={{ backgroundColor: '#0f0f0f', minHeight: '100vh', color: '#fff', overflowX: 'hidden' }}>
+    <div className={styles.pageWrapper}>
       
       {/* --- HEADER --- */}
       {!isCleanMode && (
-        <header style={{ padding: '20px 40px', display: 'flex', alignItems: 'center', backgroundColor: '#181818', borderBottom: '1px solid #222' }}>
-          <Link href="/admin" style={{ padding: '10px 20px', fontSize: '14px', fontWeight: 'bold', textDecoration: 'none', color: '#fff', border: '1px solid #333', borderRadius: '8px', backgroundColor: '#222' }}>
+        <header className={styles.topBar}>
+          <Link href="/admin" className={styles.btnAdmin}>
             ⬅ Dashboard Admin
           </Link>
-          <h1 style={{ fontSize: '20px', margin: 0, flexGrow: 1, textAlign: 'center', letterSpacing: '2px' }}>
+          <h1 className={styles.mainTitle}>
             E-VOTING SYSTEM MONITOR
           </h1>
           <div style={{ width: '150px' }}></div>
         </header>
       )}
 
-     {/* --- GRID LAYOUT --- */}
-<div style={{ 
-  display: 'flex', 
-  flexWrap: 'wrap', 
-  gap: '20px', 
-  padding: isCleanMode ? '40px' : '15px',
-  maxWidth: '1800px',
-  margin: '0 auto',
-  boxSizing: 'border-box'
-}}>
-  
-  {/* KOLOM KIRI (Tabel & Winner) */}
-  <div style={{ 
-    // Di Desktop: flex-grow 1 (25%), di Mobile: lebar 100%
-    flex: '1 1 300px', 
-    width: '100%', 
-    maxWidth: isCleanMode ? (typeof window !== 'undefined' && window.innerWidth < 992 ? '100%' : '350px') : '100%',
-    display: 'flex', 
-    flexDirection: 'column', 
-    gap: '20px' 
-  }}>
-    {/* Isi Tabel & Winner Card tetap muncul di sini */}
-    <div className={styles.tableCard} style={{ backgroundColor: '#181818', padding: '20px', borderRadius: '16px', border: '1px solid #222' }}>
-        <h2 style={{ fontSize: '18px', marginBottom: '15px', color: '#aaa' }}>Detail Suara</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <tbody>
-            {results.map((r) => (
-              <tr key={r.id} style={{ borderBottom: '1px solid #222' }}>
-                <td style={{ padding: '12px 0', fontSize: '15px' }}>{r.name}</td>
-                <td style={{ padding: '12px 0', textAlign: 'right', fontSize: '16px', fontWeight: 'bold', color: '#3b82f6' }}>{r.suara}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-    </div>
+      {/* --- GRID LAYOUT --- */}
+      <div className={styles.layout} style={{ padding: isCleanMode ? '40px' : '20px' }}>
+        
+        {/* KOLOM KIRI (Tabel & Winner) */}
+        <div className={styles.leftCol} style={{ maxWidth: isCleanMode ? '400px' : 'none' }}>
+          
+          {/* WINNER CARD */}
+          {winner ? (
+            <div className={styles.winnerCard}>
+              <p style={{ margin: 0, fontSize: '12px', fontWeight: 'bold', color: 'rgba(255,255,255,0.7)' }}>
+                🏆 UNGGUL SEMENTARA
+              </p>
+              <h2 className={styles.winnerName}>{winner.name}</h2>
+              <div className={styles.badge}>
+                {winner.suara} SUARA
+              </div>
+            </div>
+          ) : (
+            <div className={styles.winnerCard} style={{ background: '#181818', border: '1px dashed #444' }}>
+               <p style={{ color: '#666', margin: 0 }}>Belum ada suara masuk</p>
+            </div>
+          )}
 
-    {winner && (
-       <div className={styles.winnerCard}>
-          {/* ... konten winner ... */}
-       </div>
-    )}
-  </div>
+          {/* TABEL DETAIL */}
+          <div className={styles.tableCard}>
+            <h2 style={{ fontSize: '18px', marginBottom: '15px', color: '#aaa' }}>Detail Perolehan</h2>
+            <table className={styles.table}>
+              <tbody>
+                {results.map((r) => (
+                  <tr key={r.id}>
+                    <td>{r.name}</td>
+                    <td className={styles.count}>{r.suara}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-  {/* KOLOM KANAN (Grafik) */}
-  <div style={{ 
-    // Di Desktop: flex-grow 3 (75%), di Mobile: lebar 100%
-    flex: '3 1 600px', 
-    width: '100%', 
-    display: 'flex', 
-    flexDirection: 'column', 
-    gap: '20px' 
-  }}>
-    <div className={styles.chartWrapper} style={{ 
-      backgroundColor: '#181818', 
-      padding: '20px', 
-      borderRadius: '16px', 
-      border: '1px solid #222',
-      height: isCleanMode ? '70vh' : '450px',
-      width: '100%',
-      boxSizing: 'border-box'
-    }}>
-      {loading ? <p>Loading...</p> : <Bar data={chartData} options={chartOptions} />}
-    </div>
+        {/* KOLOM KANAN (Grafik) */}
+        <div className={styles.rightCol}>
+          <div className={styles.chartWrapper} style={{ height: isCleanMode ? '75vh' : '450px' }}>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '100px', color: '#666' }}>Menghubungkan ke server...</div>
+            ) : (
+              <Bar data={chartData} options={chartOptions} />
+            )}
+          </div>
 
-    <button onClick={() => setIsCleanMode(!isCleanMode)} className={styles.btnClear} style={{ width: '100%' }}>
-      {isCleanMode ? "👁️ Tampilkan Navigasi" : "🧹 Bersihkan Tampilan"}
-    </button>
-  </div>
-</div>
+          <button onClick={() => setIsCleanMode(!isCleanMode)} className={styles.btnClear}>
+            {isCleanMode ? "👁️ Tampilkan Navigasi" : "🧹 Bersihkan Tampilan"}
+          </button>
+        </div>
+      </div>
+
       {!isCleanMode && (
-        <footer style={{ textAlign: 'center', padding: '40px', color: '#333', fontSize: '12px', letterSpacing: '1px' }}>
+        <footer className={styles.footerResult}>
           SMKN 2 KOLAKA • E-VOTING ENGINE v2.0 • 2026
         </footer>
       )}
