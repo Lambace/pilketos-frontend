@@ -118,10 +118,10 @@ export default function VotePage() {
                 <div className={styles.info}>
                   <span className={styles.candidateNumber}>Kandidat #{c.id}</span>
                   <h2>{c.name}</h2>
-                  <div className={styles.visionMission}>
-                    <p><strong>Visi:</strong> {c.vision || "-"}</p>
-                    <p><strong>Misi:</strong> {c.mission || "-"}</p>
-                  </div>
+                 // <div className={styles.visionMission}>
+                   // <p><strong>Visi:</strong> {c.vision || "-"}</p>
+                  //  <p><strong>Misi:</strong> {c.mission || "-"}</p>
+                //  </div>
 
                   <button
                     onClick={() => handleVote(c.id, c.name)}
