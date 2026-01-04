@@ -14,17 +14,19 @@ export default function VotePage() {
 
   // ✅ FUNGSI OTOMATIS: Mengubah link Drive biasa menjadi Direct Link Gambar
   const getDirectLink = (url: string) => {
-    if (!url) return "/logo-osis.png";
-    
-    // Jika link mengandung 'drive.google.com', ubah formatnya secara otomatis
-    if (url.includes("drive.google.com")) {
-      const fileId = url.split("/d/")[1]?.split("/")[0] || url.split("id=")[1]?.split("&")[0];
-      if (fileId) {
-        return `https://drive.google.com/uc?export=view&id=${fileId}`;
-      }
+  if (!url) return "/logo-osis.png";
+  console.log("URL Gambar Asli:", url); // Tambahkan ini untuk cek di F12 (Console)
+  
+  if (url.includes("drive.google.com")) {
+    const fileId = url.split("/d/")[1]?.split("/")[0] || url.split("id=")[1]?.split("&")[0];
+    if (fileId) {
+      const result = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      console.log("Direct Link Hasil Konversi:", result);
+      return result;
     }
-    return url; // Jika bukan link drive (misal link hosting lain), gunakan apa adanya
-  };
+  }
+  return url;
+};
 
   useEffect(() => {
     const nisn = localStorage.getItem("nisn");
