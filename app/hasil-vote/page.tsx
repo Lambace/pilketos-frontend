@@ -61,9 +61,15 @@ export default function HasilVotePage() {
     ],
   };
 
-  const chartOptions = {
+ const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    // --- ANIMASI HALUS ---
+    animation: {
+      duration: 1000, // 1 detik durasi gerak batang
+      easing: 'easeOutQuart', // Efek gerak melambat di akhir (smooth)
+    },
+    // ---------------------
     plugins: {
       legend: { display: false },
       title: {
@@ -77,10 +83,17 @@ export default function HasilVotePage() {
       y: {
         beginAtZero: true,
         grid: { color: "rgba(255, 255, 255, 0.1)" },
-        ticks: { color: "#ffffff", stepSize: 1 }
+        ticks: { 
+          color: "#ffffff", 
+          stepSize: 1,
+          font: { size: 14 } 
+        }
       },
       x: {
-        ticks: { color: "#ffffff", font: { size: 14, weight: 'bold' as const } }
+        ticks: { 
+          color: "#ffffff", 
+          font: { size: 14, weight: 'bold' as const } 
+        }
       }
     }
   };
@@ -140,22 +153,46 @@ export default function HasilVotePage() {
           </div>
 
           {/* Winner Card */}
-          {winner && (
-            <div style={{ 
-              background: 'linear-gradient(135deg, #1e3a8a 0%, #1e1e1e 100%)', 
-              padding: '30px', 
-              borderRadius: '16px', 
-              border: '1px solid #2563eb',
-              textAlign: 'center'
-            }}>
-              <p style={{ color: '#93c5fd', margin: '0 0 10px 0', textTransform: 'uppercase', letterSpacing: '2px' }}>🏆 Unggul Sementara</p>
-              <h3 style={{ fontSize: '32px', margin: '0 0 10px 0', color: '#fff' }}>{winner.name}</h3>
-              <div style={{ display: 'inline-block', backgroundColor: '#2563eb', padding: '8px 25px', borderRadius: '50px', fontSize: '20px', fontWeight: 'bold' }}>
-                {winner.suara} Suara
-              </div>
-            </div>
-          )}
-        </div>
+         {winner && (
+  <div style={{ 
+    background: 'linear-gradient(135deg, #1e3a8a 0%, #111827 100%)', 
+    padding: '30px', 
+    borderRadius: '16px', 
+    border: '1px solid #3b82f6',
+    textAlign: 'center',
+    boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)', // Efek cahaya biru
+    transition: 'all 0.5s ease-in-out', // Animasi saat data berubah
+  }}>
+    <p style={{ 
+      color: '#93c5fd', 
+      margin: '0 0 10px 0', 
+      textTransform: 'uppercase', 
+      letterSpacing: '3px',
+      fontSize: '12px'
+    }}>
+      🏆 Unggul Sementara
+    </p>
+    <h3 style={{ 
+      fontSize: '36px', 
+      margin: '0 0 15px 0', 
+      color: '#fff',
+      textShadow: '0 2px 10px rgba(0,0,0,0.5)' 
+    }}>
+      {winner.name}
+    </h3>
+    <div style={{ 
+      display: 'inline-block', 
+      backgroundColor: '#2563eb', 
+      padding: '10px 30px', 
+      borderRadius: '50px', 
+      fontSize: '24px', 
+      fontWeight: 'bold',
+      boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)'
+    }}>
+      {winner.suara} Suara
+    </div>
+  </div>
+)}
 
         {/* KOLOM KANAN: Grafik & Button */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
