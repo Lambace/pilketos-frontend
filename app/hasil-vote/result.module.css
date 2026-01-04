@@ -161,9 +161,13 @@
 
   /* JUDUL DIKECILKAN DI SINI */
   .mainTitle {
-    font-size: 14px; /* Ukuran lebih kecil agar tidak dominan */
+    font-size: 13px;       /* Ukuran kecil agar proporsional */
     letter-spacing: 1px;
-    padding: 0 10px;
+    text-align: right;     /* Teks rata kanan */
+    flex-grow: 1;          /* Mengambil ruang tersisa untuk mendorong ke kanan */
+    margin: 0;
+    padding-left: 10px;    /* Jarak agar tidak menempel dengan tombol jika teks panjang */
+    color: #aaa;           /* Warna sedikit redup agar tidak terlalu dominan */
   }
 
   .layout {
