@@ -2,7 +2,8 @@ const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 async function apiFetch(endpoint: string, options: any = {}) {
   // Membersihkan endpoint dari spasi tidak sengaja
-  const cleanEndpoint = endpoint.trim();
+  const cleanEndpoint = endpoint.trim().split(' ')[0];
+ 
   const res = await fetch(`${API_URL}${cleanEndpoint}`, options);
   const data = await res.json().catch(() => ({}));
   
