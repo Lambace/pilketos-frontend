@@ -178,6 +178,18 @@
   }
   
   .chartWrapper {
-    height: 400px !important; /* Grafik sedikit lebih kecil di HP */
+  overflow: hidden; /* Mencegah grafik "balapan" keluar dari kotak */
+  display: flex;
+  flex-direction: column;
+}
+}
+@media (max-width: 768px) {
+  .chartWrapper {
+    padding: 10px !important; /* Kurangi padding di HP agar grafik lebih luas */
+    height: 350px !important; /* Tinggi yang ideal untuk layar HP */
+  }
+  
+  .layout {
+    padding: 10px !important; /* Kurangi margin luar di HP */
   }
 }
