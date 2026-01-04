@@ -1,116 +1,163 @@
-/* pastikan body dan html ikut full */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-/* container utama login */
+/* Container Utama */
 .loginContent {
-  min-height: 100vh;              /* penuh 1 layar */
-  width: 100%;                    /* penuh lebar */
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1CB5E0, #000851);
-  background-size: cover;         /* pastikan gradient/gambar cover penuh */
+  background: linear-gradient(135deg, #1cb5e0, #000851);
+  background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   color: white;
-  font-family: sans-serif;
-  border-radius: 45px;
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-
-/* Animasi fade-in dan fade-out */
-.fadeIn {
-  animation: fadeIn 1s ease-in-out forwards;
+/* Header & Brand */
+.headerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 2rem;
 }
+
+.brandContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headerContainer h1 {
+  margin: 15px 0 5px 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.headerContainer h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 300;
+  opacity: 0.9;
+}
+
+/* Logo */
+.logoGlow {
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 0 15px white);
+  transition: transform 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.golput {
+  width: 250px;
+  max-width: 80%;
+  height: auto;
+}
+
+/* Form Login */
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 2.5rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  max-width: 380px; /* Lebar maksimal di layar besar */
+  box-sizing: border-box;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.loginForm input {
+  padding: 1rem;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  text-align: center;
+  background: white;
+  color: #333;
+}
+
+.loginForm button {
+  padding: 1rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.loginForm button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
+}
+
+.loginForm button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.errorText {
+  color: #ffcfcf;
+  font-size: 0.9rem;
+  margin: 0;
+  background: rgba(255, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: 5px;
+}
+
+/* Animasi */
+.fadeIn { animation: fadeIn 1s ease-out forwards; opacity: 0; }
+.fadeOut { animation: fadeOut 2s ease-in-out forwards; }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.fadeOut {
-  animation: fadeOut 2s ease-in-out forwards;
-}
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
 }
 
-/* Delay kelas untuk urutan animasi */
-.delay1 { animation-delay: 0.3s; }
-.delay2 { animation-delay: 0.6s; }
-.delay3 { animation-delay: 0.9s; }
-.delay4 { animation-delay: 1.2s; }
+.delay1 { animation-delay: 0.2s; }
+.delay2 { animation-delay: 0.4s; }
+.delay3 { animation-delay: 0.6s; }
+.delay4 { animation-delay: 0.8s; }
 
-/* Header container */
-.headerContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  margin-bottom: 1rem;
-}
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 480px) {
+  .loginContent {
+    padding: 15px;
+    border-radius: 0; /* Menghilangkan border-radius ekstrim di HP */
+  }
 
+  .headerContainer h1 {
+    font-size: 1.4rem;
+  }
 
+  .headerContainer h2 {
+    font-size: 1rem;
+  }
 
-.golput {
-  width: 300px;
-  height: auto;
-}
+  .logoGlow {
+    width: 100px;
+  }
 
-.logoGlow {
-  width: 150px;
-  height: auto;
-  filter: drop-shadow(0 0 20px white);
-  transition: transform 0.3s ease;
-  padding: 60px;
-  border-radius: 85px;
-}
-.logoGlow:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 0 30px white);
-}
-
-.headerContainer h1 {
-  margin: 0;
-  font-size: 2rem;
-}
-.headerContainer h2 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.loginForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background-color: rgba(255,255,255,0.1);
-  padding: 2rem;
-  border-radius: 12px;
-  backdrop-filter: blur(6px);
-  width: 300px;
-}
-.loginForm input {
-  padding: 0.8rem;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  font-size: 1rem;
-}
-.loginForm button {
-  padding: 0.8rem;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(90deg, #00c6ff, #0072ff);
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.loginForm button:hover {
-  transform: scale(1.05);
+  .loginForm {
+    padding: 1.5rem;
+    max-width: 100%; /* Memenuhi lebar di HP */
+  }
 }
