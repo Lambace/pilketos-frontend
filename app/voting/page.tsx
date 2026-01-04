@@ -101,17 +101,22 @@ export default function VotePage() {
           <div className={styles.candidateGrid}>
             {candidates.map((c) => (
               <div key={c.id} className={styles.card}>
-                <div className={styles.imageWrapper}>
-                  {/* ✅ SRC MENGGUNAKAN FUNGSI OTOMATIS */}
-                  <img
-                    src={getDirectLink(c.photo)} 
-                    alt={c.name}
-                    className={styles.photo}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/logo-osis.png";
-                    }}
-                  />
-                </div>
+               <div className={styles.imageWrapper} style={{ width: '100%', height: '250px', position: 'relative', overflow: 'hidden', backgroundColor: '#333' }}>
+  <img
+    src={c.photo} // Gunakan c.photo langsung karena di JSON datanya sudah direct link
+    alt={c.name}
+    style={{
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover', // Menjaga proporsi foto
+      display: 'block'
+    }}
+    onError={(e) => {
+      console.log("Gagal memuat gambar kandidat:", c.name);
+      (e.target as HTMLImageElement).src = "/logo-osis.png";
+    }}
+  />
+</div>
                 
                 <div className={styles.info}>
                   <span className={styles.candidateNumber}>Kandidat #{c.id}</span>
