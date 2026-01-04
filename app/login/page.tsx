@@ -78,7 +78,7 @@ export default function LoginPage() {
           </form>
 
           <footer className={`${styles.footer} ${styles.fadeIn} ${styles.delay5}`}>
-            E-PILKETOS SMKN 2 KOLAKA @ 2026 <p>Design By. Chatty Programmer </p>
+            E-PILKETOS SMKN 2 KOLAKA © 2026
           </footer>
         </>
       )}
