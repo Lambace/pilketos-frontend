@@ -15,7 +15,7 @@ export default function AdminPage() {
     nisn: "", 
     name: "", 
     tingkat: "X", 
-    kelas: "",
+    kelas: "Umum",
     image_url: "",
     nomor_urut: "",
     vision: "",
@@ -27,7 +27,6 @@ export default function AdminPage() {
   const [currentKandidatId, setCurrentKandidatId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. LOAD DATA (MEMASTIKAN KANDIDAT MUNCUL)
   const loadData = async () => {
     try {
       const resS = await fetch(`${API_URL}/students`);
@@ -37,33 +36,46 @@ export default function AdminPage() {
       setStudents(Array.isArray(sData) ? sData : []);
       setCandidates(Array.isArray(cData) ? cData : []);
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Gagal memuat data:", err);
     }
   };
 
   useEffect(() => { loadData(); }, []);
 
-  // 2. FUNGSI NAVIGASI AMAN
   const changeView = (newView: string) => {
     setView(newView);
-    // Reset form saat pindah view agar tidak tabrakan
-    setFormData({ nisn: "", name: "", tingkat: "X", kelas: "", image_url: "", nomor_urut: "", vision: "", mission: "-" });
+    setFormData({ nisn: "", name: "", tingkat: "X", kelas: "Umum", image_url: "", nomor_urut: "", vision: "", mission: "-" });
     setIsEditingKandidat(false);
   };
 
-  // 3. FUNGSI RESET SEMUA SISWA
+  // FUNGSI HAPUS SISWA (DITAMBAHKAN KEMBALI)
+  const handleDeleteStudent = async (nisn: string) => {
+    if (!confirm("Hapus siswa ini?")) return;
+    try {
+      const res = await fetch(`${API_URL}/students/${nisn}`, { method: "DELETE" });
+      if (res.ok) {
+        alert("✅ Siswa dihapus");
+        loadData();
+      }
+    } catch (err) {
+      alert("❌ Gagal menghapus");
+    }
+  };
+
   const handleResetAllStudents = async () => {
     if (!confirm("⚠️ Hapus SELURUH data siswa?")) return;
     try {
-      await fetch(`${API_URL}/students`, { method: "DELETE" });
-      alert("✅ Data siswa dibersihkan");
-      loadData();
+      const res = await fetch(`${API_URL}/students`, { method: "DELETE" });
+      if (res.ok) {
+        alert("✅ Data dibersihkan");
+        loadData();
+      }
     } catch (err) { alert("Gagal reset"); }
   };
 
-  // 4. HANDLER KANDIDAT (AGAR TIDAK KOSONG)
   const handleSubmitKandidat = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     const data = new FormData();
     data.append("name", formData.name);
     data.append("vision", formData.vision);
@@ -76,10 +88,41 @@ export default function AdminPage() {
 
     try {
       await fetch(url, { method, body: data });
-      alert("✅ Kandidat Berhasil Disimpan");
+      alert("✅ Kandidat disimpan");
       loadData();
       changeView("input-kandidat");
-    } catch (err) { alert("Gagal simpan kandidat"); }
+    } catch (err) { 
+        alert("Gagal simpan kandidat"); 
+    } finally { 
+        setLoading(false); 
+    }
+  };
+
+  const handleSaveStudentManual = async () => {
+    setLoading(true);
+    try {
+        const res = await fetch(`${API_URL}/students`, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                nisn: formData.nisn, 
+                name: formData.name, 
+                tingkat: "X", 
+                kelas: "Manual"
+            })
+        });
+        if (res.ok) {
+            alert("✅ Siswa berhasil ditambah");
+            loadData();
+            setView("input-nisn");
+        } else {
+            alert("❌ Gagal simpan. Cek apakah NISN sudah terdaftar.");
+        }
+    } catch (err) {
+        alert("❌ Masalah koneksi");
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -99,8 +142,8 @@ export default function AdminPage() {
           <div className={styles.welcomeSection}>
             <h1>Dashboard Administrator</h1>
             <div className={styles.statsGrid}>
-              <div className={styles.statCard}><h3>Siswa</h3><p>{students.length}</p></div>
-              <div className={styles.statCard}><h3>Kandidat</h3><p>{candidates.length}</p></div>
+              <div className={styles.statCard}><h3>Siswa</h3><p className={styles.statNumber}>{students.length}</p></div>
+              <div className={styles.statCard}><h3>Kandidat</h3><p className={styles.statNumber}>{candidates.length}</p></div>
             </div>
           </div>
         )}
@@ -126,8 +169,8 @@ export default function AdminPage() {
             <table className={styles.table}>
               <thead><tr><th>NISN</th><th>Nama</th><th>Aksi</th></tr></thead>
               <tbody>
-                {students.map(s => (
-                  <tr key={s.nisn}>
+                {students.map((s, idx) => (
+                  <tr key={s.nisn || idx}>
                     <td>{s.nisn}</td><td>{s.name || s.nama}</td>
                     <td><button type="button" onClick={() => handleDeleteStudent(s.nisn)} className={styles.btnDelete}>Hapus</button></td>
                   </tr>
@@ -150,13 +193,13 @@ export default function AdminPage() {
                 <textarea value={formData.vision} onChange={e=>setFormData({...formData, vision:e.target.value})} required /></div>
                 <div className={styles.inputField}><label>Foto</label>
                 <input type="file" onChange={e=>setSelectedFile(e.target.files?.[0] || null)} /></div>
-                <button type="submit" className={styles.btnSave}>Simpan Kandidat</button>
+                <button type="submit" disabled={loading} className={styles.btnSave}>{loading ? "Menyimpan..." : "Simpan Kandidat"}</button>
               </form>
             </div>
             <div className={styles.candidateGrid}>
               {candidates.map(c => (
                 <div key={c.id} className={styles.candidateCard}>
-                  <img src={`${API_URL}${c.photo}`} className={styles.candidateThumb} alt="" onError={e=>e.currentTarget.src="/logo-osis.png"} />
+                  <img src={`${API_URL}${c.photo}`} className={styles.candidateThumb} alt={c.name} onError={e=>e.currentTarget.src="/logo-osis.png"} />
                   <h3>{c.name}</h3>
                 </div>
               ))}
@@ -164,21 +207,19 @@ export default function AdminPage() {
           </section>
         )}
 
-        {(view === "form-manual-nisn") && (
+        {view === "form-manual-nisn" && (
             <section className={styles.formContainer}>
                 <h2>Tambah Siswa Manual</h2>
                 <div className={styles.inputField}><label>NISN</label>
-                <input type="text" value={formData.nisn} onChange={e=>setFormData({...formData, nisn:e.target.value})} /></div>
+                <input type="text" value={formData.nisn} onChange={e=>setFormData({...formData, nisn: e.target.value})} /></div>
                 <div className={styles.inputField}><label>Nama</label>
-                <input type="text" value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} /></div>
-                <button type="button" onClick={async () => {
-                    await fetch(`${API_URL}/students`, {
-                        method: "POST",
-                        headers: {"Content-Type":"application/json"},
-                        body: JSON.stringify({nisn: formData.nisn, name: formData.name, tingkat: "X", kelas: "Manual"})
-                    });
-                    alert("Berhasil"); loadData(); setView("input-nisn");
-                }} className={styles.btnSave}>Simpan Siswa</button>
+                <input type="text" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} /></div>
+                <div className={styles.buttonGroupLarge}>
+                    <button type="button" onClick={handleSaveStudentManual} disabled={loading} className={styles.btnSave}>
+                        {loading ? "Menyimpan..." : "Simpan Siswa"}
+                    </button>
+                    <button type="button" onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
+                </div>
             </section>
         )}
       </main>
