@@ -8,7 +8,6 @@ import {
   updateCandidate, deleteCandidate 
 } from "../../lib/api";
 
-// PASTIKAN TIDAK ADA KARAKTER ANEH DI AKHIR URL INI
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 export default function AdminPage() {
@@ -39,8 +38,20 @@ export default function AdminPage() {
 
   useEffect(() => { loadData(); }, []);
 
+  // FUNGSI UNTUK MENGOSONGKAN FORM (RESET)
+  const handleResetForm = () => {
+    setFormData({
+      nisn: "",
+      name: "",
+      tingkat: "X",
+      kelas: "Umum",
+      image_url: "",
+      nomor_urut: ""
+    });
+  };
+
   const handleSaveSiswa = async (e: React.FormEvent) => {
-    e.preventDefault(); // Mencegah reload halaman
+    e.preventDefault(); 
     if (!formData.nisn || !formData.name) return alert("⚠️ NISN dan Nama wajib diisi!");
     
     setLoading(true);
@@ -54,7 +65,6 @@ export default function AdminPage() {
         });
         alert("✅ Berhasil Update Siswa!");
       } else {
-        // Memanggil fungsi dari lib/api
         await addStudent({
             nisn: formData.nisn,
             name: formData.name,
@@ -64,12 +74,12 @@ export default function AdminPage() {
         alert("✅ Berhasil Simpan Siswa!");
       }
       
-      setFormData({ nisn: "", name: "", tingkat: "X", kelas: "Umum", image_url: "", nomor_urut: "" });
+      handleResetForm(); // Memanggil reset setelah simpan berhasil
       await loadData();
       setView("input-nisn");
     } catch (err: any) { 
       console.error("Detail Error:", err);
-      alert("❌ Gagal Simpan: Pastikan koneksi internet stabil dan NISN belum terdaftar."); 
+      alert("❌ Gagal Simpan: Pastikan NISN belum terdaftar dan server aktif."); 
     } finally {
       setLoading(false);
     }
@@ -80,7 +90,6 @@ export default function AdminPage() {
       <aside className={styles.sidebar}>
         <h2 className={styles.logo}>E-Vote Admin</h2>
         <nav className={styles.nav}>
-          {/* Gunakan type="button" agar tidak memicu submit form */}
           <button type="button" onClick={() => setView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
           <button type="button" onClick={() => setView("input-nisn")} className={view.includes("nisn") || view === "edit-siswa" ? styles.active : ""}>👤 Data Siswa</button>
           <button type="button" onClick={() => setView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Data Kandidat</button>
@@ -104,7 +113,7 @@ export default function AdminPage() {
             <div className={styles.headerRow}>
               <h1>Data Siswa</h1>
               <div className={styles.buttonGroupLarge}>
-                <button type="button" onClick={() => { setFormData({nisn:"", name:"", tingkat:"X", kelas:"Umum", image_url:"", nomor_urut:""}); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
+                <button type="button" onClick={() => { handleResetForm(); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
                 <button type="button" onClick={() => downloadStudentFormat()} className={styles.btnExcel}>📥 Format Excel</button>
                 <input type="file" ref={fileInputRef} style={{display:'none'}} onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -148,6 +157,10 @@ export default function AdminPage() {
                 <div className={styles.buttonGroupLarge}>
                     <button type="submit" className={styles.btnSave} disabled={loading}>
                         {loading ? "Menyimpan..." : "Simpan"}
+                    </button>
+                    {/* TOMBOL RESET BARU */}
+                    <button type="button" onClick={handleResetForm} className={styles.btnReset} style={{ backgroundColor: '#64748b', color: 'white' }}>
+                        Kosongkan
                     </button>
                     <button type="button" onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
                 </div>
