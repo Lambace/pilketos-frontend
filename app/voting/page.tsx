@@ -9,7 +9,6 @@ export default function VotePage() {
   const router = useRouter();
   const [candidates, setCandidates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -28,7 +27,6 @@ export default function VotePage() {
         setCandidates(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        setMessage("⚠️ Gagal memuat daftar kandidat.");
       } finally {
         setLoading(false);
       }
@@ -51,12 +49,12 @@ export default function VotePage() {
         body: JSON.stringify({ nisn, candidate_id: candidateId }),
       });
 
-      const data = await res.json();
       if (res.ok) {
         alert("✅ Berhasil menyimpan suara!");
         localStorage.clear();
         router.push("/login"); 
       } else {
+        const data = await res.json();
         alert("❌ Gagal: " + (data.error || "Terjadi kesalahan."));
         localStorage.clear();
         router.push("/login");
@@ -85,9 +83,9 @@ export default function VotePage() {
           <div className={styles.candidateGrid}>
             {candidates.map((c) => (
               <div key={c.id} className={styles.card}>
-                <div className={styles.imageWrapper} style={{ width: '100%', height: '250px', position: 'relative', overflow: 'hidden', backgroundColor: '#333', borderRadius: '8px' }}>
+                <div className={styles.imageWrapper}>
                   
-                  {/* --- LENCANA NOMOR URUT --- */}
+                  {/* Lencana Nomor Urut Melayang */}
                   <div className={styles.nomorBadge}>
                     {String(c.nomor_urut || 0).padStart(2, '0')}
                   </div>
@@ -96,7 +94,6 @@ export default function VotePage() {
                     src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"}
                     alt={c.name}
                     className={styles.photo}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = "/logo-osis.png";
                     }}
