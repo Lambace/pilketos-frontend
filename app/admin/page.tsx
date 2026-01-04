@@ -8,8 +8,6 @@ import {
   updateCandidate, deleteCandidate 
 } from "../../lib/api";
 
-const API_URL = "https://voting-backend-production-ea29.up.railway.app";
-
 export default function AdminPage() {
   const [view, setView] = useState("dashboard");
   const [students, setStudents] = useState<any[]>([]);
@@ -38,7 +36,6 @@ export default function AdminPage() {
 
   useEffect(() => { loadData(); }, []);
 
-  // FUNGSI UNTUK MENGOSONGKAN FORM (RESET)
   const handleResetForm = () => {
     setFormData({
       nisn: "",
@@ -57,29 +54,18 @@ export default function AdminPage() {
     setLoading(true);
     try {
       if (view === "edit-siswa") {
-        await updateStudent(formData.nisn, {
-            nisn: formData.nisn,
-            name: formData.name,
-            tingkat: formData.tingkat,
-            kelas: formData.kelas
-        });
+        await updateStudent(formData.nisn, formData);
         alert("✅ Berhasil Update Siswa!");
       } else {
-        await addStudent({
-            nisn: formData.nisn,
-            name: formData.name,
-            tingkat: formData.tingkat,
-            kelas: formData.kelas
-        });
+        await addStudent(formData);
         alert("✅ Berhasil Simpan Siswa!");
       }
       
-      handleResetForm(); // Memanggil reset setelah simpan berhasil
+      handleResetForm(); 
       await loadData();
       setView("input-nisn");
     } catch (err: any) { 
-      console.error("Detail Error:", err);
-      alert("❌ Gagal Simpan: Pastikan NISN belum terdaftar dan server aktif."); 
+      alert("❌ Gagal Simpan: " + (err.message || "Pastikan NISN unik")); 
     } finally {
       setLoading(false);
     }
@@ -158,8 +144,7 @@ export default function AdminPage() {
                     <button type="submit" className={styles.btnSave} disabled={loading}>
                         {loading ? "Menyimpan..." : "Simpan"}
                     </button>
-                    {/* TOMBOL RESET BARU */}
-                    <button type="button" onClick={handleResetForm} className={styles.btnReset} style={{ backgroundColor: '#64748b', color: 'white' }}>
+                    <button type="button" onClick={handleResetForm} className={styles.btnReset} style={{ backgroundColor: '#64748b', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}>
                         Kosongkan
                     </button>
                     <button type="button" onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
