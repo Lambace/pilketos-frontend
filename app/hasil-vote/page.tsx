@@ -21,15 +21,15 @@ export default function HasilVotePage() {
   const [results, setResults] = useState<{ id: number; name: string; suara: number }[]>([]);
   const [winner, setWinner] = useState<{ id: number | null; name: string; suara: number } | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // State untuk mode "Clean Display" (Menyembunyikan UI Admin/Header)
   const [isCleanMode, setIsCleanMode] = useState(false);
 
   const fetchData = async () => {
     try {
       const resResults = await fetch(`${API_URL}/results`);
       const dataResults = await resResults.json();
-      setResults(Array.isArray(dataResults) ? dataResults : []);
+      // Pastikan backend mengembalikan field 'suara' atau sesuaikan dengan 'vote_count'
+      const formatted = Array.isArray(dataResults) ? dataResults : [];
+      setResults(formatted);
 
       const resWinner = await fetch(`${API_URL}/results/winner`);
       if (resWinner.ok) {
@@ -55,186 +55,163 @@ export default function HasilVotePage() {
       {
         label: "Jumlah Suara",
         data: results.map((r) => r.suara),
-        backgroundColor: ["#22c55e", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6"],
-        borderRadius: 8,
+        backgroundColor: [
+          "rgba(34, 197, 94, 0.8)", 
+          "rgba(59, 130, 246, 0.8)", 
+          "rgba(245, 158, 11, 0.8)", 
+          "rgba(239, 68, 68, 0.8)", 
+          "rgba(139, 92, 246, 0.8)"
+        ],
+        borderColor: "#ffffff",
+        borderWidth: 1,
+        borderRadius: 12,
+        hoverBackgroundColor: "#ffffff",
       },
     ],
   };
 
- const chartOptions = {
+  const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    // --- ANIMASI HALUS ---
     animation: {
-      duration: 1000, // 1 detik durasi gerak batang
-      easing: 'easeOutQuart', // Efek gerak melambat di akhir (smooth)
+      duration: 1500,
+      easing: 'easeOutQuart' as const,
     },
-    // ---------------------
     plugins: {
       legend: { display: false },
       title: {
         display: true,
-        text: "GRAFIK REAL-TIME QUICK COUNT",
+        text: "PROGRESS PEROLEHAN SUARA (REAL-TIME)",
         color: "#ffffff",
-        font: { size: 20, weight: 'bold' as const }
+        font: { size: 22, weight: 'bold' as const },
+        padding: { bottom: 30 }
       },
+      tooltip: {
+        backgroundColor: '#1e1e1e',
+        titleFont: { size: 16 },
+        bodyFont: { size: 14 },
+        padding: 12,
+        displayColors: false
+      }
     },
     scales: {
       y: {
         beginAtZero: true,
-        grid: { color: "rgba(255, 255, 255, 0.1)" },
-        ticks: { 
-          color: "#ffffff", 
-          stepSize: 1,
-          font: { size: 14 } 
-        }
+        grid: { color: "rgba(255, 255, 255, 0.05)" },
+        ticks: { color: "#888", font: { size: 14 }, stepSize: 1 }
       },
       x: {
-        ticks: { 
-          color: "#ffffff", 
-          font: { size: 14, weight: 'bold' as const } 
-        }
+        grid: { display: false },
+        ticks: { color: "#ffffff", font: { size: 14, weight: 'bold' as const } }
       }
     }
   };
 
   return (
-    <div className={styles.pageWrapper} style={{ backgroundColor: '#121212', minHeight: '100vh', color: '#fff' }}>
+    <div className={styles.pageWrapper} style={{ backgroundColor: '#0f0f0f', minHeight: '100vh', color: '#fff', overflowX: 'hidden' }}>
       
-      {/* --- HEADER (Disembunyikan jika Clean Mode) --- */}
+      {/* --- HEADER --- */}
       {!isCleanMode && (
-        <header className={styles.topBar} style={{ padding: '15px 40px', display: 'flex', alignItems: 'center', backgroundColor: '#1e1e1e', borderBottom: '1px solid #333' }}>
-          <Link href="/admin" style={{ padding: '10px 20px', fontSize: '14px', fontWeight: 'bold', textDecoration: 'none', color: '#fff', border: '1px solid #444', borderRadius: '8px', backgroundColor: '#2a2a2a' }}>
-            ⬅ Kembali ke Admin
+        <header style={{ padding: '20px 40px', display: 'flex', alignItems: 'center', backgroundColor: '#181818', borderBottom: '1px solid #222' }}>
+          <Link href="/admin" style={{ padding: '10px 20px', fontSize: '14px', fontWeight: 'bold', textDecoration: 'none', color: '#fff', border: '1px solid #333', borderRadius: '8px', backgroundColor: '#222' }}>
+            ⬅ Dashboard Admin
           </Link>
-          <h1 style={{ fontSize: '24px', margin: 0, flexGrow: 1, textAlign: 'center' }}>
-            📊 DASHBOARD HASIL E-VOTING
+          <h1 style={{ fontSize: '20px', margin: 0, flexGrow: 1, textAlign: 'center', letterSpacing: '2px' }}>
+            E-VOTING SYSTEM MONITOR
           </h1>
           <div style={{ width: '150px' }}></div>
         </header>
       )}
 
-      {/* --- MAIN LAYOUT GRID --- */}
+      {/* --- GRID LAYOUT --- */}
       <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
+        display: 'flex', 
+        flexWrap: 'wrap',
         gap: '30px', 
-        padding: isCleanMode ? '40px' : '20px',
-        maxWidth: '1600px',
+        padding: isCleanMode ? '40px' : '30px',
+        maxWidth: '1800px',
         margin: '0 auto'
       }}>
         
-        {/* KOLOM KIRI: Tabel & Winner */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* KOLOM KIRI (25%) */}
+        <div style={{ flex: '1 1 300px', maxWidth: isCleanMode ? '350px' : '400px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          {/* Logo & Info Perolehan */}
-          <div style={{ backgroundColor: '#1e1e1e', padding: '25px', borderRadius: '16px', border: '1px solid #333' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-              <img src="/logo-osis.png" alt="Logo" style={{ width: '60px', height: 'auto' }} />
-              <h2 style={{ margin: 0, fontSize: '22px' }}>Tabel Perolehan Suara</h2>
-            </div>
-
-            <table className={styles.table} style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid #333' }}>
-                  <th style={{ textAlign: 'left', padding: '12px' }}>Nama Kandidat</th>
-                  <th style={{ textAlign: 'right', padding: '12px' }}>Total Suara</th>
-                </tr>
-              </thead>
+          {/* Tabel Perolehan */}
+          <div style={{ backgroundColor: '#181818', padding: '20px', borderRadius: '16px', border: '1px solid #222' }}>
+            <h2 style={{ fontSize: '18px', marginBottom: '20px', color: '#aaa', textTransform: 'uppercase' }}>Detail Suara</h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
                 {results.map((r) => (
                   <tr key={r.id} style={{ borderBottom: '1px solid #222' }}>
-                    <td style={{ padding: '15px 12px', fontSize: '18px' }}>{r.name}</td>
-                    <td style={{ padding: '15px 12px', textAlign: 'right', fontSize: '20px', fontWeight: 'bold', color: '#3b82f6' }}>{r.suara}</td>
+                    <td style={{ padding: '15px 0', fontSize: '16px' }}>{r.name}</td>
+                    <td style={{ padding: '15px 0', textAlign: 'right', fontSize: '18px', fontWeight: 'bold', color: '#3b82f6' }}>{r.suara}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Winner Card */}
-         {winner && (
-  <div style={{ 
-    background: 'linear-gradient(135deg, #1e3a8a 0%, #111827 100%)', 
-    padding: '30px', 
-    borderRadius: '16px', 
-    border: '1px solid #3b82f6',
-    textAlign: 'center',
-    boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)', // Efek cahaya biru
-    transition: 'all 0.5s ease-in-out', // Animasi saat data berubah
-  }}>
-    <p style={{ 
-      color: '#93c5fd', 
-      margin: '0 0 10px 0', 
-      textTransform: 'uppercase', 
-      letterSpacing: '3px',
-      fontSize: '12px'
-    }}>
-      🏆 Unggul Sementara
-    </p>
-    <h3 style={{ 
-      fontSize: '36px', 
-      margin: '0 0 15px 0', 
-      color: '#fff',
-      textShadow: '0 2px 10px rgba(0,0,0,0.5)' 
-    }}>
-      {winner.name}
-    </h3>
-    <div style={{ 
-      display: 'inline-block', 
-      backgroundColor: '#2563eb', 
-      padding: '10px 30px', 
-      borderRadius: '50px', 
-      fontSize: '24px', 
-      fontWeight: 'bold',
-      boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)'
-    }}>
-      {winner.suara} Suara
-    </div>
-  </div>
-)}
+          {/* Winner Card dengan Animasi Glow */}
+          {winner && (
+            <div style={{ 
+              background: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)', 
+              padding: '30px', 
+              borderRadius: '16px', 
+              border: '1px solid #2563eb',
+              textAlign: 'center',
+              boxShadow: '0 0 30px rgba(37, 99, 235, 0.2)',
+              transition: 'all 0.5s ease'
+            }}>
+              <p style={{ color: '#60a5fa', margin: '0 0 10px 0', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px' }}>🏆 Memimpin</p>
+              <h3 style={{ fontSize: '28px', margin: '0 0 15px 0', lineHeight: '1.2' }}>{winner.name}</h3>
+              <div style={{ display: 'inline-block', backgroundColor: '#2563eb', padding: '8px 25px', borderRadius: '50px', fontSize: '20px', fontWeight: 'bold' }}>
+                {winner.suara} Suara
+              </div>
+            </div>
+          )}
+        </div>
 
-        {/* KOLOM KANAN: Grafik & Button */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
+        {/* KOLOM KANAN (75%) */}
+        <div style={{ flex: '3 1 600px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ 
-            backgroundColor: '#1e1e1e', 
-            padding: '25px', 
+            backgroundColor: '#181818', 
+            padding: '30px', 
             borderRadius: '16px', 
-            border: '1px solid #333',
-            height: '500px' // Grafik lebih besar di desktop
+            border: '1px solid #222',
+            height: isCleanMode ? '80vh' : '600px',
+            position: 'relative'
           }}>
             {loading ? (
-              <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Memuat data...</div>
+              <div style={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#555' }}>Menghubungkan ke server...</div>
             ) : (
               <Bar data={chartData} options={chartOptions} />
             )}
           </div>
 
-          {/* Tombol Clean Display di bawah grafik */}
           <button 
             onClick={() => setIsCleanMode(!isCleanMode)} 
             style={{ 
-              width: '100%', 
-              padding: '15px', 
-              borderRadius: '12px', 
-              backgroundColor: isCleanMode ? '#333' : '#dc2626', 
-              color: '#fff', 
-              border: 'none', 
+              alignSelf: 'flex-end',
+              padding: '12px 25px', 
+              borderRadius: '8px', 
+              backgroundColor: isCleanMode ? '#222' : '#7f1d1d', 
+              color: isCleanMode ? '#888' : '#fff', 
+              border: '1px solid #333', 
+              fontSize: '14px',
               fontWeight: 'bold', 
               cursor: 'pointer',
               transition: 'all 0.3s'
             }}
           >
-            {isCleanMode ? "📺 Tampilkan Menu Admin" : "🧹 Bersihkan Tampilan (Mode Presentasi)"}
+            {isCleanMode ? "👁️ Tampilkan Navigasi" : "🧹 Bersihkan Tampilan"}
           </button>
         </div>
 
       </div>
 
       {!isCleanMode && (
-        <footer style={{ textAlign: 'center', padding: '40px', color: '#555', fontSize: '14px' }}>
-          E-Voting SMKN 2 KOLAKA &copy; 2026 | Real-time Data System
+        <footer style={{ textAlign: 'center', padding: '40px', color: '#333', fontSize: '12px', letterSpacing: '1px' }}>
+          SMKN 2 KOLAKA • E-VOTING ENGINE v2.0 • 2026
         </footer>
       )}
     </div>
