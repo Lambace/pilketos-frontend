@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import styles from "./vote.module.css";
 
 // SESUAIKAN DENGAN URL BACKEND RAILWAY ANDA
-const API_URL = "https://backend-produksi-anda.railway.app"; 
+const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
 export default function VotePage() {
   const router = useRouter();
