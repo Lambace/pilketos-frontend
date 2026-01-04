@@ -2,6 +2,11 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import styles from "./admin.module.css";
+import { 
+  getStudents, deleteStudent, getCandidates, addCandidate, addStudent, 
+  importStudents, updateStudent, downloadStudentFormat,
+  updateCandidate, deleteCandidate 
+} from "../../lib/api";
 
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
@@ -9,119 +14,94 @@ export default function AdminPage() {
   const [view, setView] = useState("dashboard");
   const [students, setStudents] = useState<any[]>([]);
   const [candidates, setCandidates] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isEditingKandidat, setIsEditingKandidat] = useState(false);
+  const [currentKandidatId, setCurrentKandidatId] = useState<number | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({ 
     nisn: "", 
     name: "", 
-    tingkat: "X", 
-    kelas: "Umum",
+    tingkat: "-", 
+    kelas: "-",
     image_url: "",
-    nomor_urut: "",
-    vision: "",
-    mission: "-"
+    nomor_urut: "" 
   });
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isEditingKandidat, setIsEditingKandidat] = useState(false);
-  const [currentKandidatId, setCurrentKandidatId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const candidatePhotoRef = useRef<HTMLInputElement>(null);
 
   const loadData = async () => {
     try {
-      const resS = await fetch(`${API_URL}/students`);
-      const resC = await fetch(`${API_URL}/candidates`);
-      const sData = await resS.json();
-      const cData = await resC.json();
+      const sData = await getStudents();
+      const cData = await getCandidates();
       setStudents(Array.isArray(sData) ? sData : []);
       setCandidates(Array.isArray(cData) ? cData : []);
-    } catch (err) {
-      console.error("Gagal memuat data:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   useEffect(() => { loadData(); }, []);
 
-  const changeView = (newView: string) => {
-    setView(newView);
-    setFormData({ nisn: "", name: "", tingkat: "X", kelas: "Umum", image_url: "", nomor_urut: "", vision: "", mission: "-" });
-    setIsEditingKandidat(false);
+  const handleSaveSiswa = async () => {
+    if (!formData.nisn || !formData.name) return alert("⚠️ NISN dan Nama wajib diisi!");
+    try {
+      if (view === "edit-siswa") {
+        await updateStudent(formData.nisn, formData);
+        alert("✅ Berhasil Update Siswa!");
+      } else {
+        await addStudent(formData);
+        alert("✅ Berhasil Simpan Siswa!");
+      }
+      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "", nomor_urut: "" });
+      loadData();
+      setView("input-nisn");
+    } catch (err: any) { alert("❌ " + err.message); }
   };
 
-  // FUNGSI HAPUS SISWA (DITAMBAHKAN KEMBALI)
-  const handleDeleteStudent = async (nisn: string) => {
-    if (!confirm("Hapus siswa ini?")) return;
-    try {
-      const res = await fetch(`${API_URL}/students/${nisn}`, { method: "DELETE" });
-      if (res.ok) {
-        alert("✅ Siswa dihapus");
-        loadData();
-      }
-    } catch (err) {
-      alert("❌ Gagal menghapus");
-    }
-  };
-
-  const handleResetAllStudents = async () => {
-    if (!confirm("⚠️ Hapus SELURUH data siswa?")) return;
-    try {
-      const res = await fetch(`${API_URL}/students`, { method: "DELETE" });
-      if (res.ok) {
-        alert("✅ Data dibersihkan");
-        loadData();
-      }
-    } catch (err) { alert("Gagal reset"); }
+  const handleEditKandidat = (c: any) => {
+    setIsEditingKandidat(true);
+    setCurrentKandidatId(c.id);
+    setFormData({
+      ...formData,
+      name: c.name,
+      image_url: c.photo,
+      nisn: c.vision || "", 
+      nomor_urut: c.nomor_urut || "" 
+    });
+    setSelectedFile(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmitKandidat = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("vision", formData.vision);
-    data.append("mission", "-");
-    data.append("nomor_urut", formData.nomor_urut);
-    if (selectedFile) data.append("photo", selectedFile);
-
-    const url = isEditingKandidat ? `${API_URL}/candidates/${currentKandidatId}` : `${API_URL}/candidates`;
-    const method = isEditingKandidat ? "PUT" : "POST";
-
     try {
-      await fetch(url, { method, body: data });
-      alert("✅ Kandidat disimpan");
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("vision", formData.nisn);
+      data.append("mission", "-");
+      data.append("nomor_urut", formData.nomor_urut); 
+      
+      if (selectedFile) {
+        data.append("photo", selectedFile);
+      } else if (isEditingKandidat) {
+        data.append("photo", formData.image_url);
+      }
+
+      if (isEditingKandidat && currentKandidatId) {
+        await updateCandidate(currentKandidatId, data);
+        alert("✅ Kandidat diperbarui!");
+      } else {
+        if (!selectedFile) return alert("Silakan pilih foto kandidat!");
+        await addCandidate(data);
+        alert("✅ Kandidat ditambahkan!");
+      }
+
+      setFormData({ nisn: "", name: "", tingkat: "-", kelas: "-", image_url: "", nomor_urut: "" });
+      setSelectedFile(null);
+      setIsEditingKandidat(false);
+      setCurrentKandidatId(null);
       loadData();
-      changeView("input-kandidat");
-    } catch (err) { 
-        alert("Gagal simpan kandidat"); 
-    } finally { 
-        setLoading(false); 
-    }
-  };
-
-  const handleSaveStudentManual = async () => {
-    setLoading(true);
-    try {
-        const res = await fetch(`${API_URL}/students`, {
-            method: "POST",
-            headers: {"Content-Type":"application/json"},
-            body: JSON.stringify({
-                nisn: formData.nisn, 
-                name: formData.name, 
-                tingkat: "X", 
-                kelas: "Manual"
-            })
-        });
-        if (res.ok) {
-            alert("✅ Siswa berhasil ditambah");
-            loadData();
-            setView("input-nisn");
-        } else {
-            alert("❌ Gagal simpan. Cek apakah NISN sudah terdaftar.");
-        }
     } catch (err) {
-        alert("❌ Masalah koneksi");
-    } finally {
-        setLoading(false);
+      alert("❌ Gagal menyimpan data kandidat.");
     }
   };
 
@@ -130,9 +110,10 @@ export default function AdminPage() {
       <aside className={styles.sidebar}>
         <h2 className={styles.logo}>E-Vote Admin</h2>
         <nav className={styles.nav}>
-          <button type="button" onClick={() => changeView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
-          <button type="button" onClick={() => changeView("input-nisn")} className={view.includes("nisn") ? styles.active : ""}>👤 Data Siswa</button>
-          <button type="button" onClick={() => changeView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Data Kandidat</button>
+          {/* Tambahkan type="button" agar tidak reload page */}
+          <button type="button" onClick={() => setView("dashboard")} className={view === "dashboard" ? styles.active : ""}>🏠 Dashboard</button>
+          <button type="button" onClick={() => setView("input-nisn")} className={view.includes("nisn") || view === "edit-siswa" ? styles.active : ""}>👤 Data Siswa</button>
+          <button type="button" onClick={() => setView("input-kandidat")} className={view === "input-kandidat" ? styles.active : ""}>🗳️ Data Kandidat</button>
           <Link href="/hasil-vote" className={styles.navLink}>📊 Hasil Vote</Link>
         </nav>
       </aside>
@@ -140,12 +121,60 @@ export default function AdminPage() {
       <main className={styles.mainContent}>
         {view === "dashboard" && (
           <div className={styles.welcomeSection}>
-            <h1>Dashboard Administrator</h1>
+            <h1>Dashboard Administrator 👋</h1>
             <div className={styles.statsGrid}>
-              <div className={styles.statCard}><h3>Siswa</h3><p className={styles.statNumber}>{students.length}</p></div>
-              <div className={styles.statCard}><h3>Kandidat</h3><p className={styles.statNumber}>{candidates.length}</p></div>
+              <div className={styles.statCard}><h3>Total Siswa</h3><p className={styles.statNumber}>{students.length}</p></div>
+              <div className={styles.statCard}><h3>Total Kandidat</h3><p className={styles.statNumber}>{candidates.length}</p></div>
             </div>
           </div>
+        )}
+
+        {view === "input-kandidat" && (
+          <section>
+            <div className={styles.formContainer}>
+              <h1>{isEditingKandidat ? "📝 Edit Kandidat" : "➕ Input Kandidat Baru"}</h1>
+              <form onSubmit={handleSubmitKandidat}>
+                <div className={styles.inputField}>
+                  <label>Nomor Urut</label>
+                  <input type="number" placeholder="Nomor urut" value={formData.nomor_urut} onChange={e => setFormData({...formData, nomor_urut: e.target.value})} required />
+                </div>
+                <div className={styles.inputField}>
+                  <label>Nama Kandidat</label>
+                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                </div>
+                <div className={styles.inputField}>
+                  <label>Pilih Foto</label>
+                  <input type="file" accept="image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} ref={candidatePhotoRef} />
+                </div>
+                <div className={styles.inputField}>
+                  <label>Visi & Misi</label>
+                  <textarea style={{ width: '100%', minHeight: '100px' }} value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} required />
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button type="submit" className={styles.btnSave}>Simpan</button>
+                  {isEditingKandidat && (
+                    <button type="button" onClick={() => { setIsEditingKandidat(false); setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:"", nomor_urut:""}); }} className={styles.btnCancel}>Batal</button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            <div style={{ marginTop: '40px' }}>
+              <h2>Daftar Kandidat</h2>
+              <div className={styles.candidateGrid}>
+                {candidates.map((c) => (
+                  <div key={c.id} className={styles.candidateCard}>
+                    <img src={c.photo ? `${API_URL}${c.photo}` : "/logo-osis.png"} alt={c.name} className={styles.candidateThumb} onError={(e) => (e.currentTarget.src = "/logo-osis.png")} />
+                    <h3>{c.name}</h3>
+                    <div className={styles.buttonGroupSmall}>
+                      <button onClick={() => handleEditKandidat(c)} className={styles.btnEdit}>Edit</button>
+                      <button onClick={() => { if(confirm("Hapus?")) deleteCandidate(c.id).then(loadData); }} className={styles.btnDelete}>Hapus</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
         )}
 
         {view === "input-nisn" && (
@@ -153,26 +182,28 @@ export default function AdminPage() {
             <div className={styles.headerRow}>
               <h1>Data Siswa</h1>
               <div className={styles.buttonGroupLarge}>
-                <button type="button" onClick={handleResetAllStudents} className={styles.btnReset}>🗑️ Reset Semua</button>
-                <button type="button" onClick={() => setView("form-manual-nisn")} className={styles.btnManual}>➕ Tambah Manual</button>
-                <button type="button" onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
-                <input type="file" ref={fileInputRef} style={{display:'none'}} onChange={async (e) => {
-                   const file = e.target.files?.[0];
-                   if(file) {
-                     const fd = new FormData(); fd.append("file", file);
-                     await fetch(`${API_URL}/students/import`, { method: "POST", body: fd });
-                     loadData();
-                   }
+                <button onClick={() => { setFormData({nisn:"", name:"", tingkat:"-", kelas:"-", image_url:"", nomor_urut:""}); setView("form-manual-nisn"); }} className={styles.btnManual}>➕ Input Manual</button>
+                <button onClick={() => downloadStudentFormat()} className={styles.btnExcel}>📥 Format Excel</button>
+                <input type="file" ref={fileInputRef} style={{display:'none'}} onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if(file) {
+                    const fd = new FormData(); fd.append("file", file);
+                    importStudents(fd).then(() => { alert("Import Berhasil"); loadData(); });
+                  }
                 }} />
+                <button onClick={() => fileInputRef.current?.click()} className={styles.btnImport}>📤 Import Excel</button>
               </div>
             </div>
             <table className={styles.table}>
               <thead><tr><th>NISN</th><th>Nama</th><th>Aksi</th></tr></thead>
               <tbody>
-                {students.map((s, idx) => (
-                  <tr key={s.nisn || idx}>
+                {students.map((s) => (
+                  <tr key={s.nisn}>
                     <td>{s.nisn}</td><td>{s.name || s.nama}</td>
-                    <td><button type="button" onClick={() => handleDeleteStudent(s.nisn)} className={styles.btnDelete}>Hapus</button></td>
+                    <td>
+                      <button onClick={() => { setFormData({...s, image_url: "", nomor_urut: ""}); setView("edit-siswa"); }} className={styles.btnEdit}>Edit</button>
+                      <button onClick={() => { if(confirm("Hapus?")) deleteStudent(s.nisn).then(loadData); }} className={styles.btnDelete}>Hapus</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -180,47 +211,22 @@ export default function AdminPage() {
           </section>
         )}
 
-        {view === "input-kandidat" && (
-          <section>
-            <div className={styles.formContainer}>
-              <h2>Tambah/Edit Kandidat</h2>
-              <form onSubmit={handleSubmitKandidat}>
-                <div className={styles.inputField}><label>Nomor Urut</label>
-                <input type="number" value={formData.nomor_urut} onChange={e=>setFormData({...formData, nomor_urut:e.target.value})} required /></div>
-                <div className={styles.inputField}><label>Nama</label>
-                <input type="text" value={formData.name} onChange={e=>setFormData({...formData, name:e.target.value})} required /></div>
-                <div className={styles.inputField}><label>Visi</label>
-                <textarea value={formData.vision} onChange={e=>setFormData({...formData, vision:e.target.value})} required /></div>
-                <div className={styles.inputField}><label>Foto</label>
-                <input type="file" onChange={e=>setSelectedFile(e.target.files?.[0] || null)} /></div>
-                <button type="submit" disabled={loading} className={styles.btnSave}>{loading ? "Menyimpan..." : "Simpan Kandidat"}</button>
-              </form>
+        {(view === "form-manual-nisn" || view === "edit-siswa") && (
+          <section className={styles.formContainer}>
+            <h2>{view === "edit-siswa" ? "Edit" : "Tambah"} Siswa</h2>
+            <div className={styles.inputField}>
+              <label>NISN</label>
+              <input type="text" value={formData.nisn} onChange={e => setFormData({...formData, nisn: e.target.value})} disabled={view === "edit-siswa"} />
             </div>
-            <div className={styles.candidateGrid}>
-              {candidates.map(c => (
-                <div key={c.id} className={styles.candidateCard}>
-                  <img src={`${API_URL}${c.photo}`} className={styles.candidateThumb} alt={c.name} onError={e=>e.currentTarget.src="/logo-osis.png"} />
-                  <h3>{c.name}</h3>
-                </div>
-              ))}
+            <div className={styles.inputField}>
+              <label>Nama</label>
+              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
+            <div className={styles.buttonGroupLarge}>
+              <button onClick={handleSaveSiswa} className={styles.btnSave}>Simpan</button>
+              <button onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
             </div>
           </section>
-        )}
-
-        {view === "form-manual-nisn" && (
-            <section className={styles.formContainer}>
-                <h2>Tambah Siswa Manual</h2>
-                <div className={styles.inputField}><label>NISN</label>
-                <input type="text" value={formData.nisn} onChange={e=>setFormData({...formData, nisn: e.target.value})} /></div>
-                <div className={styles.inputField}><label>Nama</label>
-                <input type="text" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} /></div>
-                <div className={styles.buttonGroupLarge}>
-                    <button type="button" onClick={handleSaveStudentManual} disabled={loading} className={styles.btnSave}>
-                        {loading ? "Menyimpan..." : "Simpan Siswa"}
-                    </button>
-                    <button type="button" onClick={() => setView("input-nisn")} className={styles.btnCancel}>Batal</button>
-                </div>
-            </section>
         )}
       </main>
     </div>
