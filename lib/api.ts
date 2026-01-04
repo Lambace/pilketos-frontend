@@ -1,25 +1,72 @@
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
-export async function getStudents() {
-  const res = await fetch(`${API_URL}/students`);
+// Fungsi Helper untuk fetch agar URL selalu bersih
+async function apiFetch(endpoint: string, options: any = {}) {
+  const res = await fetch(`${API_URL}${endpoint}`, options);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Gagal menghubungi server");
+  }
   return res.json();
 }
 
+export async function getStudents() {
+  return apiFetch("/students");
+}
+
 export async function addStudent(data: any) {
-  const res = await fetch(`${API_URL}/students`, {
+  return apiFetch("/students", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error("Gagal menyimpan");
-  return res.json();
 }
 
-export async function getCandidates() {
-  const res = await fetch(`${API_URL}/candidates`);
-  return res.json();
+export async function updateStudent(nisn: string, data: any) {
+  return apiFetch(`/students/${nisn}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 }
 
 export async function deleteStudent(nisn: string) {
-  return fetch(`${API_URL}/students/${nisn}`, { method: "DELETE" });
+  return apiFetch(`/students/${nisn}`, { method: "DELETE" });
+}
+
+export async function getCandidates() {
+  return apiFetch("/candidates");
+}
+
+export async function addCandidate(formData: FormData) {
+  const res = await fetch(`${API_URL}/candidates`, {
+    method: "POST",
+    body: formData,
+  });
+  return res.json();
+}
+
+export async function updateCandidate(id: number, formData: FormData) {
+  const res = await fetch(`${API_URL}/candidates/${id}`, {
+    method: "PUT",
+    body: formData,
+  });
+  return res.json();
+}
+
+export async function deleteCandidate(id: number) {
+  return apiFetch(`/candidates/${id}`, { method: "DELETE" });
+}
+
+export async function importStudents(formData: FormData) {
+  const res = await fetch(`${API_URL}/students/import`, {
+    method: "POST",
+    body: formData,
+  });
+  return res.json();
+}
+
+// INI YANG TADI HILANG/ERROR
+export async function downloadStudentFormat() {
+  window.location.href = `${API_URL}/students/download-format`;
 }
