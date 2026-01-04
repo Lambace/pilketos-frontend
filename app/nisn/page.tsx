@@ -27,7 +27,6 @@ export default function NISNInputPage() {
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  // ✅ ambil data siswa dari backend
   const fetchStudents = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students`);
@@ -42,7 +41,6 @@ export default function NISNInputPage() {
     fetchStudents();
   }, []);
 
-  // ✅ tambah / update siswa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (nisn.length < 10) {
@@ -74,7 +72,6 @@ export default function NISNInputPage() {
     }
   };
 
-  // ✅ import excel
   const handleImportExcel = async () => {
     if (!excelFile) {
       setStatus("❌ Pilih file Excel terlebih dahulu.");
@@ -100,12 +97,10 @@ export default function NISNInputPage() {
     }
   };
 
-  // ✅ download format excel
   const handleDownloadFormat = () => {
     window.open(`${process.env.NEXT_PUBLIC_API_URL}/students/download-format`, "_blank");
   };
 
-  // ✅ tombol edit
   const handleEdit = (s: Student) => {
     setNisn(s.nisn);
     setName(s.name);
@@ -115,7 +110,6 @@ export default function NISNInputPage() {
     setStatus("✏️ Mode edit aktif.");
   };
 
-  // ✅ hapus siswa
   const handleDelete = async (id: number) => {
     if (!confirm("Yakin hapus siswa ini?")) return;
     try {
@@ -132,9 +126,12 @@ export default function NISNInputPage() {
     }
   };
 
-  // ✅ reset semua siswa
   const handleResetAll = async () => {
-    if (!confirm("Yakin reset semua siswa?")) return;
+    const confirm1 = confirm("⚠️ PERINGATAN: Yakin reset semua data siswa?");
+    if (!confirm1) return;
+    const confirm2 = confirm("Data yang dihapus tidak bisa dikembalikan. Lanjutkan?");
+    if (!confirm2) return;
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students`, { method: "DELETE" });
       if (res.ok) {
@@ -151,15 +148,24 @@ export default function NISNInputPage() {
 
   return (
     <div className={styles.container}>
+      {/* Top Bar dengan Tombol Reset */}
       <header className={styles.topBar}>
-        <Link href="/admin" className={`${styles.button} ${styles.buttonPrimary}`}>
-          Admin
-        </Link>
+        <div className={styles.topBarActions}>
+          <button 
+            onClick={handleResetAll} 
+            className={`${styles.button} ${styles.buttonDanger}`}
+          >
+            🗑️ Reset Semua Siswa
+          </button>
+          <Link href="/admin" className={`${styles.button} ${styles.buttonPrimary}`}>
+            Admin
+          </Link>
+        </div>
       </header>
+
       <img src="/logo-vote.png" alt="Logo Sekolah" className={styles.logo} />
       <h1 className={styles.title}>Input NISN Siswa</h1>
 
-      {/* Form input */}
       <form onSubmit={handleSubmit} className={styles.form}>
         <label className={styles.label}>
           NISN
@@ -183,28 +189,30 @@ export default function NISNInputPage() {
             className={styles.input}
           />
         </label>
-        <label className={styles.label}>
-          Tingkat
-          <select value={tingkat} onChange={(e) => setTingkat(e.target.value)} className={styles.select}>
-            <option value="X">X</option>
-            <option value="XI">XI</option>
-            <option value="XII">XII</option>
-          </select>
-        </label>
-        <label className={styles.label}>
-          Kelas
-          <select value={kelas} onChange={(e) => setKelas(e.target.value)} required className={styles.select}>
-            {(CLASS_OPTIONS[tingkat] || []).map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-        </label>
+        <div className={styles.row}>
+          <label className={styles.label} style={{ flex: 1 }}>
+            Tingkat
+            <select value={tingkat} onChange={(e) => setTingkat(e.target.value)} className={styles.select}>
+              <option value="X">X</option>
+              <option value="XI">XI</option>
+              <option value="XII">XII</option>
+            </select>
+          </label>
+          <label className={styles.label} style={{ flex: 2 }}>
+            Kelas
+            <select value={kelas} onChange={(e) => setKelas(e.target.value)} required className={styles.select}>
+              <option value="">Pilih Kelas</option>
+              {(CLASS_OPTIONS[tingkat] || []).map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </label>
+        </div>
         <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`}>
           {editingId ? "Update Siswa" : "Tambah Siswa"}
         </button>
       </form>
 
-      {/* Import Excel */}
       <div className={styles.form}>
         <h3>Import Excel</h3>
         <input
@@ -217,15 +225,14 @@ export default function NISNInputPage() {
           <button type="button" onClick={handleImportExcel} className={`${styles.button} ${styles.buttonPrimary}`}>
             📤 Import Excel
           </button>
-                    <button onClick={handleDownloadFormat} className={`${styles.button} ${styles.buttonPrimary}`}>
-            📥 Download Format Excel
+          <button onClick={handleDownloadFormat} className={`${styles.button} ${styles.buttonPrimary}`}>
+            📥 Format Excel
           </button>
         </div>
       </div>
 
       {status && <p className={styles.message}>{status}</p>}
 
-      {/* Daftar siswa */}
       <h2 className={styles.title}>Daftar Siswa</h2>
       <table className={styles.table}>
         <thead>
@@ -245,16 +252,10 @@ export default function NISNInputPage() {
               <td>{s.tingkat}</td>
               <td>{s.kelas}</td>
               <td className={styles.actions}>
-                <button
-                  onClick={() => handleEdit(s)}
-                  className={`${styles.button} ${styles.buttonPrimary}`}
-                >
+                <button onClick={() => handleEdit(s)} className={`${styles.button} ${styles.buttonEdit}`}>
                   Edit
                 </button>
-                <button
-                  onClick={() => handleDelete(s.id)}
-                  className={`${styles.button} ${styles.buttonDanger}`}
-                >
+                <button onClick={() => handleDelete(s.id)} className={`${styles.button} ${styles.buttonDanger}`}>
                   Hapus
                 </button>
               </td>
@@ -262,15 +263,6 @@ export default function NISNInputPage() {
           ))}
         </tbody>
       </table>
-
-      {students.length > 0 && (
-        <button
-          onClick={handleResetAll}
-          className={`${styles.button} ${styles.buttonDanger}`}
-        >
-          Reset Semua
-        </button>
-      )}
     </div>
   );
 }
