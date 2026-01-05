@@ -68,7 +68,7 @@ export default function VotePage() {
 
   return (
     <div className={styles.voteContent}>
-      <img src="/logo-sekolah.png" alt="Logo OSIS" className={styles.logo} />
+      <img src="/logo-putih.png" alt="Logo OSIS" className={styles.logo} />
       <h1>SILAHKAN PILIH KANDIDAT ANDA !!!</h1>
       <p className={styles.subtitle}>Gunakan hak suara Anda secara bijak, jujur, dan adil.</p>
 

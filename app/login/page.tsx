@@ -50,7 +50,7 @@ export default function LoginPage() {
         ) : (
           <div className={styles.brandContainer}>
             <img
-              src="/logo-vote.png"
+              src="/logo-putih.png"
               alt="Logo OSIS"
               className={`${styles.logoGlow} ${styles.fadeIn} ${styles.delay1}`}
             />

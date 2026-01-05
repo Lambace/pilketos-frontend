@@ -11,8 +11,19 @@
   width: 150px;
   display: block;
   margin: 0 auto 1rem;
+  /* Efek Glow Putih */
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)) 
+          drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
+  
+  /* Opsional: Efek halus saat transisi */
+  transition: filter 0.3s ease-in-out;
 }
 
+/* Opsional: Glow semakin terang saat kursor di atas logo */
+.logo:hover {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)) 
+          drop-shadow(0 0 20px rgba(255, 255, 255, 0.6));
+}
 .subtitle {
   color: #aaa;
   margin-bottom: 2rem;

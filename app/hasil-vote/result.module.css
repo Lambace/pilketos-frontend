@@ -170,14 +170,13 @@
     text-align: right; 
     flex-grow: 1;
     color: #888;              /* Warna abu-abu agar elegan */
-
-    /* Tombol Admin */
+  }
     .btnAdmin {
     padding: 8px 12px;
     font-size: 11px;
     flex-shrink: 0;            /* Tombol tidak boleh gepeng */
     white-space: nowrap;       /* Tombol juga satu baris */
-  }
+  
     /* --- LOGIKA SATU BARIS --- */
     white-space: nowrap;       /* Paksa teks tidak turun ke bawah */
     overflow: hidden;          /* Sembunyikan teks yang meluber */
@@ -218,4 +217,5 @@
     padding: 8px 12px;
     font-size: 11px;
   }
+}
 }

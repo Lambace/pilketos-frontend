@@ -49,7 +49,7 @@
 
 /* Logo dengan Jarak (Keterangan) */
 .logoGlow {
-  width: 130px;
+  width: 200px;
   height: auto;
   filter: drop-shadow(0 0 20px white);
   margin-bottom: 20px; /* Jarak bawah logo agar lebih renggang */
@@ -57,7 +57,7 @@
 }
 
 .golput {
-  width: 280px;
+  width: 480px;
   max-width: 85%;
   height: auto;
 }
