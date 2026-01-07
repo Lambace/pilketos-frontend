@@ -36,7 +36,7 @@ export default function LoginPage() {
         router.push("/voting");
       }
     } catch {
-      setError("⚠️ Tidak bisa menghubungi server.");
+      setError("⚠️ NISN Tidak terdaftar.");
     } finally {
       setLoading(false);
     }
