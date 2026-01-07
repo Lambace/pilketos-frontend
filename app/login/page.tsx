@@ -17,30 +17,40 @@ export default function LoginPage() {
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    if (nisn.length !== 10) {
-      setError("NISN harus 10 digit");
-      setLoading(false);
-      return;
-    }
+  // 1. Validasi Input Dasar
+  if (nisn.length !== 10) {
+    setError("NISN harus 10 digit");
+    setLoading(false);
+    return;
+  }
 
-    try {
-      const data = await login(nisn);
-      if (!data.success) {
-        setError(data.message || "Login gagal");
-      } else {
-        localStorage.setItem("nisn", nisn);
-        router.push("/voting");
-      }
-    } catch {
-      setError("⚠️ NISN Tidak terdaftar.");
-    } finally {
-      setLoading(false);
+  try {
+    const data = await login(nisn);
+
+    // 2. Cek apakah login berhasil
+    if (!data.success) {
+      setError(data.message || "Login gagal");
+    } 
+    // 3. VALIDASI: Cek apakah sudah pernah voting (sesuai backend: alreadyVoted)
+    else if (data.alreadyVoted === true) {
+      setError("Akses ditolak: Anda sudah melakukan voting sebelumnya.");
+    } 
+    // 4. Jika sukses dan belum voting, lanjut ke halaman voting
+    else {
+      localStorage.setItem("nisn", nisn);
+      router.push("/voting");
     }
-  };
+  } catch (err) {
+    // Menangani error jika server mati atau NISN tidak ditemukan (401)
+    setError("⚠️ NISN tidak terdaftar atau terjadi gangguan server.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
    <div className={styles.wrapper}>
