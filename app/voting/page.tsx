@@ -12,49 +12,52 @@ export default function VotePage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-  const checkAccess = async () => {
+  const initPage = async () => {
     const nisn = localStorage.getItem("nisn");
 
-    // 1. Cek apakah sudah login
+    // 1. Cek apakah sudah login (Client-side check)
     if (!nisn) {
       router.push("/login");
       return;
     }
 
     try {
-      // 2. Verifikasi status terbaru ke server
-      const data = await login(nisn);
-
-      // 3. Jika ternyata sudah pernah voting (alreadyVoted), usir dari halaman ini
-      if (data.alreadyVoted) {
+      // 2. Verifikasi status voting ke server
+      const authData = await login(nisn);
+      if (authData.alreadyVoted) {
         alert("Anda sudah melakukan voting sebelumnya!");
-        localStorage.removeItem("nisn"); // Opsional: hapus session jika ingin login ulang
+        localStorage.removeItem("nisn");
         router.push("/login");
+        return; // Hentikan proses jika sudah voting
       }
+
+      // 3. Jika lolos verifikasi, baru ambil data kandidat
+      await fetchCandidates();
+      
     } catch (error) {
-      console.error("Gagal memverifikasi status:", error);
+      console.error("Gagal inisialisasi halaman:", error);
+      // Jika error karena NISN tidak valid di database, lempar ke login
       router.push("/login");
     }
   };
 
-  checkAccess();
-}, [router]);
+  // Definisi fungsi fetchCandidates di dalam atau luar initPage
+  const fetchCandidates = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/candidates`);
+      if (!res.ok) throw new Error("Gagal mengambil data kandidat");
+      const data = await res.json();
+      setCandidates(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchCandidates = async () => {
-      try {
-        const res = await fetch(`${API_URL}/candidates`);
-        if (!res.ok) throw new Error("Gagal mengambil data kandidat");
-        const data = await res.json();
-        setCandidates(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchCandidates();
-  }, [router]);
+  initPage();
+}, [router]); // Hanya satu useEffect untuk inisialisasi
 
   const handleVote = async (candidateId: number, candidateName: string) => {
     const confirmVote = confirm(`Apakah Anda yakin memilih: ${candidateName}?`);
