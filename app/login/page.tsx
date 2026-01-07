@@ -43,6 +43,7 @@ export default function LoginPage() {
   };
 
   return (
+   <div className={styles.wrapper}>
     <div className={styles.loginContent}>
       <div className={styles.headerContainer}>
         {showGolput ? (
@@ -83,5 +84,6 @@ export default function LoginPage() {
         </>
       )}
     </div>
+</div>
   );
 }
