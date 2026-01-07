@@ -8,7 +8,7 @@
 /* Container Utama */
 .loginContent {
   min-height: auto;
-  width: 480 px;
+  width: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
