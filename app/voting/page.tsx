@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "./vote.module.css";
+import { login } from "../../lib/api";
 
 const API_URL = "https://voting-backend-production-ea29.up.railway.app";
 
