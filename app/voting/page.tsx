@@ -12,12 +12,33 @@ export default function VotePage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
+  const checkAccess = async () => {
     const nisn = localStorage.getItem("nisn");
+
+    // 1. Cek apakah sudah login
     if (!nisn) {
-      alert("Akses ditolak. Silakan login terlebih dahulu.");
       router.push("/login");
       return;
     }
+
+    try {
+      // 2. Verifikasi status terbaru ke server
+      const data = await login(nisn);
+
+      // 3. Jika ternyata sudah pernah voting (alreadyVoted), usir dari halaman ini
+      if (data.alreadyVoted) {
+        alert("Anda sudah melakukan voting sebelumnya!");
+        localStorage.removeItem("nisn"); // Opsional: hapus session jika ingin login ulang
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Gagal memverifikasi status:", error);
+      router.push("/login");
+    }
+  };
+
+  checkAccess();
+}, [router]);
 
     const fetchCandidates = async () => {
       try {
@@ -49,18 +70,25 @@ export default function VotePage() {
         body: JSON.stringify({ nisn, candidate_id: candidateId }),
       });
 
+      const data = await res.json(); // Ambil data json dulu untuk cek pesan error
+
       if (res.ok) {
         alert("✅ Berhasil menyimpan suara!");
-        localStorage.clear();
+        localStorage.removeItem("nisn"); // Hapus hanya NISN saja lebih aman daripada clear()
         router.push("/login"); 
       } else {
-        const data = await res.json();
+        // Jika gagal karena sudah pernah voting (already voted)
         alert("❌ Gagal: " + (data.error || "Terjadi kesalahan."));
-        localStorage.clear();
-        router.push("/login");
+        
+        // Jika errornya spesifik tentang sudah memilih, baru clear & redirect
+        if (res.status === 400 || data.error?.includes("anda sudah memilih sebelumnya")) {
+           localStorage.removeItem("nisn");
+           router.push("/login");
+        }
       }
     } catch (err) {
-      alert("⚠️ Terjadi kesalahan koneksi.");
+      // Jika hanya error koneksi, jangan clear storage dulu agar user bisa coba klik lagi
+      alert("⚠️ Terjadi kesalahan koneksi. Silakan coba lagi.");
     } finally {
       setIsProcessing(false);
     }
