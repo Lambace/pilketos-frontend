@@ -34,7 +34,7 @@
 
 .mainContent {
   flex: 1;
-  margin-left: 500px;
+  margin-left: 300px;
   padding: 40px;
   display: flex;
   justify-content: center; /* Menjaga konten tetap di tengah layar lebar */
