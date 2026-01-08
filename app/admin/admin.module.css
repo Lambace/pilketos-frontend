@@ -107,6 +107,7 @@
   /* 1. Layout menjadi susunan vertikal */
   .adminLayout {
     flex-direction: column;
+    width : 100%;
   }
 
   /* 2. Sidebar menjadi box di atas */
