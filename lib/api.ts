@@ -1,22 +1,95 @@
-const API_URL = "https://voting-backend-production-ea29.up.railway.app";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
- * Helper untuk melakukan fetch ke API dengan penanganan error standar
+ * Helper utama untuk memanggil API
  */
-async function apiFetch(endpoint: string, options: any = {}) {
-  const cleanBase = API_URL.replace(/\/$/, "");
-  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+export async function apiFetch(path: string, options: RequestInit = {}) {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  // Memastikan tidak ada double slash atau missing slash
+  const baseUrl = API_URL?.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
 
-  const res = await fetch(`${cleanBase}${cleanEndpoint}`, options);
+  const res = await fetch(`${baseUrl}${cleanPath}`, options);
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || `Error ${res.status}: Gagal menghubungi server`);
+    throw new Error(errorData.error || errorData.message || "Terjadi kesalahan pada server");
   }
   return res.json();
 }
 
-// --- 1. AUTHENTICATION ---
+/**
+ * API KANDIDAT (Ketua OSIS)
+ */
+
+// Ambil semua kandidat
+export async function getCandidates() {
+  return apiFetch("/candidates");
+}
+
+// Tambah kandidat baru (FormData untuk Foto)
+export async function addCandidate(formData: FormData) {
+  return apiFetch("/candidates", { 
+    method: "POST", 
+    body: formData 
+  });
+}
+
+// Update kandidat (Fitur tombol EDIT)
+export async function updateCandidate(id: number, formData: FormData) {
+  return apiFetch(`/candidates/${id}`, {
+    method: "PUT",
+    body: formData,
+  });
+}
+
+// Hapus kandidat (Fitur tombol DELETE)
+export async function deleteCandidate(id: number) {
+  return apiFetch(`/candidates/${id}`, {
+    method: "DELETE",
+  });
+}
+
+
+/**
+ * API SISWA (STUDENTS) - Solusi untuk Data yang Hilang
+ */
+
+// Ambil semua daftar siswa/NISN
+export async function getStudents() {
+  return apiFetch("/students");
+}
+
+// Tambah siswa manual satu per satu
+export async function addStudent(data: { nisn: string; name: string; tingkat: string; kelas: string }) {
+  return apiFetch("/students", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+// Hapus siswa
+export async function deleteStudent(id: number) {
+  return apiFetch(`/students/${id}`, {
+    method: "DELETE",
+  });
+}
+
+// Fitur IMPORT EXCEL (Mengirim array siswa ke backend)
+export async function importStudents(students: any[]) {
+  return apiFetch("/students/import", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ students }),
+  });
+}
+
+
+/**
+ * API VOTING & LOGIN
+ */
+
+// Login pakai NISN
 export async function login(nisn: string) {
   return apiFetch("/login", {
     method: "POST",
@@ -25,84 +98,29 @@ export async function login(nisn: string) {
   });
 }
 
-// --- 2. DATA SISWA ---
-export async function getStudents() {
-  return apiFetch("/students");
-}
-
-export async function addStudent(data: any) {
-  return apiFetch("/students", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-}
-
-export async function updateStudent(nisn: string, data: any) {
-  return apiFetch(`/students/${nisn}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-}
-
-export async function deleteStudent(nisn: string) {
-  return apiFetch(`/students/${nisn}`, { method: "DELETE" });
-}
-
-export async function importStudents(formData: FormData) {
-  // Untuk FormData, kita tidak menggunakan apiFetch karena 'Content-Type' diatur otomatis oleh browser
-  const res = await fetch(`${API_URL}/students/import`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Gagal import data siswa");
-  return res.json();
-}
-
-export async function downloadStudentFormat() {
-  window.location.href = `${API_URL}/students/download-format`;
-}
-
-/**
- * Menghapus semua data siswa dan data voting (Reset Total)
- */
-export async function resetAllStudents() {
-  return apiFetch("/students-reset-all", { method: "DELETE" });
-}
-
-// --- 3. DATA KANDIDAT ---
-export async function getCandidates() {
-  return apiFetch("/candidates");
-}
-
-export async function addCandidate(formData: FormData) {
-  const res = await fetch(`${API_URL}/candidates`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Gagal menambah kandidat");
-  return res.json();
-}
-
-export async function updateCandidate(id: string | number, formData: FormData) {
-  const res = await fetch(`${API_URL}/candidates/${id}`, {
-    method: "PUT",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Gagal memperbarui kandidat");
-  return res.json();
-}
-
-export async function deleteCandidate(id: string | number) {
-  return apiFetch(`/candidates/${id}`, { method: "DELETE" });
-}
-
-// --- 4. VOTING ---
-export async function submitVote(nisn: string, candidate_id: number) {
+// Kirim vote
+export async function vote(nisn: string, candidateId: number) {
   return apiFetch("/votes", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nisn, candidate_id }),
+    body: JSON.stringify({ nisn, candidate_id: candidateId }),
   });
 }
+
+// Ambil hasil vote untuk grafik/dashboard
+export async function getResults() {
+  return apiFetch("/results");
+}
+
+// Ambil pemenang
+export async function getWinner() {
+  return apiFetch("/winner");
+}
+
+// Reset seluruh suara (semua siswa bisa memilih lagi)
+export const resetAllVotes = () => 
+  apiFetch("/votes/reset-all", { method: "DELETE" });
+
+// Reset suara per siswa (siswa tertentu bisa memilih lagi)
+export const resetStudentVote = (nisn: string) => 
+  apiFetch(`/votes/reset/${nisn}`, { method: "DELETE" });
