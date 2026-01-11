@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-const API_URL = "https://pilketos-backend.vercel.app"; // ganti sesuai domain Vercel kamu
+const API_URL = "https://voting-backend-m3x97t3q3-lambaces-projects-0016ee68.vercel.app"; // ganti sesuai domain Vercel kamu
 
 interface Candidate {
     id: number;

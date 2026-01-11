@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getSettings } from "../lib/api"; // Gunakan @/ untuk path absolut atau sesuaikan path-nya
+import { getSettings } from "../lib/api";
 
 export default function Home() {
   const router = useRouter();
@@ -13,42 +13,66 @@ export default function Home() {
     const fetchSettings = async () => {
       try {
         const data = await getSettings();
-        // Backend biasanya mengirim array, ambil index pertama
+        console.log("Data dari API:", data); // Debugging
+
+        // Pastikan kita mendapatkan objek, bukan array kosong
         const s = Array.isArray(data) ? data[0] : data;
 
-        if (s) {
+        // Jika data ada (tidak null/undefined)
+        if (s && Object.keys(s).length > 0) {
           setSettings(s);
-
-          // Logika otomatis: Jika voting dibuka, langsung ke login
-          if (s.voting_status === "open" || s.voting_status === 1) {
+          if (s.voting_open === true || s.voting_open === 1) {
             router.push("/login");
           }
+        } else {
+          // JIKA API BERHASIL TAPI DATA KOSONG DI DATABASE
+          throw new Error("Data settings kosong di database");
         }
       } catch (err) {
         console.error("Gagal memuat pengaturan:", err);
+
+        // GUNAKAN DATA CADANGAN (FALLBACK) AGAR TIDAK MUNCUL ERROR 404/GAGAL
+        setSettings({
+          nama_sekolah: "NAMA SEKOLAH BELUM DIATUR",
+          tahun_pelajaran: "2024/2025",
+          warna_tema: "#2563eb",
+          voting_status: "closed",
+          tempat_pelaksanaan: "Belum diatur"
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchSettings();
-    // Hapus [API_URL] dari sini. Cukup gunakan array kosong [] 
-    // agar pengecekan hanya jalan 1x saat halaman dibuka.
   }, [router]);
 
   if (loading) {
-    return <div style={{ textAlign: "center", marginTop: "50px" }}>Memuat halaman...</div>;
+    return (
+      <div style={{ textAlign: "center", marginTop: "100px", fontFamily: "sans-serif" }}>
+        <div className="loader"></div> {/* Anda bisa tambahkan CSS loader nanti */}
+        <p>Memuat konfigurasi sistem...</p>
+      </div>
+    );
   }
 
+  // Bagian ini sekarang hampir tidak mungkin kena jika Catch sudah ada Fallback
   if (!settings) {
-    return <div style={{ textAlign: "center", marginTop: "50px" }}>Gagal memuat konfigurasi sistem.</div>;
+    return (
+      <div style={{ textAlign: "center", marginTop: "100px", fontFamily: "sans-serif" }}>
+        <p>⚠️ Sistem sedang dalam pemeliharaan.</p>
+        <button onClick={() => window.location.reload()} style={{ padding: "8px 16px", cursor: "pointer" }}>
+          Coba Lagi
+        </button>
+      </div>
+    );
   }
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px", fontFamily: "sans-serif" }}>
-      <h1 style={{ color: settings.warna_tema || "#2563eb" }}>
+      <h1 style={{ color: settings.warna_tema || "#2563eb", textTransform: "uppercase" }}>
         PEMILIHAN KETUA OSIS <br />
-        {settings.nama_sekolah?.toUpperCase()}
+        {settings.nama_sekolah}
       </h1>
 
       <div
@@ -58,6 +82,7 @@ export default function Home() {
           display: "inline-block",
           borderRadius: "12px",
           backgroundColor: "#f9f9f9",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
         }}
       >
         <p style={{ fontSize: "1.2rem", fontWeight: "bold", color: "#333" }}>

@@ -24,7 +24,7 @@ export default function AdminSettings() {
     const [message, setMessage] = useState("");
     const [isSaving, setIsSaving] = useState(false);
 
-    const API_URL = "https://voting-backend-production-ea29.up.railway.app";
+    const API_URL = "https://voting-backend-m3x97t3q3-lambaces-projects-0016ee68.vercel.app";
 
     useEffect(() => {
         fetch(`${API_URL}/settings`)

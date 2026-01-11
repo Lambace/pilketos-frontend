@@ -4,7 +4,7 @@ import { getStudents, getCandidates, getSettings } from "../../../lib/api";
 import styles from "./print.module.css";
 
 // Definisikan API URL Backend Anda
-const API_URL = "https://voting-backend-production-ea29.up.railway.app";
+const API_URL = "https://voting-backend-m3x97t3q3-lambaces-projects-0016ee68.vercel.app";
 
 export default function PrintBeritaAcara() {
     const [data, setData] = useState<any>(null);
