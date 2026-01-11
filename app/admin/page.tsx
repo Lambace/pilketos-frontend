@@ -26,6 +26,8 @@ const AdminPage = () => {
         <button onClick={() => setView("settings")}>Pengaturan</button>
       </nav>
 
+
+      
       <main className="p-6">
         {view === "dashboard" && <Dashboard />}
         {view === "students" && <StudentsTable />}
