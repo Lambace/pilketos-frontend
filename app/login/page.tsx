@@ -47,8 +47,8 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    if (nisn.length !== 10) {
-      setError("NISN harus 10 digit");
+    if (nisn.length < 5) { // Sesuaikan panjang NISN minimal jika perlu
+      setError("NISN tidak valid");
       setLoading(false);
       return;
     }
@@ -65,8 +65,8 @@ export default function LoginPage() {
         localStorage.setItem("user", JSON.stringify(data.user));
         router.push("/voting");
       }
-    } catch {
-      setError("⚠️ Tidak bisa menghubungi server.");
+    } catch (err) {
+      setError("⚠️ NISN tidak terdaftar atau terjadi gangguan server.");
     } finally {
       setLoading(false);
     }

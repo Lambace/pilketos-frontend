@@ -2,6 +2,7 @@
   display: flex;
   min-height: 100vh;
   background-color: #f4f7fa;
+  
 }
 
 .sidebar {
@@ -34,7 +35,7 @@
 
 .mainContent {
   flex: 1;
-  margin-left: 280px;
+  margin-left: 320px;
   padding: 40px;
   display: flex;
   margin-left: 350px;
@@ -110,6 +111,7 @@
   /* 1. Layout menjadi susunan vertikal */
   .adminLayout {
     flex-direction: column;
+    width : 100%;
   }
 
   /* 2. Sidebar menjadi box di atas */

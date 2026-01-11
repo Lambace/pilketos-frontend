@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL!.replace(/\/$/, "");
+// Menggunakan fallback string kosong agar tidak crash jika env belum diatur
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 /**
  * Helper fetch dengan error handling standar
@@ -60,7 +61,6 @@ export async function downloadStudentFormat() {
 }
 
 export async function resetAllStudents() {
-  // sesuai backend: DELETE /students/reset
   return apiFetch("/students/reset", { method: "DELETE" });
 }
 
@@ -82,7 +82,6 @@ export async function deleteCandidate(id: string | number) {
 }
 
 export async function resetAllCandidates() {
-  // sesuai backend: DELETE /candidates/reset
   return apiFetch("/candidates/reset", { method: "DELETE" });
 }
 
@@ -93,10 +92,9 @@ export async function submitVote(nisn: string, candidate_id: number) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nisn, candidate_id }),
   });
-}
+} // <--- Tadi Kurang Kurung Tutup di sini
 
 export async function resetAllVotes() {
-  // sesuai backend: DELETE /votes/reset
   return apiFetch("/votes/reset", { method: "DELETE" });
 }
 
@@ -110,6 +108,6 @@ export async function updateSettings(data: FormData | any) {
   return apiFetch("/settings", {
     method: "PUT",
     body: isFormData ? data : JSON.stringify(data),
-    headers: isFormData ? undefined : { "Content-Type": "application/json" },
+    headers: isFormData ? {} : { "Content-Type": "application/json" },
   });
 }

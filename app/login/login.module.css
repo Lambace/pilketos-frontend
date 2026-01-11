@@ -1,6 +1,15 @@
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin : 0;
+  padding : 0;
+}
+
 /* Container Utama */
 .loginContent {
-  min-height: 100vh;
+  min-height: auto;
   width: 100%;
   display: flex;
   flex-direction: column;
