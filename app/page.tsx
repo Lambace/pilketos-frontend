@@ -11,7 +11,7 @@ export default function Home() {
   const checkVotingStatus = async () => {
     try {
       // Kita panggil langsung URL-nya untuk memastikan
-      const res = await fetch("https://voting-backend-production-ea29.up.railway.app/settings", {
+      const res = await fetch("https://voting-backend-m3x97t3q3-lambaces-projects-0016ee68.vercel.app", {
         cache: 'no-store'
       });
       
