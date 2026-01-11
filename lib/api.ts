@@ -1,4 +1,4 @@
-// Menggunakan fallback string kosong agar tidak crash jika env belum diatur
+// 1. Ambil API URL dari env
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 /**
@@ -6,7 +6,13 @@ const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
  */
 async function apiFetch(endpoint: string, options: any = {}) {
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-  const res = await fetch(`${API_URL}${cleanEndpoint}`, {
+  // Definisikan fullUrl sebelum digunakan
+  const fullUrl = `${API_URL}${cleanEndpoint}`;
+
+  // Log untuk mempermudah debugging di Console Browser
+  console.log("Memanggil URL:", fullUrl);
+
+  const res = await fetch(fullUrl, {
     cache: "no-store",
     ...options,
   });
@@ -92,7 +98,7 @@ export async function submitVote(nisn: string, candidate_id: number) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nisn, candidate_id }),
   });
-} // <--- Tadi Kurang Kurung Tutup di sini
+}
 
 export async function resetAllVotes() {
   return apiFetch("/votes/reset", { method: "DELETE" });
