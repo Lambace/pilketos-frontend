@@ -1,0 +1,132 @@
+.container {
+    width: 210mm; 
+    margin: auto;
+    /* Memberikan ruang lega di layar */
+    padding: 5mm 35mm 15mm 35mm !important; 
+    background: white;
+    color: black;
+    font-family: "Times New Roman", serif;
+    box-sizing: border-box;
+}
+/* KOP SURAT */
+
+.kopFullWrapper {
+    width: 100%;
+    margin-bottom: 5mm; /* Jarak pas ke judul BERITA ACARA */
+    display: flex;
+    justify-content: center;
+}
+
+.imgKopFull {
+    width: 100%; /* Memaksa gambar selebar kontainer (margin kertas) */
+    height: auto;
+    display: block;
+    object-fit: contain;
+}
+.kop {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+}
+
+.logoKop {
+    width: 70px;
+    height: auto;
+}
+
+.kopText {
+    flex: 1;
+    line-height: 1.1;
+}
+
+.kopText h1 { font-size: 1.4rem; margin: 0; font-weight: bold; }
+.kopText h2 { font-size: 1.1rem; margin: 0; }
+.kopText h3 { font-size: 1rem; margin: 0; font-weight: normal; }
+.kopText p { font-size: 0.85rem; margin: 0; }
+
+.kopLine {
+    border-bottom: 4px double black;
+    margin: 8px 0 20px 0;
+}
+
+/* ISI BERITA ACARA */
+.baTitle {
+    text-align: center;
+    text-decoration: underline;
+    margin-bottom: 5px;
+    font-size: 1.2rem;
+}
+
+.baSubTitle {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 0;
+}
+
+.narrative {
+    text-align: justify;
+    line-height: 1.6; /* Spasi antar baris narasi agar nyaman dibaca */
+    margin-bottom: 15px;
+}
+
+.infoTable {
+    width: 100%;
+    margin: 15px 0;
+    border-collapse: collapse;
+}
+
+.infoTable td {
+    padding: 4px 0;
+    vertical-align: top;
+}
+
+.listKandidat {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* TANDA TANGAN */
+.signatureSection {
+    margin-top: 40px;
+    page-break-inside: avoid;
+}
+
+.dateInfo {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.sigRow {
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.sigBox {
+    width: 40%;
+}
+
+.spacer {
+    height: 75px; /* Ruang untuk tanda tangan basah/stempel */
+}
+
+/* PENGATURAN KHUSUS SAAT PRINT (PDF) */
+@media print {
+    @page {
+        /* Memaksa printer menggunakan margin 3.5cm kiri dan kanan */
+        margin: 15mm 16mm 16mm 15mm !important;
+    }
+
+    .container {
+        width: 100% !important;
+        padding: 0 !important; 
+        margin: 0 !important;
+    }
+    
+    /* Memastikan tabel dan narasi mengikuti lebar kontainer */
+    .baBody, .infoTable, .kop {
+        width: 100% !important;
+    }
+}

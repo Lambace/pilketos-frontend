@@ -1,22 +1,23 @@
-const API_URL = "https://voting-backend-production-ea29.up.railway.app";
+const API_URL = process.env.NEXT_PUBLIC_API_URL!.replace(/\/$/, "");
 
 /**
- * Helper untuk melakukan fetch ke API dengan penanganan error standar
+ * Helper fetch dengan error handling standar
  */
 async function apiFetch(endpoint: string, options: any = {}) {
-  const cleanBase = API_URL.replace(/\/$/, "");
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-
-  const res = await fetch(`${cleanBase}${cleanEndpoint}`, options);
+  const res = await fetch(`${API_URL}${cleanEndpoint}`, {
+    cache: "no-store",
+    ...options,
+  });
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || `Error ${res.status}: Gagal menghubungi server`);
+    throw new Error(errorData.error || errorData.message || `Error ${res.status}`);
   }
   return res.json();
 }
 
-// --- 1. AUTHENTICATION ---
+// --- AUTH ---
 export async function login(nisn: string) {
   return apiFetch("/login", {
     method: "POST",
@@ -25,7 +26,7 @@ export async function login(nisn: string) {
   });
 }
 
-// --- 2. DATA SISWA ---
+// --- SISWA ---
 export async function getStudents() {
   return apiFetch("/students");
 }
@@ -51,58 +52,64 @@ export async function deleteStudent(nisn: string) {
 }
 
 export async function importStudents(formData: FormData) {
-  // Untuk FormData, kita tidak menggunakan apiFetch karena 'Content-Type' diatur otomatis oleh browser
-  const res = await fetch(`${API_URL}/students/import`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Gagal import data siswa");
-  return res.json();
+  return apiFetch("/students/import", { method: "POST", body: formData });
 }
 
 export async function downloadStudentFormat() {
   window.location.href = `${API_URL}/students/download-format`;
 }
 
-/**
- * Menghapus semua data siswa dan data voting (Reset Total)
- */
 export async function resetAllStudents() {
-  return apiFetch("/students-reset-all", { method: "DELETE" });
+  // sesuai backend: DELETE /students/reset
+  return apiFetch("/students/reset", { method: "DELETE" });
 }
 
-// --- 3. DATA KANDIDAT ---
+// --- KANDIDAT ---
 export async function getCandidates() {
   return apiFetch("/candidates");
 }
 
 export async function addCandidate(formData: FormData) {
-  const res = await fetch(`${API_URL}/candidates`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Gagal menambah kandidat");
-  return res.json();
+  return apiFetch("/candidates", { method: "POST", body: formData });
 }
 
 export async function updateCandidate(id: string | number, formData: FormData) {
-  const res = await fetch(`${API_URL}/candidates/${id}`, {
-    method: "PUT",
-    body: formData,
-  });
-  if (!res.ok) throw new Error("Gagal memperbarui kandidat");
-  return res.json();
+  return apiFetch(`/candidates/${id}`, { method: "PUT", body: formData });
 }
 
 export async function deleteCandidate(id: string | number) {
   return apiFetch(`/candidates/${id}`, { method: "DELETE" });
 }
 
-// --- 4. VOTING ---
+export async function resetAllCandidates() {
+  // sesuai backend: DELETE /candidates/reset
+  return apiFetch("/candidates/reset", { method: "DELETE" });
+}
+
+// --- VOTING ---
 export async function submitVote(nisn: string, candidate_id: number) {
   return apiFetch("/votes", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nisn, candidate_id }),
+  });
+}
+
+export async function resetAllVotes() {
+  // sesuai backend: DELETE /votes/reset
+  return apiFetch("/votes/reset", { method: "DELETE" });
+}
+
+// --- SETTINGS ---
+export async function getSettings() {
+  return apiFetch("/settings");
+}
+
+export async function updateSettings(data: FormData | any) {
+  const isFormData = data instanceof FormData;
+  return apiFetch("/settings", {
+    method: "PUT",
+    body: isFormData ? data : JSON.stringify(data),
+    headers: isFormData ? undefined : { "Content-Type": "application/json" },
   });
 }

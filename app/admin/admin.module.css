@@ -37,12 +37,14 @@
   margin-left: 280px;
   padding: 40px;
   display: flex;
+  margin-left: 350px;
   justify-content: center; /* Menjaga konten tetap di tengah layar lebar */
 }
 
 .contentContainer {
   width: 100%;
-  max-width: 800px; /* Batas lebar agar tidak mepet kiri/kanan */
+  max-width: 1100px; /* Diperlebar dari 800px ke 1100px */
+  margin: 0 auto;
 }
 
 .pageTitle { font-size: 1.8rem; font-weight: 700; color: #1e293b; margin-bottom: 2rem; }
@@ -71,11 +73,13 @@
 
 /* Form Card (Centered) */
 .formCenterWrapper { display: flex; justify-content: center; padding-top: 2rem; }
-.formCard { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 500px; }
+.formCard { background: white; padding: 3rem; gap: 10px;  border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 500px; }
 .formTitle { text-align: center; margin-bottom: 2rem; color: #1e293b; }
-.formGroup { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 8px; }
-.formGroup label { font-weight: 600; color: #475569; }
-.input { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: #f8fafc; }
+.formGroup { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 8px; margin-right: 10px; padding: 10px;}
+.formGroup label { font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 0.9rem; }
+.input { width: 95%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: #f8fafc; margin-bottom: 20px; }
 .input:focus { outline: none; border-color: #1cb5e0; background: white; }
 .formActions { display: flex; gap: 10px; margin-top: 2rem; }
 .btnSubmit { flex: 2; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; }
@@ -165,7 +169,7 @@
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr; /* Tombol dibagi jadi 2 kolom agar rapi */
-    gap: 8px;
+    gap: 80px;
   }
 
   .buttonGroupLarge button {
@@ -183,5 +187,231 @@
   
   .buttonGroupLarge {
     grid-template-columns: 1fr; /* Tombol aksi jadi 1 kolom tumpuk */
+  }
+}
+/* Container Utama agar tidak melebar berantakan */
+.settingsWrapper {
+  padding: 20px;
+  width: 100%;
+  overflow-x: auto
+
+}
+
+.settingsCard {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Agar tinggi kartu seimbang */
+}
+
+.innerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.settingsGridForm {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Pastikan benar-benar 2 kolom */
+  gap: 25px;
+  width: 100%;
+}
+.formCard {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+/* Memaksa kartu tampilan mengambil 2 kolom penuh */
+.fullWidthCard {
+  grid-column: 1 / span 2;
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+/* Memaksa kontainer tombol mengambil 2 kolom penuh */
+.buttonContainer {
+  grid-column: 1 / span 2;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.btnSubmitLarge {
+  width: 100%;
+  max-width: 400px; /* Supaya tombol tidak terlalu panjang selebar layar */
+  padding: 15px 30px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+}
+
+.btnSubmitLarge:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Responsive untuk layar HP */
+@media (max-width: 768px) {
+  .settingsGridForm {
+    grid-template-columns: 1fr; /* Jadi 1 kolom saja di HP */
+  }
+  .fullWidthCard, .buttonContainer {
+    grid-column: 1;
+  }
+}
+
+/* Responsif untuk Tablet & HP */
+@media (max-width: 900px) {
+  .settingsGridForm {
+    grid-template-columns: 1fr; /* Berubah jadi 1 kolom saja */
+  }
+  .fullWidthCard {
+    grid-column: 1;
+  }
+  .innerGrid {
+    grid-template-columns: 1fr;
+  }
+}
+  
+
+/* style laporan */
+
+.reportSummaryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
+
+/* Mengatur tampilan tanda tangan */
+.printOnlySignature {
+  margin-top: 50px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.signatureGrid {
+  display: flex;
+  gap: 20px; /* Jarak antar kolom kiri dan kanan */
+  margin-top: 10px;
+}
+
+.signatureColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.signatureRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  text-align: center;
+}
+
+/* CSS Khusus Cetak */
+@media print {
+  /* Sembunyikan semua elemen navigasi dan UI admin */
+  .sidebar, .nav, .btnSecondary, .logo, .headerRow button {
+    display: none !important;
+  }
+
+  /* Reset layout utama agar tidak ada margin kiri (bekas sidebar) */
+  .adminLayout {
+    display: block !important;
+    background: white !important;
+    min-height: auto !important;
+  }
+
+  .mainContent {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .contentContainer {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Hilangkan bayangan kartu agar bersih di kertas */
+  .tableCard, .statCard {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* Perbaikan Tanda Tangan */
+  .printOnlySignature {
+    display: block !important;
+    margin-top: 30px !important;
+    page-break-inside: avoid; /* Mencegah tanda tangan terpotong ke hal 2 */
+  }
+
+  .signatureRow {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 50px; /* Memberi jarak tengah agar tidak terlalu mepet */
+  }
+
+  /* Pastikan tidak ada halaman kosong */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+/* Style untuk tampilan layar (bukan print) */
+.signatureRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  text-align: center;
+}
+
+.signatureBox {
+  width: 300px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.signatureSpace {
+  height: 90px; /* Tambahkan atau kurangi angka ini sesuai kebutuhan jarak tanda tangan */
+}
+
+.identityBox p {
+  margin: 0 !important; /* Memaksa margin jadi nol agar rapat */
+  line-height: 1.4;    /* Mengatur kerapatan baris teks */
+}
+
+/* Memastikan tulisan jabatan tetap rapi */
+.jobTitle {
+  margin-bottom: 5px;
+}
+
+.dateText {
+  margin-bottom: 0;
+}
+
+@media print {
+  .printOnlySignature {
+    margin-top: 50px;
+    page-break-inside: avoid;
   }
 }
