@@ -1,62 +1,48 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getSettings } from "../lib/api"; // Gunakan @/ untuk path absolut atau sesuaikan path-nya
 
 export default function Home() {
+  const router = useRouter();
   const [settings, setSettings] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        // Panggil endpoint /settings, bukan root /
-        const res = await fetch(`${API_URL}/settings`, {
-          cache: "no-store",
-        });
+        const data = await getSettings();
+        // Backend biasanya mengirim array, ambil index pertama
+        const s = Array.isArray(data) ? data[0] : data;
 
-        if (!res.ok) {
-          console.error("Endpoint tidak ditemukan atau server error");
-          return;
+        if (s) {
+          setSettings(s);
+
+          // Logika otomatis: Jika voting dibuka, langsung ke login
+          if (s.voting_status === "open" || s.voting_status === 1) {
+            router.push("/login");
+          }
         }
-
-        const data = await res.json();
-
-        // Handle jika data berupa array
-        setSettings(Array.isArray(data) ? data[0] : data);
       } catch (err) {
-        console.error("Gagal koneksi ke API:", err);
+        console.error("Gagal memuat pengaturan:", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchSettings();
-  }, [API_URL]);
+    // Hapus [API_URL] dari sini. Cukup gunakan array kosong [] 
+    // agar pengecekan hanya jalan 1x saat halaman dibuka.
+  }, [router]);
 
-  // Redirect ke /login jika voting terbuka
-  useEffect(() => {
-    if (!loading && settings?.voting_open === true) {
-      router.push("/login");
-    }
-  }, [loading, settings, router]);
+  if (loading) {
+    return <div style={{ textAlign: "center", marginTop: "50px" }}>Memuat halaman...</div>;
+  }
 
-  if (loading)
-    return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        <p>Memvalidasi Status Voting...</p>
-      </div>
-    );
-
-  if (settings?.voting_open === true) return null;
-
-  if (!settings)
-    return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        <p>⚠️ Gagal terhubung ke database. Pastikan backend aktif.</p>
-        <button onClick={() => window.location.reload()}>Coba Lagi</button>
-      </div>
-    );
+  if (!settings) {
+    return <div style={{ textAlign: "center", marginTop: "50px" }}>Gagal memuat konfigurasi sistem.</div>;
+  }
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px", fontFamily: "sans-serif" }}>
